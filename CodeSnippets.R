@@ -15,12 +15,12 @@ summary(spp.sp)
 class(spp.sp)
 
 # Quick plot of where these things are
-map.world <- map_data("world")
-
-ggplot(data=test.spp) +
-  coord_equal() +
-  geom_path(data=map.world, aes(x=long, y=lat, group=group)) +
-  geom_point(aes(x=decimalLongitude, y=decimalLatitude), color="red")
+# map.world <- map_data("world")
+# 
+# ggplot(data=test.spp) +
+#   coord_equal() +
+#   geom_path(data=map.world, aes(x=long, y=lat, group=group)) +
+#   geom_point(aes(x=decimalLongitude, y=decimalLatitude), color="red")
 
 
 # Reading in the rasterized HWSD downloaded from here: http://www.fao.org/soils-portal/soil-survey/soil-maps-and-databases/harmonized-world-soil-database-v12/en/ 
@@ -31,9 +31,14 @@ hwsd <- raster("~/Downloads/HWSD_RASTER/hwsd.bil")
 projection(hwsd) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
 hwsd
 
+# plot(hwsd)
+
 # Extract the HWSD soil code from the master raster
 spp.sp$hwsd_code <- extract(hwsd, spp.sp)
 summary(spp.sp)
+length(unique(spp.sp$hwsd_code))
+
+head(spp.sp)
 
 # Now we'll need to wade through the many-leveled mess that is a database.
 # I *THINK* the hwsd_code I extracted above is the "ID" OR "MU.GLOBAL" value in the HWSD_SMU data table.  These will probably get crosswalked with SU.SYMBOL and SU.CODE to get important data.  We shoudl start by trhing to get AWC (available water capactiy); ROOTS (rooting depth?) and TEXTURE values out
@@ -41,12 +46,16 @@ summary(spp.sp)
 # Trying to read the access database
 # https://stackoverflow.com/questions/37912560/programmatically-read-access-mdb-files-into-r-for-both-windows-and-mac
 # https://stackoverflow.com/questions/23568899/access-data-base-import-to-r-installation-of-mdb-tools-on-mac
+length(unique(spp.sp$hwsd_code))
+unique(spp.sp$hwsd_code)
+
 library("Hmisc")
 df <- mdb.get("~/Downloads/HWSD.mdb")
 summary(df)
+summary(df$D_ADD_PROP)
 summary(df$HWSD_SMU)
+summary(df$HWSD_DATA)
 df$D_TEXTURE
-head(df$HWSD_DATA)
 df$D_AWC
 df$D_SYMBOL
 df$D_SYMBOL90
@@ -57,6 +66,9 @@ soil.spp1 <- df$HWSD_DATA[df$HWSD_DATA$ID %in% unique(spp.sp$hwsd_code),]
 soil.spp <- merge(spp.sp[,c("decimalLongitude", "decimalLatitude", "database", "UID", "hwsd_code")], soil.spp1, by.x="hwsd_code", by.y="ID", all.x=T)
 dim(soil.spp)
 summary(soil.spp)
+
+# We seem to have a lot of texture class 12
+df$D_USDA_TEX_CLASS
 
 # db <- odbcDriverConnect("Driver={Microsoft Access Driver (*.mdb, *.accdb)};
 #                         DBQ=~/Downloads/HWSD.mdb")
