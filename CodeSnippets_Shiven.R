@@ -7,7 +7,7 @@ spp.species <- dir("/Volumes/GoogleDrive/Shared drives/IMLS MFA/occurrence_point
 # }
 
 #cannot create test.spp for some reason
-test.spp <- read.csv("/Volumes/GoogleDrive/Shared drives/IMLS MFA/occurrence_points/outputs/spp_raw_points/Quercus_lyrata.csv")
+test.spp <- read.csv("D:/spp_raw_points/spp_raw_points/Quercus_lyrata.csv")
 summary(test.spp)
 # Convert test.spp to a spatial poitns data frame
 spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
@@ -129,9 +129,9 @@ HWSD_SMU <- read.csv("D:/HWSD/HWSD_SMU.csv")
 head(HWSD_SMU)
 colnames(HWSD_DATA)
 
-D_AWC
+HWSD_DATA[HWSD_DATA$MU_GLOBAL==9696, ]
 head(HWSD_DATA)
-tail(HWSD_DATA)
+unique(HWSD_DATA$SU_SYM74)
 summary(HWSD_DATA)
 head(HWSD_SMU)
 summary(HWSD_SMU)
