@@ -2,6 +2,7 @@ library(ggplot2)
 library(rgdal); library(sp); library(raster)
 
 spp.species <- dir("/Volumes/GoogleDrive/Shared drives/IMLS MFA/occurrence_points/outputs/spp_raw_points/")
+
 # for(i in 1:length(spp.species)){
 #   spp.now <- read.csv(file.path("", spp.species[i]))
 # }
@@ -128,13 +129,75 @@ head(HWSD_DATA)
 HWSD_SMU <- read.csv("D:/HWSD/HWSD_SMU.csv")
 head(HWSD_SMU)
 colnames(HWSD_DATA)
+unique(HWSD_DATA$MU_GLOBAL)
+nrow(HWSD_DATA)
 
-HWSD_DATA[HWSD_DATA$MU_GLOBAL==9696, ]
-head(HWSD_DATA)
-unique(HWSD_DATA$SU_SYM74)
-summary(HWSD_DATA)
-head(HWSD_SMU)
-summary(HWSD_SMU)
-HWSD_SMU$MU_GLOBAL[sort(HWSD_SMU$COVERAGE)]
-HWSD_DATA[11, ]
-HWSD_DATA[12, ]
+#Goal: Create For Loop that takes largest value of T's and makes that new column like "T-Actual 1"
+
+
+HWSD_DATA$T_SAND
+HWSD_DATA$T_CLAY
+HWSD_DATA$T_SILT
+
+# #Haven't tried this out yet but will to get column names of T_SILT, T_SAND, & T_CLAY: Whichever has more
+# sum(is.na(HWSD_DATA$T_SAND))
+# sum(is.na(HWSD_DATA$T_CLAY))
+# sum(is.na(HWSD_DATA$T_SILT))
+# #Not working with NA values
+# unique(HWSD_DATA$MU_GLOBAL)
+#HWSD_DATA$T_MAJORITY <- colnames(HWSD_DATA)[max.col(HWSD_DATA,ties.method="first")]
+HWSD_DATA_MAJORITIES <- data.frame(matrix(ncol = length(colnames(HWSD_DATA))), nrow = 0)
+colnames(HWSD_DATA_MAJORITIES) <- colnames(HWSD_DATA)
+
+#For loop to create new df with only rows of unique MU_GLOBALS with highest share values but does not work
+for (i in 1:length(unique(HWSD_DATA$MU_GLOBAL))) {
+  #HWSD_DATA_SHARE_MAJORITIES[i] <- max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i]])
+  HWSD_DATA_MAJORITIES[i, ] <- HWSD_DATA[HWSD_DATA$SHARE== max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i]]) 
+                                       & HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i], ]
+}
+HWSD_DATA_MAJORITIES
+
+#work with singular values before applying to whole df
+# #Should Work because it works for a single unique MU_GLOBAL value but does not work in giant for loop: works now
+# (unique(HWSD_DATA$MU_GLOBAL))[23]
+# HWSD_DATA[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[23], ]
+# A <- HWSD_DATA[HWSD_DATA$SHARE== max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[23]]) 
+#           & HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[23], ]
+# (unique(HWSD_DATA$MU_GLOBAL))[29]
+# HWSD_DATA[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[29], ]
+# B <- HWSD_DATA[HWSD_DATA$SHARE== max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[23]]) 
+#           & HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[29], ]
+# C <- data.frame(matrix(ncol = length(colnames(HWSD_DATA))), nrow = 0)
+# colnames(C) <- colnames(HWSD_DATA)
+# #Problem occurs here because there is not enough columns in C to fit A: fixed it
+# C[1, ] <- A
+# C[2, ] <- B
+# head(C)
+
+HWSD_DATA_MAJORITIES[23,]
+head(HWSD_DATA_MAJORITIES)
+HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[721]]
+
+length(HWSD_DATA_SHARE_MAJORITIES) == length(unique(HWSD_DATA$MU_GLOBAL))
+max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL[1]])
+HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==7760]
+
+#Example of how line 147 (HWSD_DATA$T_MAJORITY assignment) should work
+DF <- matrix(sample(1:9,9),ncol=3,nrow=3)
+DF <- as.data.frame.matrix(DF)
+DF
+colnames(DF)[max.col(DF,ties.method="first")]
+
+# HWSD_DATA$T_SUM <- NA
+# for (i in 1:nrow(HWSD_DATA)){
+#   HWSD_DATA$T_SUM[i] <- HWSD_DATA$T_SAND[i] + HWSD_DATA$T_CLAY[i] + HWSD_DATA$T_SILT[i]
+# }
+# 
+# unique(HWSD_DATA$T_SUM)
+# table(HWSD_DATA$T_SUM)
+# HWSD_DATA[(HWSD_DATA$T_SUM==100), ]
+# 
+# DF <- matrix(sample(1:9,9),ncol=3,nrow=3)
+# DF <- as.data.frame.matrix(DF)
+# DF
+# colnames(DF)[max.col(DF,ties.method="first")]
