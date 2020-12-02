@@ -47,13 +47,13 @@ library("Hmisc")
 #df <- mdb.get("D:/HWSD/HWSD.mdb") #what is supposed to be inside the quotes: not working, can't get the downloads one to work either
 df1 <- read.csv("D:/HWSD/D_ADD_PROP.csv")
 head(df1)
-summary(df)
-summary(df$HWSD_SMU)
-df$D_TEXTURE
-head(df$HWSD_DATA)
-df$D_AWC
-df$D_SYMBOL
-df$D_SYMBOL90
+# summary(df)
+# summary(df$HWSD_SMU)
+# df$D_TEXTURE
+# head(df$HWSD_DATA)
+# df$D_AWC
+# df$D_SYMBOL
+# df$D_SYMBOL90
 
 # Now we'll use the code we extracted to crosswalk things
 #NOTE NOTE NOTE: I COULD HAVE THE COLUMN CROSSWALK WRONG
@@ -155,7 +155,8 @@ for (i in 1:length(unique(HWSD_DATA$MU_GLOBAL))) {
   HWSD_DATA_MAJORITIES[i, ] <- HWSD_DATA[HWSD_DATA$SHARE== max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i]]) 
                                        & HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i], ]
 }
-HWSD_DATA_MAJORITIES
+head(HWSD_DATA_MAJORITIES)
+write.csv(HWSD_DATA_MAJORITIES, "D:/HWSD/HWSD_DATA_MAJORITIES.csv", row.names= FALSE)
 
 #work with singular values before applying to whole df
 # #Should Work because it works for a single unique MU_GLOBAL value but does not work in giant for loop: works now
@@ -182,11 +183,11 @@ length(HWSD_DATA_SHARE_MAJORITIES) == length(unique(HWSD_DATA$MU_GLOBAL))
 max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL[1]])
 HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==7760]
 
-#Example of how line 147 (HWSD_DATA$T_MAJORITY assignment) should work
-DF <- matrix(sample(1:9,9),ncol=3,nrow=3)
-DF <- as.data.frame.matrix(DF)
-DF
-colnames(DF)[max.col(DF,ties.method="first")]
+# #Example of how line 147 (HWSD_DATA$T_MAJORITY assignment) should work
+# DF <- matrix(sample(1:9,9),ncol=3,nrow=3)
+# DF <- as.data.frame.matrix(DF)
+# DF
+# colnames(DF)[max.col(DF,ties.method="first")]
 
 # HWSD_DATA$T_SUM <- NA
 # for (i in 1:nrow(HWSD_DATA)){
