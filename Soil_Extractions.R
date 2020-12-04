@@ -1,3 +1,6 @@
+#changed entire script (file paths) so that it uses the occurrence points without the issues
+#columns were: taxonIdentificationNotes, localityDescription, county, stateProvince
+
 library(ggplot2)
 library(rgdal); library(sp); library(raster)
 
@@ -8,7 +11,7 @@ spp.species <- dir("/Volumes/GoogleDrive/Shared drives/IMLS MFA/occurrence_point
 # }
 
 #cannot create test.spp for some reason
-test.spp <- read.csv("D:/spp_raw_points/spp_raw_points/Quercus_lyrata.csv")
+test.spp <- read.csv("D:/spp_raw_points/spp_raw_points2/Quercus_lyrata.csv")
 summary(test.spp)
 # Convert test.spp to a spatial poitns data frame
 spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
@@ -50,10 +53,10 @@ spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="ï..CODE", all.x=TRUE)
 names(spp.sp)[names(spp.sp)=="VALUE"] <- "AWC_VALUE"
 summary(spp.sp)
 
-spp.species <- dir("D:/spp_raw_points/spp_raw_points/")
+spp.species <- dir("D:/spp_raw_points/spp_raw_points2/")
 
 for (i in 1:length(spp.species)) {
-  test.spp <- read.csv(file.path("D:/spp_raw_points/spp_raw_points/", spp.species[i]))
+  test.spp <- read.csv(file.path("D:/spp_raw_points/spp_raw_points2/", spp.species[i]))
   spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
   spp.sp$hwsd_code <- extract(hwsd, spp.sp)
   summary(spp.sp)
@@ -66,5 +69,5 @@ for (i in 1:length(spp.species)) {
   spp.sp$AWC_CLASS <- as.factor(spp.sp$AWC_CLASS)
   spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="ï..CODE", all.x=TRUE)
   names(spp.sp)[names(spp.sp)=="VALUE"] <- "AWC_VALUE"
-  write.csv(spp.sp, file.path("D:/Data_IMLS_Ecological_Value/Soil_Extract/", spp.species[i]), row.names = FALSE)
+  write.csv(spp.sp, file.path("D:/Data_IMLS_Ecological_Value/Soil_Extracts2/", spp.species[i]), row.names = FALSE)
 }

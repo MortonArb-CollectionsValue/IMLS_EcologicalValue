@@ -1,3 +1,6 @@
+#changed entire script (file paths) so that it uses the occurrence points without the issues
+#columns were: taxonIdentificationNotes, localityDescription, county, stateProvince
+
 library(ggplot2)
 library(rgdal); library(sp); library(raster)
 library(maps)
@@ -12,14 +15,14 @@ names(ecos)
 class(ecos)
 head(ecos)
 
-spp.species <- dir("D:/spp_raw_points/spp_raw_points/")
+spp.species <- dir("D:/spp_raw_points/spp_raw_points2/")
 spp.species
 
 for (i in 1:length(spp.species)) {
-  test.spp <- read.csv(file.path("D:/spp_raw_points/spp_raw_points/", spp.species[i]))
+  test.spp <- read.csv(file.path("D:/spp_raw_points/spp_raw_points2/", spp.species[i]))
   spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
   test.extract <- over(ecos, spp.sp)
-  write.csv(test.extract, file.path("D:/Data_IMLS_Ecological_Value/Biome_Extract/", spp.species[i]), row.names = FALSE)
+  write.csv(test.extract, file.path("D:/Data_IMLS_Ecological_Value/Biome_Extracts2/", spp.species[i]), row.names = FALSE)
 }
 
 # #downloaded individual file to computer instead of using whole folder on hard drive
