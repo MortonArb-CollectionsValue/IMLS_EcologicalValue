@@ -12,6 +12,9 @@ path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 # path.occ <- "D:/spp_raw_points/spp_raw_points2/"
 path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
 
+# path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
+path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Soil_Extract/")
+
 # This folder has both the HWSD_RASTER folder and the .mdb (or .csv files)
 path.hwsd <- file.path("data_raw/hwsd/")
 
@@ -45,19 +48,17 @@ pb <- txtProgressBar(min=0, max=length(spp.species), style=3)
 for (i in 1:length(spp.species)) {
   setTxtProgressBar(pb, i)
   
-  test.spp <- read.csv(file.path(path.occ, spp.species[i]))
+  test.spp <- read.csv(file.path(path.occ, spp.species[i]), stringsAsFactors = T)
   test.spp <- test.spp[!is.na(test.spp$UID),cols.keep]
   spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
+  
   spp.sp$hwsd_code <- extract(hwsd, spp.sp)
-  summary(spp.sp)
-  head(spp.sp)
-  spp.sp <- merge(spp.sp, hwsd.maj, by.x="hwsd_code", by.y="MU_GLOBAL", all.x=TRUE)
-  spp.sp$SU_SYM74 <-  as.factor(spp.sp$SU_SYM74)
-  spp.sp$SU_SYM85 <-  as.factor(spp.sp$SU_SYM85)
-  spp.sp$SU_SYM90 <-  as.factor(spp.sp$SU_SYM90)
-  spp.sp$ROOTS <- as.factor(spp.sp$ROOTS)
-  spp.sp$AWC_CLASS <- as.factor(spp.sp$AWC_CLASS)
-  spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="?..CODE", all.x=TRUE)
+  # summary(spp.sp)
+  # head(spp.sp)
+  spp.sp <- merge(spp.sp, hwsd.maj, by.x="hwsd_code", by.y="MU.GLOBAL", all.x=TRUE)
+  # spp.sp$AWC.CLASS <- as.factor(spp.sp$AWC.CLASS)
+  spp.sp <- merge(spp.sp, dat.hwsd$D_AWC, by.x="AWC.CLASS", by.y="CODE", all.x=TRUE)
   names(spp.sp)[names(spp.sp)=="VALUE"] <- "AWC_VALUE"
-  write.csv(spp.sp, file.path("D:/Data_IMLS_Ecological_Value/Soil_Extracts2/", spp.species[i]), row.names = FALSE)
+  
+  write.csv(spp.sp, file.path(path.out, spp.species[i]), row.names = FALSE)
 }
