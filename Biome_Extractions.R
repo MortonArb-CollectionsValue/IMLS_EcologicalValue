@@ -24,7 +24,7 @@ map.world <- map_data("world")
 
 # Reading in the ecoregion file
 ecos <- readOGR("data_raw/ecoregions_wwf/official/wwf_terr_ecos.shp")
-ecos$BIOME_NAME <- car::recode(ecose$BIOME, 
+ecos$BIOME_NAME <- car::recode(ecos$BIOME, 
                                "'1'='Tropical & Subtropical Moist Broadleaf Forests'; 
                                '2'='Tropical & Subtropical Dry Broadleaf Forests';
                                '3'='Tropical & Subtropical Coniferous Forests';
@@ -47,8 +47,8 @@ head(ecos)
 spp.species <- dir(path.occ)
 spp.species
 
-cols.keep <- c("taxon_name", "database", "all_source_databases", "year", "basisOfRecord", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters", "nativeDatabaseID", "UID", "country.name", "country.continent")
-ecos.keep <- c("ECO_NAME", "REALM", "BIOME", "ECO_NUM", "ECO_ID", "ECO_SYM", "eco_code")
+cols.keep <- c("UID", "species_name_acc", "database", "all_source_databases", "year", "basisOfRecord", "establishmentMeans", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters", "nativeDatabaseID", "country.name", "country.continent")
+ecos.keep <- c("ECO_NAME", "REALM", "BIOME", "BIOME_NAME", "ECO_NUM", "ECO_ID", "ECO_SYM", "G200_REGIO", "G200_NUM", "G200_BIOME", "eco_code")
 
 pb <- txtProgressBar(min=0, max=length(spp.species), style=3)
 for (i in 1:length(spp.species)) {
@@ -58,8 +58,9 @@ for (i in 1:length(spp.species)) {
   spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
   
   test.extract <- over(spp.sp, ecos)
-  test.spp[,c(ecos.keep)]
-  write.csv(test.extract, file.path(path.out, spp.species[i]), row.names = FALSE)
+  test.spp[,ecos.keep] <- test.extract[,ecos.keep]
+  
+  write.csv(test.spp, file.path(path.out, spp.species[i]), row.names = FALSE)
 }
 
 # #downloaded individual file to computer instead of using whole folder on hard drive
