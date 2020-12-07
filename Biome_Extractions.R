@@ -47,6 +47,7 @@ spp.species <- dir(path.occ)
 spp.species
 
 cols.keep <- c("taxon_name", "database", "all_source_databases", "year", "basisOfRecord", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters", "nativeDatabaseID", "UID", "country.name", "country.continent")
+ecos.keep <- c("ECO_NAME", "REALM", "BIOME", "ECO_NUM", "ECO_ID", "ECO_SYM", "eco_code")
 
 pb <- txtProgressBar(min=0, max=length(spp.species), style=3)
 for (i in 1:length(spp.species)) {
@@ -54,8 +55,9 @@ for (i in 1:length(spp.species)) {
   test.spp <- read.csv(file.path(path.occ, spp.species[i]), stringsAsFactors = T)
   test.spp <- test.spp[!is.na(test.spp$UID),cols.keep]
   spp.sp <- SpatialPointsDataFrame(coords=test.spp[,c("decimalLongitude", "decimalLatitude")], data=test.spp, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
-  test.extract <- over(ecos, spp.sp)
   
+  test.extract <- over(spp.sp, ecos)
+  test.spp[,c(ecos.keep)]
   write.csv(test.extract, file.path(path.out, spp.species[i]), row.names = FALSE)
 }
 
