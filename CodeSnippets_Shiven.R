@@ -219,8 +219,8 @@ spp.species
 
 #loop to do this for each species
 for (i in 1:length(spp.species)) {
-  species_raw <- read.csv(file.path("D:/spp_raw_points/spp_raw_points/", spp.species[i]))
+  species_raw <- read.csv(file.path("D:/spp_raw_points/spp_edited_points_Extracted/spp_edited_points/", spp.species[i]))
   species_raw <- subset(species_raw, select = -c(localityDescription, taxonIdentificationNotes,
                                                  county, stateProvince))
-  write.csv(species_raw, file.path("D:/spp_raw_points/spp_raw_points2/", spp.species[i]), row.names = FALSE)
+  write.csv(species_raw, file.path("D:/spp_raw_points/spp_edited_points_Extracted2/", spp.species[i]), row.names = FALSE)
 }

@@ -8,16 +8,17 @@ library(rgdal); library(sp); library(raster)
 path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
-# path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+path.occ <- "D:/spp_raw_points/spp_edited_points_Extracted2"
+#path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
 
 # This folder has both the HWSD_RASTER folder and the .mdb (or .csv files)
 path.hwsd <- file.path("data_raw/hwsd/")
 
 spp.species <- dir(path.occ)
 
-
-hwsd <- raster(file.path(path.hwsd, "HWSD_RASTER/hwsd.bil"))
+#original hwsd raster file path was not working
+#hwsd <- raster(file.path(path.hwsd, "HWSD_RASTER/hwsd.bil"))
+hwsd <- raster ("/Users/tardi/Downloads/HWSD_RASTER/hwsd.bil")
 projection(hwsd) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
 hwsd
 
@@ -37,11 +38,18 @@ spp.sp$ROOTS <- as.factor(spp.sp$ROOTS)
 spp.sp$AWC_CLASS <- as.factor(spp.sp$AWC_CLASS)
 spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="?..CODE", all.x=TRUE)
 names(spp.sp)[names(spp.sp)=="VALUE"] <- "AWC_VALUE"
+
 summary(spp.sp)
 
 spp.species <- dir(path.occ)
 
+# Columns to keep from the occurrence point file
+cols.keep <- c("UID", "species_name_acc", "database", "all_source_databases", "year", "basisOfRecord", "establishmentMeans", "decimalLatitude", 
+               "decimalLongitude", "coordinateUncertaintyInMeters", "nativeDatabaseID", "country.name", "country.continent")
+colnames(spp.sp)
+
 pb <- txtProgressBar(min=0, max=length(spp.species), style=3)
+
 for (i in 1:length(spp.species)) {
   setTxtProgressBar(pb, i)
   
@@ -56,7 +64,7 @@ for (i in 1:length(spp.species)) {
   spp.sp$SU_SYM90 <-  as.factor(spp.sp$SU_SYM90)
   spp.sp$ROOTS <- as.factor(spp.sp$ROOTS)
   spp.sp$AWC_CLASS <- as.factor(spp.sp$AWC_CLASS)
-  spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="?..CODE", all.x=TRUE)
+  spp.sp <- merge(spp.sp, D_AWC, by.x="AWC_CLASS", by.y="ï..CODE", all.x=TRUE)
   names(spp.sp)[names(spp.sp)=="VALUE"] <- "AWC_VALUE"
   write.csv(spp.sp, file.path("D:/Data_IMLS_Ecological_Value/Soil_Extracts2/", spp.species[i]), row.names = FALSE)
 }

@@ -9,24 +9,23 @@ library(Hmisc)
 path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
-# path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+path.occ <- "D:/spp_raw_points/spp_raw_points2/"
+#path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
 
-# path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
-path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Soil_Extract/")
+path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
+#path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Soil_Extract/")
 
 # This folder has both the HWSD_RASTER folder and the .mdb (or .csv files)
 path.hwsd <- file.path("data_raw/hwsd/")
-
 spp.species <- dir(path.occ)
 
-
-hwsd <- raster(file.path(path.hwsd, "HWSD_RASTER/hwsd.bil"))
+#changed the raster file path because original was not extracted
+hwsd <- raster(file.path("D:/HWSD_RASTER_Extracted/hwsd.bil"))
 projection(hwsd) <- CRS("+proj=longlat +datum=WGS84 +no_defs")
 hwsd
 
 #Loading in each unique MU_GLOBAL majority SHARE values
-dat.hwsd <- mdb.get(file.path(path.hwsd, "HWSD.mdb"))
+dat.hwsd <- mdb.get(file.path("D:/HWSD/HWSD.mdb"))
 hwsd.maj <- data.frame(MU.GLOBAL=unique(dat.hwsd$HWSD_DATA$MU.GLOBAL))
 cols.pull <- names(dat.hwsd$HWSD_DATA)[3:ncol(dat.hwsd$HWSD_DATA)]
 

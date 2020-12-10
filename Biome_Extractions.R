@@ -13,17 +13,18 @@ library(maps)
 path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
-# path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+path.occ <- "D:/spp_raw_points/spp_raw_points2/"
+#path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
 
-# path.out <- "D:/Data_IMLS_Ecological_Value/Biome_Extracts2/"
-path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Biome_Extract/")
+path.out <- "D:/Data_IMLS_Ecological_Value/Biome_Extracts2/"
+#path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Biome_Extract/")
 
 # Quick plot of where these things are
 map.world <- map_data("world")
 
 # Reading in the ecoregion file
-ecos <- readOGR("data_raw/ecoregions_wwf/official/wwf_terr_ecos.shp")
+#ecos <- readOGR("data_raw/ecoregions_wwf/official/wwf_terr_ecos.shp")
+ecos <- readOGR("D:/official/wwf_terr_ecos.shp")
 ecos$BIOME_NAME <- car::recode(ecos$BIOME, 
                                "'1'='Tropical & Subtropical Moist Broadleaf Forests'; 
                                '2'='Tropical & Subtropical Dry Broadleaf Forests';
@@ -46,11 +47,17 @@ head(ecos)
 
 spp.species <- dir(path.occ)
 spp.species
+length(spp.species)
+
+test.spp.1 <- read.csv(file.path(path.occ, spp.species[1]), stringsAsFactors = T)
+colnames(test.spp.1)
+colnames(ecos)
 
 cols.keep <- c("UID", "species_name_acc", "database", "all_source_databases", "year", "basisOfRecord", "establishmentMeans", "decimalLatitude", "decimalLongitude", "coordinateUncertaintyInMeters", "nativeDatabaseID", "country.name", "country.continent")
 ecos.keep <- c("ECO_NAME", "REALM", "BIOME", "BIOME_NAME", "ECO_NUM", "ECO_ID", "ECO_SYM", "G200_REGIO", "G200_NUM", "G200_BIOME", "eco_code")
 
 pb <- txtProgressBar(min=0, max=length(spp.species), style=3)
+
 for (i in 1:length(spp.species)) {
   setTxtProgressBar(pb, i)
   test.spp <- read.csv(file.path(path.occ, spp.species[i]), stringsAsFactors = T)
