@@ -150,7 +150,7 @@ HWSD_DATA_MAJORITIES <- data.frame(matrix(ncol = length(colnames(HWSD_DATA))), n
 colnames(HWSD_DATA_MAJORITIES) <- colnames(HWSD_DATA)
 
 #For loop to create new df with only rows of unique MU_GLOBALS with highest share values but does not work
-for (i in 1:length(unique(HWSD_DATA$MU_GLOBAL))) {
+#for (i in 1:length(unique(HWSD_DATA$MU_GLOBAL))) {
   #HWSD_DATA_SHARE_MAJORITIES[i] <- max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i]])
   HWSD_DATA_MAJORITIES[i, ] <- HWSD_DATA[HWSD_DATA$SHARE== max(HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i]]) 
                                        & HWSD_DATA$MU_GLOBAL==(unique(HWSD_DATA$MU_GLOBAL))[i], ]
@@ -202,3 +202,25 @@ HWSD_DATA$SHARE[HWSD_DATA$MU_GLOBAL==7760]
 # DF <- as.data.frame.matrix(DF)
 # DF
 # colnames(DF)[max.col(DF,ties.method="first")]
+
+
+#trying to remake the occurence points without the specific column values
+Data.Tilia_platyphyllos <- read.csv("D:/spp_raw_points/spp_raw_points/Tilia_platyphyllos.csv")
+colnames(Data.Tilia_platyphyllos)
+unique(Data.Malus_asiatica$taxonIdentificationNotes)
+Data.Malus_asiatica <- subset(Data.Malus_asiatica, select = -c(localityDescription, taxonIdentificationNotes,
+                                                               county, stateProvince))
+(Data.Malus_asiatica)
+tail(spp.species)
+spp.species[1]
+
+spp.species <- spp.species[!spp.species %in% "Morton_Arb.csv"]
+spp.species
+
+#loop to do this for each species
+for (i in 1:length(spp.species)) {
+  species_raw <- read.csv(file.path("D:/spp_raw_points/spp_edited_points_Extracted/spp_edited_points/", spp.species[i]))
+  species_raw <- subset(species_raw, select = -c(localityDescription, taxonIdentificationNotes,
+                                                 county, stateProvince))
+  write.csv(species_raw, file.path("D:/spp_raw_points/spp_edited_points_Extracted2/", spp.species[i]), row.names = FALSE)
+}
