@@ -3,17 +3,87 @@ library("dplyr"); library("plyr"); library("readr")
 library(ggplot2)
 library(rgdal); library(sp); library(raster)
 library(Hmisc)
+library(data.table)
 
-##tried to combine all different species into 1 df: not sure if this actually worked
+#Creating dfs that combine every species in each collection
+#Malus Collection
+malus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+                        pattern = "Malus", full.names = TRUE)
+soilcols <- names(read.csv(malus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+malus_all <-  lapply(malus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+head(malus_all)
+tail(malus_all)
+
+#Quercus Collection
+quercus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+                         pattern = "Quercus", full.names = TRUE)
+soilcols <- names(read.csv(quercus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+quercus_all <-  lapply(quercus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+head(quercus_all)
+tail(quercus_all)
+
+#Tilia Collection
+tilia_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+                           pattern = "Tilia", full.names = TRUE)
+soilcols <- names(read.csv(tilia_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+tilia_all <-  lapply(tilia_soil, read.csv, colClasses=coltype) %>% bind_rows()
+head(tilia_all)
+tail(tilia_all)
+
+#Ulmus Collection
+ulmus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+                           pattern = "Ulmus", full.names = TRUE)
+soilcols <- names(read.csv(ulmus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+ulmus_all <-  lapply(ulmus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+head(ulmus_all)
+tail(ulmus_all)
+
+# #tried to combine all different species into 1 df: not sure if this actually worked, would need to do it for each genus
 # read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/")
 # 
-# data_all <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract",     # Identify all csv files in folder
-#                        pattern = "*.csv", full.names = TRUE) %>% 
+# data_malus <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract",     # Identify all csv files in folder
+#                          pattern = "Malus", full.names = TRUE) %>%
 #   lapply(read_csv) %>%                                            # Store all files in list
-#   bind_rows                                                       # Combine data sets into one data set 
-# data_all 
-# as.data.frame(data_all) 
+#   bind_rows                                                       # Combine data sets into one data set
+# data_malus
+# as.data.frame(data_malus)
+# 
+# data_quercus <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract",     # Identify all csv files in folder
+#                        pattern = "Quercus", full.names = TRUE) %>%
+#   lapply(read_csv) %>%                                            # Store all files in list
+#   bind_rows                                                       # Combine data sets into one data set
+# data_quercus
+# as.data.frame(data_quercus)
+# 
+# data_tilia <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract",     # Identify all csv files in folder
+#                          pattern = "Tilia", full.names = TRUE) %>%
+#   lapply(read_csv) %>%                                            # Store all files in list
+#   bind_rows                                                       # Combine data sets into one data set
+# data_tilia
+# as.data.frame(data_tilia)
+# 
+# data_ulmus <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract",     # Identify all csv files in folder
+#                          pattern = "Ulmus", full.names = TRUE) %>%
+#   lapply(read_csv) %>%                                            # Store all files in list
+#   bind_rows                                                       # Combine data sets into one data set
+# data_ulmus
+# as.data.frame(data_ulmus)
 
+##example code from Lucien
+# bud.files <- list.files(path = "../data_processed/model_output/", pattern = "OldTT_model_budburst.csv", full.names = T)
+# bud.stats <- as.data.frame(sapply(bud.files, read.csv, simplify=FALSE) %>% bind_rows(.id = "id"))
 
 Soil_Malus_asiatica <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_asiatica.csv")
 Soil_Malus_angustifolia <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_angustifolia.csv")
