@@ -168,22 +168,52 @@ total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all)
 head(total)
 tail(total)
 
-#creating a column for the genus by extracting genus from species_name_acc
-for (i in 1:nrow(total)) {             #don't understand why this isn't working
-  total$Genus[i] <- word(total$species_name_acc[i], 1)
-}
+# #Experimenting with word function: should work
+# word(total$species_name_acc[1], 1) #should be malus
+# total$species_name_acc[1]
+# word(total$species_name_acc[100000], 1) #should be quercus
+# total$species_name_acc[100000]
+# word(total$species_name_acc[1100000], 1) #should be tilia
+# total$species_name_acc[1100000]
+# word(total$species_name_acc[1400000], 1) #should be ulmus
+# total$species_name_acc[1400000]
+# 
+# 
+# #creating a column for the genus by extracting genus from species_name_acc
+# total$Genus <- 0
+# for (i in 1:nrow(total)) {             #don't understand why this isn't working
+#   total$Genus[i] <- word(total$species_name_acc[i], 1)
+# }
+# head(total)
+
+# #testing to see where the error is/when it stopped
+# total$Genus[1] #should be malus
+# sum(word(total$species_name_acc, 1)=="Malus") #number of malus rows
+# total$Genus[51525] #should be quercus
+# sum(word(total$species_name_acc, 1)=="Quercus") #number of quercus rows
+# total$Genus[1089426]  #did not reach the tilia yet
+# sum(word(total$species_name_acc, 1)=="Tilia") #number of quercus rows
+# total$Genus[1089426]  #did not reach the tilia yet
+# tail(total)
+#Haven't actually seen the df when the for loop ends but I am making a csv because that might be faster than needing 
+  #to run it each time I use script 
+
+#Lucien's code that vectorizes species_name_acc into genus & species:
+total <- tidyr::separate(total, col = "species_name_acc", into=c("genus", "species"))
 tail(total)
+
+Unique_genus <- unique(total$genus)
 
 # single selection of column: only works for 1 species so far
 shinyApp(
   ui = fluidPage(
-    varSelectInput("Genus", "Genus:", total$Genus),
-    varSelectInput("variable", "Variable:", malus_all[27:70]),
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(Unique_genus))),
+    varSelectInput("Variable", "Variable:", total[27:70]),
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      ggplot(total[total$Genus==input$Genus], aes(species_name_acc, !!input$variable)) + geom_boxplot() + 
+      ggplot(total[total$genus==input$Genus, ], aes(species, !!input$Variable)) + geom_boxplot() + 
         theme(axis.text.x = element_text(angle = 90, hjust = 1))
     })
   }
