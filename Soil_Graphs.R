@@ -84,12 +84,13 @@ tail(ulmus_all)
 ##example code from Lucien
 # bud.files <- list.files(path = "../data_processed/model_output/", pattern = "OldTT_model_budburst.csv", full.names = T)
 # bud.stats <- as.data.frame(sapply(bud.files, read.csv, simplify=FALSE) %>% bind_rows(.id = "id"))
-
-Soil_Malus_asiatica <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_asiatica.csv")
-Soil_Malus_angustifolia <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_angustifolia.csv")
-class(Soil_Malus_angustifolia$nativeDatabaseID)
-Soil_Malus_asiatica
-class(Soil_Malus_asiatica$nativeDatabaseID)
+# 
+# #original testing with individual species to make graphs
+# Soil_Malus_asiatica <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_asiatica.csv")
+# Soil_Malus_angustifolia <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Test/Malus_angustifolia.csv")
+# class(Soil_Malus_angustifolia$nativeDatabaseID)
+# Soil_Malus_asiatica
+# class(Soil_Malus_asiatica$nativeDatabaseID)
 
 # #tried to combine 2 different species into 1 df
 # data_all <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Test",     # Identify all csv files in folder
@@ -148,27 +149,42 @@ spp.traits
 #didn't know which packages I needed for shiny so I just loaded them all
 library(googlesheets4)
 library(rgeos) # spatial analysis packages
-library(grid) # graphing packages
 library(lubridate)
 library(car)
 library(ggmap)
 library(xts)
 library(tigris)
 library(shiny); library(shinydashboard); library(shinyWidgets)
-library(htmltools)
 library(stringr)
 
-colnames(Soil_Malus_asiatica)
+#combining data frames of different genus to allow for dropdown chooser in shiny
+#Should I change the name of the data frame from total?
+library(data.table)
+head(malus_all)
+head(quercus_all)
+head(tilia_all)
+head(ulmus_all)
+total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all)
+head(total)
+tail(total)
+
+#creating a column for the genus by extracting genus from species_name_acc
+for (i in 1:nrow(total)) {             #don't understand why this isn't working
+  total$Genus[i] <- word(total$species_name_acc[i], 1)
+}
+tail(total)
 
 # single selection of column: only works for 1 species so far
 shinyApp(
   ui = fluidPage(
-    varSelectInput("variable", "Variable:", Soil_Malus_asiatica[27:70]),
+    varSelectInput("Genus", "Genus:", total$Genus),
+    varSelectInput("variable", "Variable:", malus_all[27:70]),
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      ggplot(Soil_Malus_asiatica, aes(species_name_acc, !!input$variable)) + geom_boxplot()
+      ggplot(total[total$Genus==input$Genus], aes(species_name_acc, !!input$variable)) + geom_boxplot() + 
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
     })
   }
 )
