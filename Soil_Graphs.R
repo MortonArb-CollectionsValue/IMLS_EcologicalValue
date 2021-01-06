@@ -50,12 +50,16 @@ ulmus_all <-  lapply(ulmus_soil, read.csv, colClasses=coltype) %>% bind_rows()
 head(ulmus_all)
 tail(ulmus_all)
 
+#loading in the Morton Arb Data for horizontal line in shiny app graph
+MortonArb_Data <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/0_MortonArb.csv")
+MortonArb_Data
+
 #package for shiny
 library(shiny); library(shinydashboard); library(shinyWidgets)
 
 #combining data frames of different genus to allow for dropdown chooser in shiny
 library(data.table)
-total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all)
+total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all, MortonArb_Data)
 head(total)
 tail(total)
 
@@ -63,23 +67,39 @@ tail(total)
 total <- tidyr::separate(total, col = "species_name_acc", into=c("genus", "species"))
 tail(total)
 
-MortonArb_Data <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/0_MortonArb.csv")
+#example of hor. line working with non-ggplot
+chickwts
+boxplot(chickwts$weight ~ chickwts$feed)
+abline(h=chickwts$weight[1], col = "Red")
 
-Unique_genus <- unique(total$genus)
+#example of hor.lin working with ggplot when using 2 different sets of data
+library(dslabs)
+murders
+ggplot(data=murders) + geom_boxplot(data=murders[murders$state!="Texas", ], aes(murders$region[murders$state!="Texas"], murders$total[murders$state!="Texas"])) +
+  geom_hline(yintercept=murders$total[44], color= "red")
 
+#trouble shooting: possible with ggplot, possible to make horizontal line
 #boxplot that displays dropdown for genus & variable
 shinyApp(
   ui = fluidPage(
-    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(Unique_genus))),
-    varSelectInput("Variable", "Variable:", total[27:70]),
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus)))),
+    varSelectInput("Variable", "Variable:", total[27:70]), #when I made it select input it took forever to load
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      ggplot(total[total$genus==input$Genus, ], aes(species, !!input$Variable)) + geom_boxplot() + 
-        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      # ggplot(total) +
+      #   geom_boxplot(data=total[total$genus==input$Genus, ], aes(total$species[total$genus==input$Genus], !!input$Variable[total$genus==input$Genus])) + 
+      #   geom_hline(yintercept=input$Variable[1467381], color="red") +
+      #   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      
+     # what original looked like
+       ggplot(total) +
+       geom_boxplot(data=total, aes(total$species, !!input$Variable)) +
+         geom_hline(data=MortonArb_Data, yintercept=MortonArb_Data$Variable, color="red") +
+         theme(axis.text.x = element_text(angle = 90, hjust = 1))
     })
   }
 )
 
-shinyApp(ui, server)
+   shinyApp(ui, server)
