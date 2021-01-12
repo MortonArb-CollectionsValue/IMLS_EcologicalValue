@@ -67,37 +67,24 @@ tail(total)
 total <- tidyr::separate(total, col = "species_name_acc", into=c("genus", "species"))
 tail(total)
 
-#example of hor. line working with non-ggplot
-chickwts
-boxplot(chickwts$weight ~ chickwts$feed)
-abline(h=chickwts$weight[1], col = "Red")
 
-#example of hor.lin working with ggplot when using 2 different sets of data
-library(dslabs)
-murders
-ggplot(data=murders) + geom_boxplot(data=murders[murders$state!="Texas", ], aes(murders$region[murders$state!="Texas"], murders$total[murders$state!="Texas"])) +
-  geom_hline(yintercept=murders$total[44], color= "red")
-
-#trouble shooting: possible with ggplot, possible to make horizontal line
-#boxplot that displays dropdown for genus & variable
+#boxplot/violinplot that displays dropdown for genus & variable
+#horizontal redline displaying Arb's value
 shinyApp(
   ui = fluidPage(
-    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus)))),
-    varSelectInput("Variable", "Variable:", total[27:70]), #when I made it select input it took forever to load
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus[!total$genus=="MortonArb"])))),
+    selectInput("Variable", "Variable:", list(Variable=names(total)[28:71])),
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      # ggplot(total) +
-      #   geom_boxplot(data=total[total$genus==input$Genus, ], aes(total$species[total$genus==input$Genus], !!input$Variable[total$genus==input$Genus])) + 
-      #   geom_hline(yintercept=input$Variable[1467381], color="red") +
-      #   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      total$VAR.GRAPH <- total[,input$Variable]
+      # what original looked like
+      ggplot(total[total$genus==input$Genus, ]) +
+        geom_violin(data=total[total$genus==input$Genus, ], aes(x=species, y=VAR.GRAPH), scale = "width") + #can be boxplots or violin plot
+        geom_hline(data=total[total$UID=="MORTONARB",], aes(yintercept=VAR.GRAPH), color="red") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
       
-     # what original looked like
-       ggplot(total) +
-       geom_boxplot(data=total, aes(total$species, !!input$Variable)) +
-         geom_hline(data=MortonArb_Data, yintercept=MortonArb_Data$Variable, color="red") +
-         theme(axis.text.x = element_text(angle = 90, hjust = 1))
     })
   }
 )
