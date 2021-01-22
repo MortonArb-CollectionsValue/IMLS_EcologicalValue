@@ -7,7 +7,9 @@ library(data.table)
 
 #Creating dfs that combine every species in each collection
 #Malus Collection
-malus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract"
+path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+malus_soil <- list.files(path = path.dat, 
                         pattern = "Malus", full.names = TRUE)
 soilcols <- names(read.csv(malus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -18,7 +20,7 @@ head(malus_all)
 tail(malus_all)
 
 #Quercus Collection
-quercus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+quercus_soil <- list.files(path = path.dat, 
                          pattern = "Quercus", full.names = TRUE)
 soilcols <- names(read.csv(quercus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -29,7 +31,7 @@ head(quercus_all)
 tail(quercus_all)
 
 #Tilia Collection
-tilia_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+tilia_soil <- list.files(path = path.dat, 
                            pattern = "Tilia", full.names = TRUE)
 soilcols <- names(read.csv(tilia_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -40,7 +42,7 @@ head(tilia_all)
 tail(tilia_all)
 
 #Ulmus Collection
-ulmus_soil <- list.files(path = "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract", 
+ulmus_soil <- list.files(path = path.dat, 
                            pattern = "Ulmus", full.names = TRUE)
 soilcols <- names(read.csv(ulmus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -51,7 +53,7 @@ head(ulmus_all)
 tail(ulmus_all)
 
 #loading in the Morton Arb Data for horizontal line in shiny app graph
-MortonArb_Data <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/0_MortonArb.csv")
+MortonArb_Data <- read.csv(file.path(path.dat,"0_MortonArb.csv"))
 MortonArb_Data
 
 #package for shiny
@@ -59,7 +61,8 @@ library(shiny); library(shinydashboard); library(shinyWidgets)
 
 #combining data frames of different genus to allow for dropdown chooser in shiny
 library(data.table)
-total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all, MortonArb_Data)
+total <- rbind(malus_all, MortonArb_Data)
+# total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all, MortonArb_Data)
 head(total)
 tail(total)
 
@@ -82,8 +85,8 @@ ggplot(data=murders) + geom_boxplot(data=murders[murders$state!="Texas", ], aes(
 #boxplot that displays dropdown for genus & variable
 shinyApp(
   ui = fluidPage(
-    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus)))),
-    varSelectInput("Variable", "Variable:", total[27:70]), #when I made it select input it took forever to load
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus[total$genus!="MortonArb"])))),
+    selectInput("Variable", "Variable:", list(Variable=names(total)[27:70])), 
     plotOutput("data")
   ),
   server = function(input, output) {
@@ -92,14 +95,20 @@ shinyApp(
       #   geom_boxplot(data=total[total$genus==input$Genus, ], aes(total$species[total$genus==input$Genus], !!input$Variable[total$genus==input$Genus])) + 
       #   geom_hline(yintercept=input$Variable[1467381], color="red") +
       #   theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      # HLINE <- as.numeric(MortonArb_Data[,input$Variable])
       
+      total$VAR.GRAPH <- total[,input$Variable]
      # what original looked like
-       ggplot(total) +
-       geom_boxplot(data=total, aes(total$species, !!input$Variable)) +
-         geom_hline(data=MortonArb_Data, yintercept=MortonArb_Data$Variable, color="red") +
+       ggplot(total[total$genus==input$Genus,]) +
+       # geom_boxplot(data=total[total$genus==input$Genus,], aes(x=species, y=VAR.GRAPH)) +
+         geom_violin(data=total[total$genus==input$Genus,], aes(x=species, y=VAR.GRAPH), scale="width") +
+         
+         geom_hline(data=total[total$UID=="MORTONARB",], aes(yintercept=VAR.GRAPH), color="red") +
          theme(axis.text.x = element_text(angle = 90, hjust = 1))
     })
   }
 )
 
    shinyApp(ui, server)
+
+   
