@@ -9,7 +9,7 @@ library(data.table)
 #Malus Collection
 path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract"
 path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
-malus_soil <- list.files(path = path.dat, 
+malus_soil <- list.files(path = path.dat,
                         pattern = "Malus", full.names = TRUE)
 soilcols <- names(read.csv(malus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -20,7 +20,7 @@ head(malus_all)
 tail(malus_all)
 
 #Quercus Collection
-quercus_soil <- list.files(path = path.dat, 
+quercus_soil <- list.files(path = path.dat,
                          pattern = "Quercus", full.names = TRUE)
 soilcols <- names(read.csv(quercus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -31,7 +31,7 @@ head(quercus_all)
 tail(quercus_all)
 
 #Tilia Collection
-tilia_soil <- list.files(path = path.dat, 
+tilia_soil <- list.files(path = path.dat,
                            pattern = "Tilia", full.names = TRUE)
 soilcols <- names(read.csv(tilia_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -42,7 +42,7 @@ head(tilia_all)
 tail(tilia_all)
 
 #Ulmus Collection
-ulmus_soil <- list.files(path = path.dat, 
+ulmus_soil <- list.files(path = path.dat,
                            pattern = "Ulmus", full.names = TRUE)
 soilcols <- names(read.csv(ulmus_soil[1]))
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -70,45 +70,26 @@ tail(total)
 total <- tidyr::separate(total, col = "species_name_acc", into=c("genus", "species"))
 tail(total)
 
-#example of hor. line working with non-ggplot
-chickwts
-boxplot(chickwts$weight ~ chickwts$feed)
-abline(h=chickwts$weight[1], col = "Red")
 
-#example of hor.lin working with ggplot when using 2 different sets of data
-library(dslabs)
-murders
-ggplot(data=murders) + geom_boxplot(data=murders[murders$state!="Texas", ], aes(murders$region[murders$state!="Texas"], murders$total[murders$state!="Texas"])) +
-  geom_hline(yintercept=murders$total[44], color= "red")
-
-#trouble shooting: possible with ggplot, possible to make horizontal line
-#boxplot that displays dropdown for genus & variable
+#boxplot/violinplot that displays dropdown for genus & variable
+#horizontal redline displaying Arb's value
 shinyApp(
   ui = fluidPage(
     selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus[total$genus!="MortonArb"])))),
-    selectInput("Variable", "Variable:", list(Variable=names(total)[27:70])), 
+    selectInput("Variable", "Variable:", list(Variable=names(total)[27:70])),
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      # ggplot(total) +
-      #   geom_boxplot(data=total[total$genus==input$Genus, ], aes(total$species[total$genus==input$Genus], !!input$Variable[total$genus==input$Genus])) + 
-      #   geom_hline(yintercept=input$Variable[1467381], color="red") +
-      #   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-      # HLINE <- as.numeric(MortonArb_Data[,input$Variable])
-      
       total$VAR.GRAPH <- total[,input$Variable]
-     # what original looked like
-       ggplot(total[total$genus==input$Genus,]) +
-       # geom_boxplot(data=total[total$genus==input$Genus,], aes(x=species, y=VAR.GRAPH)) +
-         geom_violin(data=total[total$genus==input$Genus,], aes(x=species, y=VAR.GRAPH), scale="width") +
-         
-         geom_hline(data=total[total$UID=="MORTONARB",], aes(yintercept=VAR.GRAPH), color="red") +
-         theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      # what original looked like
+      ggplot(total[total$genus==input$Genus, ]) +
+        geom_violin(data=total[total$genus==input$Genus, ], aes(x=species, y=VAR.GRAPH), scale = "width") + #can be boxplots or violin plot
+        geom_hline(data=total[total$UID=="MORTONARB",], aes(yintercept=VAR.GRAPH), color="red") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
     })
   }
 )
 
    shinyApp(ui, server)
-
-   
