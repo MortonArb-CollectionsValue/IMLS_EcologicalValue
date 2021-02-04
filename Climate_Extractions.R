@@ -25,8 +25,6 @@ path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/
 path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
 
 
-# Arb test coords: 36.75414,	138.26602
-
 # TerraClimate Data paths:
 # full data catalog: http://thredds.northwestknowledge.net:8080/thredds/catalog/TERRACLIMATE_ALL/data/catalog.html
 # Available variables (monthly): 
@@ -103,7 +101,7 @@ for(i in 1:length(files.all)){
   }
   
   # # If this gets too hard, may need to condense array to unique locations
-  # spp.met <- aggregate(lat.ind ~ lat.ind + lon.ind, data=spp.dat, FUN=length)
+  # spp.met <- aggregate(UID ~ lat.ind + lon.ind, data=spp.dat, FUN=length)
   
   # VAR="tmax"
   for(VAR in vars.use){
@@ -111,6 +109,7 @@ for(i in 1:length(files.all)){
     print("")
     print(paste0("   ",VAR))
     dat.arr <- array(dim=c(nrow(spp.dat), 12, length(yrs.use)))
+    # dat.arr <- array(dim=c(nrow(spp.met), 12, length(yrs.use)))
     dimnames(dat.arr)[[1]] <- spp.dat$UID
     dimnames(dat.arr)[[2]] <- 1:12
     dimnames(dat.arr)[[3]] <- yrs.use
@@ -120,14 +119,22 @@ for(i in 1:length(files.all)){
       setTxtProgressBar(pb, YR)
       met.now <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
       
-      
+      # Loop through the points
       for(LAT in unique(spp.dat$lat.ind)){
         for(LON in unique(spp.dat$lon.ind[spp.dat$lat.ind==LAT])){
           row.ind <- which(spp.dat$lat.ind==LAT & spp.dat$lon.ind==LON)
-          # Add the start/end indices before running 
-          dat.arr[row.ind,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(LON, LAT, 1), count=c(1,1,12)) 
+          # Add the start/end indices before running
+          dat.arr[row.ind,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(LON, LAT, 1), count=c(1,1,12))
         } # End LON loop
       } # End LAT loop; all points extracted
+      
+      # # An alternate way of doing this that was *maybe* going to be faster, but isn't
+      # pb2 <- txtProgressBar(min=0, max=nrow(spp.met), style=3)
+      # for(j in 1:nrow(spp.met)){
+      #   dat.arr[j,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(spp.met$lon.ind[i], spp.met$lat.ind[i], 1), count=c(1,1,12)) 
+      #   setTxtProgressBar(pb2, j)
+      # } # End j loop
+      
       ncdf4::nc_close(met.now)    
       
     } # End YR loop -- all data extracted
