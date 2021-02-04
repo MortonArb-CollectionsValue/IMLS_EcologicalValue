@@ -47,18 +47,6 @@ path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
 #   1. can't read/store all met data -- just too big!
 #   2. can't work with all occurrence data -- just too big
 #   3. need all years/months at once to get the values I acutally want
-# Order of Ops:
-#  1. Load an occurrence record
-#     1.1  Aggregate/round coords to match res of met product
-#     1.2  create lat/lon index that corresponds
-#     2.   Loop through vars
-#          2.1 set up array for storing data: dim=c(unique points, months, years)
-#          3.  Loop through Years
-#              - open connection to file
-#              - loop through each unique point and extract data; store in array
-#          2.2 aggregate data to get vars (means, extremes, sd); create data frame
-#     1.3  merge met data back w/ occurence points & save
-# # End loop
 
 
 # Extracting lat & longitude vectors from the data
@@ -75,98 +63,129 @@ lat.lwr <- lat.vec+c(lat.diff[1]/2, lat.diff/2)
 lon.upr <- lon.vec-c(lon.diff[1]/2, lon.diff/2)
 lon.lwr <- lon.vec+c(lon.diff[1]/2, lon.diff/2)
 
-for(i in 1:length(files.all)){
-  print("")
-  print(files.all[i])
-  
-  spp.now <- read.csv(file.path(path.occ, files.all[i]))
-  
-  spp.dat <- spp.now[,c("UID", "decimalLatitude", "decimalLongitude")]
-  
-  # Loop through the points and attach a lat/lon ind to each point
-  # Note: This will be SLOW for our large files, but hopefully it will help
-  for(LAT in unique(spp.dat$decimalLatitude)){
-    lat.ind <- which(lat.upr>LAT & lat.lwr<LAT)
-    
-    if(length(lat.ind)!=1) lat.ind <- which(lat.upr<LAT+1e-6 & lat.lwr>LAT+1e-6)
-    
-    spp.dat[spp.dat$decimalLatitude==LAT, "lat.ind"] <- lat.ind
-  }
-  for(LON in unique(spp.dat$decimalLongitude)){
-    lon.ind <- which(lon.upr<LON & lon.lwr>LON)
-    
-    # Get a case where it's right on the break, ad a tiny bit to the point to fudge it
-    if(length(lon.ind)!=1) lon.ind <- which(lon.upr<LON+1e-6 & lon.lwr>LON+1e-6)
-    spp.dat[spp.dat$decimalLongitude==LON, "lon.ind"] <- lon.ind
-  }
-  
-  # # If this gets too hard, may need to condense array to unique locations
-  # spp.met <- aggregate(UID ~ lat.ind + lon.ind, data=spp.dat, FUN=length)
-  
+for(VAR in vars.use){
   # VAR="tmax"
-  for(VAR in vars.use){
-    tictoc::tic()
+  # tictoc::tic()
+  print("")
+  print(paste0("   ",VAR))
+  if(!dir.exists(file.path(path.out, VAR))) dir.create(file.path(path.out, VAR), recursive = T)
+  
+  # Set up a list of the connection info
+  met.list <- list()
+  for(YR in yrs.use){
+    met.list[[paste(YR)]] <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
+  }
+  
+  
+  # Loop through the species files
+  for(i in 1:length(files.all)){
     print("")
-    print(paste0("   ",VAR))
-    dat.arr <- array(dim=c(nrow(spp.dat), 12, length(yrs.use)))
-    # dat.arr <- array(dim=c(nrow(spp.met), 12, length(yrs.use)))
-    dimnames(dat.arr)[[1]] <- spp.dat$UID
+    print(files.all[i])
+    
+    spp.now <- read.csv(file.path(path.occ, files.all[i]))
+    
+    spp.dat <- spp.now[,c("UID", "decimalLatitude", "decimalLongitude")]
+    
+    # Loop through the points and attach a lat/lon ind to each point
+    # Note: This will be SLOW for our large files, but hopefully it will help
+    for(LAT in unique(spp.dat$decimalLatitude)){
+      lat.ind <- which(lat.upr>LAT & lat.lwr<LAT)
+      
+      if(length(lat.ind)!=1) lat.ind <- which(lat.upr<LAT+1e-6 & lat.lwr>LAT+1e-6)
+      
+      spp.dat[spp.dat$decimalLatitude==LAT, "lat.ind"] <- lat.ind
+    }
+    for(LON in unique(spp.dat$decimalLongitude)){
+      lon.ind <- which(lon.upr<LON & lon.lwr>LON)
+      
+      # Get a case where it's right on the break, ad a tiny bit to the point to fudge it
+      if(length(lon.ind)!=1) lon.ind <- which(lon.upr<LON+1e-6 & lon.lwr>LON+1e-6)
+      spp.dat[spp.dat$decimalLongitude==LON, "lon.ind"] <- lon.ind
+    }
+    
+    # # If this gets too hard, may need to condense array to unique locations
+    # This takes a minute, but might be worth it to help us track
+    spp.met <- aggregate(UID ~ lat.ind + lon.ind, data=spp.dat, FUN=length)
+    
+    # dat.arr <- array(dim=c(nrow(spp.dat), 12, length(yrs.use)))
+    # dimnames(dat.arr)[[1]] <- spp.dat$UID
+    dat.arr <- array(dim=c(nrow(spp.met), 12, length(yrs.use)))
     dimnames(dat.arr)[[2]] <- 1:12
     dimnames(dat.arr)[[3]] <- yrs.use
-    # YR = 2019
-    pb <- txtProgressBar(min=min(yrs.use), max=max(yrs.use), style=3)
-    for(YR in yrs.use){
-      setTxtProgressBar(pb, YR)
-      met.now <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
+
+    # Loop through the points
+    pb <- txtProgressBar(min=1, max=nrow(spp.met), style=3)
+    # pb.ind=1
+    # for(LAT in unique(spp.dat$lat.ind)){
+    #   for(LON in unique(spp.dat$lon.ind[spp.dat$lat.ind==LAT])){
+    #     
+    #     # Get our indices for our array
+    #     row.ind <- which(spp.dat$lat.ind==LAT & spp.dat$lon.ind==LON)
+    #     
+    #     # Loop through the years now that we have all the connections
+    #     for(YR in yrs.use){
+    #       dat.arr[row.ind,,paste(YR)] <- ncdf4::ncvar_get(met.list[[paste(YR)]], VAR, start=c(LON, LAT, 1), count=c(1,1,12))
+    #     }
+    #     
+    #     setTxtProgressBar(pb, pb.ind)
+    #     pb.ind=pb.ind+1
+    #     
+    #   } # End LON loop
+    # } # End LAT loop; all points extracted
       
-      # Loop through the points
-      for(LAT in unique(spp.dat$lat.ind)){
-        for(LON in unique(spp.dat$lon.ind[spp.dat$lat.ind==LAT])){
-          row.ind <- which(spp.dat$lat.ind==LAT & spp.dat$lon.ind==LON)
-          # Add the start/end indices before running
-          dat.arr[row.ind,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(LON, LAT, 1), count=c(1,1,12))
-        } # End LON loop
-      } # End LAT loop; all points extracted
+    for(j in 1:nrow(spp.met)){
+      # Loop through the years now that we have all the connections
+      LON=spp.met$lon.ind[j]
+      LAT=spp.met$lat.ind[j]
       
-      # # An alternate way of doing this that was *maybe* going to be faster, but isn't
-      # pb2 <- txtProgressBar(min=0, max=nrow(spp.met), style=3)
-      # for(j in 1:nrow(spp.met)){
-      #   dat.arr[j,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(spp.met$lon.ind[i], spp.met$lat.ind[i], 1), count=c(1,1,12)) 
-      #   setTxtProgressBar(pb2, j)
-      # } # End j loop
+      met.out <- lapply(met.list, FUN=function(x){ ncdf4::ncvar_get(x, VAR, start=c(LON, LAT, 1), count=c(1,1,12))})
+      dat.arr[j,,] <- array(unlist(met.out), dim=c(12, length(met.out)))
       
-      ncdf4::nc_close(met.now)    
-      
-    } # End YR loop -- all data extracted
+      setTxtProgressBar(pb, j)
+    } # End spp.met loop
     
     # --------------
-    # Aggregate & Store Output -- NOTE: using the same array name to save memory
+    # Aggregate & Store Output -- NOTE: using the same array name to save memory, but it's slower :-/
     # --------------
-    dat.agg <- apply(dat.arr, c(1,3), FUN=mean) 
-    spp.dat[,paste0(VAR, ".ann.mean")] <- apply(dat.agg, 1, FUN=mean)
-    spp.dat[,paste0(VAR, ".ann.sd")] <- apply(dat.agg, 1, FUN=sd)
-    spp.dat[,paste0(VAR, ".ann.max")] <- apply(dat.agg, 1, FUN=max)
-    spp.dat[,paste0(VAR, ".ann.min")] <- apply(dat.agg, 1, FUN=min)
+    dat.agg <- apply(dat.arr, c(1,3), FUN=mean)
+    for(j in 1:nrow(spp.met)){
+      row.ind <- which(spp.dat$lat.ind==spp.met$lat.ind[j] & spp.dat$lon.ind==spp.met$lon.ind[j])
+      spp.dat[row.ind, paste0(VAR, ".ann.mean")] <- mean(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".ann.sd")] <- sd(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".ann.max")] <- max(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".ann.min")] <- min(dat.agg[j,])
+    }
     
     dat.agg <- apply(dat.arr, c(1,3), FUN=max)
-    spp.dat[,paste0(VAR, ".max.mean")] <- apply(dat.agg, 1, FUN=mean)
-    spp.dat[,paste0(VAR, ".max.sd")] <- apply(dat.agg, 1, FUN=sd)
-    spp.dat[,paste0(VAR, ".max.max")] <- apply(dat.agg, 1, FUN=max)
-    spp.dat[,paste0(VAR, ".max.min")] <- apply(dat.agg, 1, FUN=min)
+    for(j in 1:nrow(spp.met)){
+      row.ind <- which(spp.dat$lat.ind==spp.met$lat.ind[j] & spp.dat$lon.ind==spp.met$lon.ind[j])
+      spp.dat[row.ind, paste0(VAR, ".max.mean")] <- mean(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".max.sd")] <- sd(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".max.max")] <- max(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".max.min")] <- min(dat.agg[j,])
+    }
     
     dat.agg <- apply(dat.arr, c(1,3), FUN=min)
-    spp.dat[,paste0(VAR, ".min.mean")] <- apply(dat.agg, 1, FUN=mean)
-    spp.dat[,paste0(VAR, ".min.sd")] <- apply(dat.agg, 1, FUN=sd)
-    spp.dat[,paste0(VAR, ".min.max")] <- apply(dat.agg, 1, FUN=max)
-    spp.dat[,paste0(VAR, ".min.min")] <- apply(dat.agg, 1, FUN=min)
+    for(j in 1:nrow(spp.met)){
+      row.ind <- which(spp.dat$lat.ind==spp.met$lat.ind[j] & spp.dat$lon.ind==spp.met$lon.ind[j])
+      spp.dat[row.ind, paste0(VAR, ".min.mean")] <- mean(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".min.sd")] <- sd(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".min.max")] <- max(dat.agg[j,])
+      spp.dat[row.ind, paste0(VAR, ".min.min")] <- min(dat.agg[j,])
+    }
     # --------------
     
     rm(dat.arr, dat.agg)
-    tictoc::toc()
-  } # End variable loop
+    # tictoc::toc()
+    # Save file
+    write.csv(spp.dat, file.path(path.out, VAR, files.all[i]), row.names=F)
+  } # End i File loop
 
-  # Save file
-  write.csv(spp.dat, file.path(path.out, files.all[i]), row.names=F)
-} # end i file loop
+  # ncdf4::nc_close(met.now)    
+  for(YR in yrs.use){
+    ncdf4::nc_close(met.list[[paste(YR)]]) 
+  }
+
+} # end Variable Loop
 
 
