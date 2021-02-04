@@ -45,43 +45,59 @@ path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
 #     1.3  merge met data back w/ occurence points & save
 # # End loop
 
-# Hard-coded dimension info from pulling from the lat & lon files
-# Lat vector seems to go from N to S
-lat.min = -89.97917
-lat.max = 89.97917
-lat.inc = 0.04166666666666666667
-n.lat = 4320 
-lat.vec <- seq(lat.max, lat.min, length.out=n.lat)
-lat.vec[1:10]
-test.lat[1:10]
 
-tail(lat.vec)
-length(lat.vec)
-
-# Lon vector is W to E
-lon.min = -179.9792
-lon.max = 179.9792
-lon.inc = 0.04167
-n.lon = 8640
-
-
-spp.now <- read.csv(file.path(path.occ, files.all[1]))
-
-
-VAR="tmax"
-YR = 2019
-
-test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
-
-summary(test.loc$dim)
-test.lat <- ncdf4::ncvar_get(test.loc, "lat")
-test.lon <- ncdf4::ncvar_get(test.loc, "lon")
-summary(diff(test.lat))
-
-# test.dat <- ncdf4::ncvar_get(test.loc, "tmax")
+# Extracting lat & longitude vectors from the data
+test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_tmax_2010.nc")))
+lat.vec <- ncdf4::ncvar_get(test.loc, "lat")
+lon.vec <- ncdf4::ncvar_get(test.loc, "lon")
 ncdf4::nc_close(test.loc)
 
+lat.diff <- diff(lat.vec)
+lon.diff <- diff(lon.vec)
 
+lat.upr <- lat.vec-c(lat.diff[1]/2, lat.diff/2)
+lat.lwr <- lat.vec+c(lat.diff[1]/2, lat.diff/2)
+lon.upr <- lon.vec-c(lon.diff[1]/2, lon.diff/2)
+lon.lwr <- lon.vec+c(lon.diff[1]/2, lon.diff/2)
+
+for(i in 1:length(files.all)){
+  spp.now <- read.csv(file.path(path.occ, files.all[i]))
+  
+  spp.dat <- spp.now[,c("UID", "decimalLatitude", "decimalLongitude")]
+  
+  # Loop through the points and attach a lat/lon ind to each point
+  # Note: This will be SLOW for our large files, but hopefully it will help
+  for(LAT in unique(spp.dat$decimalLatitude)){
+    lat.ind <- which(lat.upr>LAT & lat.lwr<LAT)
+    
+    if(length(lat.ind)!=1) lat.ind <- which(lat.upr<LAT+1e-6 & lat.lwr>LAT+1e-6)
+    
+    spp.dat[spp.dat$decimalLatitude==LAT, "lat.ind"] <- lat.ind
+  }
+  for(LON in unique(spp.dat$decimalLongitude)){
+    lon.ind <- which(lon.upr<LON & lon.lwr>LON)
+    
+    # Get a case where it's right on the break, ad a tiny bit to the point to fudge it
+    if(length(lon.ind)!=1) lon.ind <- which(lon.upr<LON+1e-6 & lon.lwr>LON+1e-6)
+    spp.dat[spp.dat$decimalLongitude==LON, "lon.ind"] <- lon.ind
+  }
+  # 
+  
+  
+  VAR="tmax"
+  YR = 2019
+  
+  test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
+  
+  summary(test.loc$dim)
+  test.lat <- ncdf4::ncvar_get(test.loc, "lat")
+  test.lon <- ncdf4::ncvar_get(test.loc, "lon")
+  summary(diff(test.lat))
+  
+  # test.dat <- ncdf4::ncvar_get(test.loc, "tmax")
+  ncdf4::nc_close(test.loc)
+
+} # end i file loop
 
 
 # Aggregated data (climatic norms?): http://thredds.northwestknowledge.net:8080/thredds/terraclimate_aggregated.html
