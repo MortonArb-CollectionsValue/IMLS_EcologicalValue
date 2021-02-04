@@ -19,33 +19,46 @@ path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Cli
 # documentation: http://www.climatologylab.org/terraclimate-variables.html
 #  - Primary: max temp, min temp, vapor pressure, precipitaiton accumulation, shortwave radiation, wind speed
 #  - Derived (Calculated): reference evapotrans., runoff, actual evapotrans, climate water deficit, soil moisture, snow water equivalent, PDSI, VPD
-
-# OPENDAP example: http://thredds.northwestknowledge.net:8080/thredds/dodsC/TERRACLIMATE_ALL/data/TerraClimate_tmax_2019.nc.html
-# HTTP example: http://thredds.northwestknowledge.net:8080/thredds/fileServer/TERRACLIMATE_ALL/data/TerraClimate_tmax_2019.nc
-# NCSubset example: http://thredds.northwestknowledge.net:8080/thredds/ncss/grid/TERRACLIMATE_ALL/data/TerraClimate_tmax_2019.nc/dataset.html
-yrs.avail <- 1958:(lubridate::year(Sys.Date())-2)
-
-dat.vars <- data.frame(code=c("ws", "vpd", "vap", "tmin", "tmax", "swe", "srad", "soil", "g", "ppt", "pet", "def", "aet", "PDSI"), CF=c(NA), type=c(NA))
-
-path.dat <- ""
+vars.code <- c("ws", "vpd", "vap", "tmin", "tmax", "swe", "srad", "soil", "g", "ppt", "pet", "def", "aet", "PDSI")
+files.all <- dir(path.occ)
 
 
-# Example query URL:
-# http://thredds.northwestknowledge.net:8080/thredds/ncss/TERRACLIMATE_ALL/data/TerraClimate_tmin_2018.nc?var=tmin&north=36.755&west=-93.267&east=-93.266&south=37.754&disableProjSubset=on&horizStride=1&time_start=2018-01-01T00%3A00%3A00Z&time_end=2018-12-01T00%3A00%3A00Z&timeStride=1&addLatLon=true&accept=ascii
-
-dat <- ncdf4::nc_open("")
-
-# dat <- RCurl::getURL("http://thredds.northwestknowledge.net:8080/thredds/ncss/TERRACLIMATE_ALL/data/TerraClimate_tmin_2018.nc?var=tmin&north=36.755&west=-93.267&east=-93.266&south=37.754&disableProjSubset=on&horizStride=1&time_start=2018-01-01T00%3A00%3A00Z&time_end=2018-12-01T00%3A00%3A00Z&timeStride=1&addLatLon=true&accept=netcdf")
-dat
-
-# /thredds/fileServer/TERRACLIMATE_ALL/data/TerraClimate_tmax_2019.nc
-test <- ncdf4::nc_open("http://thredds.northwestknowledge.net:8080/thredds/dodsC/TERRACLIMATE_ALL/data/TerraClimate_tmax_2019.nc")
+# Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
+path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
 
 
-test.loc <- ncdf4::nc_open("~/Downloads/TerraClimate_tmax_2019.nc")
+# Pseudo-code for figuring out how to do this.... 
+# Challenges: 
+#   1. can't read/store all met data -- just too big!
+#   2. can't work with all occurrence data -- just too big
+#   3. need all years/months at once to get the values I acutally want
+# Order of Ops:
+#  1. Load an occurrence record
+#     1.1  Aggregate/round coords to match res of met product
+#     1.2  create lat/lon index that corresponds
+#     2.   Loop through vars
+#          2.1 set up array for storing data: dim=c(unique points, months, years)
+#          3.  Loop through Years
+#              - open connection to file
+#              - loop through each unique point and extract data; store in array
+#          2.2 aggregate data to get vars (means, extremes, sd); create data frame
+#     1.3  merge met data back w/ occurence points & save
+# # End loop
+
+spp.now <- read.csv(file.path(path.occ, files.all[1]))
+
+
+VAR="tmax"
+YR = 2019
+
+test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
 # test.dat <- ncdf4::ncvar_get(test.loc, "tmax")
 summary(test.loc$var$tmax)
 ncdf4::nc_close(test.loc)
+
+
+
+
 # Aggregated data (climatic norms?): http://thredds.northwestknowledge.net:8080/thredds/terraclimate_aggregated.html
 # path.clim <- 
 
