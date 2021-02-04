@@ -45,6 +45,26 @@ path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
 #     1.3  merge met data back w/ occurence points & save
 # # End loop
 
+# Hard-coded dimension info from pulling from the lat & lon files
+# Lat vector seems to go from N to S
+lat.min = -89.97917
+lat.max = 89.97917
+lat.inc = 0.04166666666666666667
+n.lat = 4320 
+lat.vec <- seq(lat.max, lat.min, length.out=n.lat)
+lat.vec[1:10]
+test.lat[1:10]
+
+tail(lat.vec)
+length(lat.vec)
+
+# Lon vector is W to E
+lon.min = -179.9792
+lon.max = 179.9792
+lon.inc = 0.04167
+n.lon = 8640
+
+
 spp.now <- read.csv(file.path(path.occ, files.all[1]))
 
 
@@ -52,8 +72,13 @@ VAR="tmax"
 YR = 2019
 
 test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
+
+summary(test.loc$dim)
+test.lat <- ncdf4::ncvar_get(test.loc, "lat")
+test.lon <- ncdf4::ncvar_get(test.loc, "lon")
+summary(diff(test.lat))
+
 # test.dat <- ncdf4::ncvar_get(test.loc, "tmax")
-summary(test.loc$var$tmax)
 ncdf4::nc_close(test.loc)
 
 
