@@ -15,15 +15,16 @@
 # Annual Daylength Cooef of variation -- use abs(lat) as proxy?
 
 
-path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
+# path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
 # path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+# path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+path.occ <- "data/occurrence/spp_edited_points"
 
 # path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
-path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
-
+# path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
+path.out <- "data/Climate_Extract"
 
 # TerraClimate Data paths:
 # full data catalog: http://thredds.northwestknowledge.net:8080/thredds/catalog/TERRACLIMATE_ALL/data/catalog.html
@@ -39,8 +40,8 @@ files.all <- dir(path.occ)
 
 
 # Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
-path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
-
+# path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
+path.dat <- "/home/data/TERRACLIMATE"
 
 # Pseudo-code for figuring out how to do this.... 
 # Challenges: 
@@ -54,6 +55,7 @@ test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_tmax_2010.nc
 lat.vec <- ncdf4::ncvar_get(test.loc, "lat")
 lon.vec <- ncdf4::ncvar_get(test.loc, "lon")
 ncdf4::nc_close(test.loc)
+rm(test.loc)
 
 lat.diff <- diff(lat.vec)
 lon.diff <- diff(lon.vec)
@@ -114,7 +116,7 @@ for(VAR in vars.use){
     dimnames(dat.arr)[[3]] <- yrs.use
 
     # Loop through the points
-    pb <- txtProgressBar(min=1, max=nrow(spp.met), style=3)
+    pb <- txtProgressBar(min=0, max=nrow(spp.met), style=3)
     # pb.ind=1
     # for(LAT in unique(spp.dat$lat.ind)){
     #   for(LON in unique(spp.dat$lon.ind[spp.dat$lat.ind==LAT])){
@@ -185,7 +187,7 @@ for(VAR in vars.use){
   for(YR in yrs.use){
     ncdf4::nc_close(met.list[[paste(YR)]]) 
   }
-
+  rm(met.list)
 } # end Variable Loop
 
 
