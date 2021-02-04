@@ -1,6 +1,20 @@
 # Script to extract climate data from TerraClimate product
 # http://www.climatologylab.org/terraclimate.html
 
+# Variables used by Tree Atlas: 
+# Temperature of Warmest Month
+# Temperature of Coldest Month
+# Ariditiy Index
+# May - Sep Temp
+# Mean Annual Temp
+# Mean Annual Precip
+# May - Sep precip
+
+
+# Note: Additional:
+# Annual Daylength Cooef of variation -- use abs(lat) as proxy?
+
+
 path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
@@ -20,6 +34,9 @@ path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Cli
 #  - Primary: max temp, min temp, vapor pressure, precipitaiton accumulation, shortwave radiation, wind speed
 #  - Derived (Calculated): reference evapotrans., runoff, actual evapotrans, climate water deficit, soil moisture, snow water equivalent, PDSI, VPD
 vars.code <- c("ws", "vpd", "vap", "tmin", "tmax", "swe", "srad", "soil", "g", "ppt", "pet", "def", "aet", "PDSI")
+vars.use <- c("tmax", "tmin", "ppt", "soil", "vpd", "srad")
+yrs.use <- 1990:2019
+
 files.all <- dir(path.occ)
 
 
@@ -61,6 +78,9 @@ lon.upr <- lon.vec-c(lon.diff[1]/2, lon.diff/2)
 lon.lwr <- lon.vec+c(lon.diff[1]/2, lon.diff/2)
 
 for(i in 1:length(files.all)){
+  print("")
+  print(files.all[i])
+  
   spp.now <- read.csv(file.path(path.occ, files.all[i]))
   
   spp.dat <- spp.now[,c("UID", "decimalLatitude", "decimalLongitude")]
@@ -81,56 +101,65 @@ for(i in 1:length(files.all)){
     if(length(lon.ind)!=1) lon.ind <- which(lon.upr<LON+1e-6 & lon.lwr>LON+1e-6)
     spp.dat[spp.dat$decimalLongitude==LON, "lon.ind"] <- lon.ind
   }
-  # 
   
+  # # If this gets too hard, may need to condense array to unique locations
+  # spp.met <- aggregate(lat.ind ~ lat.ind + lon.ind, data=spp.dat, FUN=length)
   
-  VAR="tmax"
-  YR = 2019
-  
-  test.loc <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
-  
-  summary(test.loc$dim)
-  test.lat <- ncdf4::ncvar_get(test.loc, "lat")
-  test.lon <- ncdf4::ncvar_get(test.loc, "lon")
-  summary(diff(test.lat))
-  
-  # test.dat <- ncdf4::ncvar_get(test.loc, "tmax")
-  ncdf4::nc_close(test.loc)
+  # VAR="tmax"
+  for(VAR in vars.use){
+    tictoc::tic()
+    print("")
+    print(paste0("   ",VAR))
+    dat.arr <- array(dim=c(nrow(spp.dat), 12, length(yrs.use)))
+    dimnames(dat.arr)[[1]] <- spp.dat$UID
+    dimnames(dat.arr)[[2]] <- 1:12
+    dimnames(dat.arr)[[3]] <- yrs.use
+    # YR = 2019
+    pb <- txtProgressBar(min=min(yrs.use), max=max(yrs.use), style=3)
+    for(YR in yrs.use){
+      setTxtProgressBar(pb, YR)
+      met.now <- ncdf4::nc_open(file.path(path.dat, paste0("TerraClimate_", VAR, "_", YR, ".nc")))
+      
+      
+      for(LAT in unique(spp.dat$lat.ind)){
+        for(LON in unique(spp.dat$lon.ind[spp.dat$lat.ind==LAT])){
+          row.ind <- which(spp.dat$lat.ind==LAT & spp.dat$lon.ind==LON)
+          # Add the start/end indices before running 
+          dat.arr[row.ind,,paste(YR)] <- ncdf4::ncvar_get(met.now, VAR, start=c(LON, LAT, 1), count=c(1,1,12)) 
+        } # End LON loop
+      } # End LAT loop; all points extracted
+      ncdf4::nc_close(met.now)    
+      
+    } # End YR loop -- all data extracted
+    
+    # --------------
+    # Aggregate & Store Output -- NOTE: using the same array name to save memory
+    # --------------
+    dat.agg <- apply(dat.arr, c(1,3), FUN=mean) 
+    spp.dat[,paste0(VAR, ".ann.mean")] <- apply(dat.agg, 1, FUN=mean)
+    spp.dat[,paste0(VAR, ".ann.sd")] <- apply(dat.agg, 1, FUN=sd)
+    spp.dat[,paste0(VAR, ".ann.max")] <- apply(dat.agg, 1, FUN=max)
+    spp.dat[,paste0(VAR, ".ann.min")] <- apply(dat.agg, 1, FUN=min)
+    
+    dat.agg <- apply(dat.arr, c(1,3), FUN=max)
+    spp.dat[,paste0(VAR, ".max.mean")] <- apply(dat.agg, 1, FUN=mean)
+    spp.dat[,paste0(VAR, ".max.sd")] <- apply(dat.agg, 1, FUN=sd)
+    spp.dat[,paste0(VAR, ".max.max")] <- apply(dat.agg, 1, FUN=max)
+    spp.dat[,paste0(VAR, ".max.min")] <- apply(dat.agg, 1, FUN=min)
+    
+    dat.agg <- apply(dat.arr, c(1,3), FUN=min)
+    spp.dat[,paste0(VAR, ".min.mean")] <- apply(dat.agg, 1, FUN=mean)
+    spp.dat[,paste0(VAR, ".min.sd")] <- apply(dat.agg, 1, FUN=sd)
+    spp.dat[,paste0(VAR, ".min.max")] <- apply(dat.agg, 1, FUN=max)
+    spp.dat[,paste0(VAR, ".min.min")] <- apply(dat.agg, 1, FUN=min)
+    # --------------
+    
+    rm(dat.arr, dat.agg)
+    tictoc::toc()
+  } # End variable loop
 
+  # Save file
+  write.csv(spp.dat, file.path(path.out, files.all[i]), row.names=F)
 } # end i file loop
 
 
-# Aggregated data (climatic norms?): http://thredds.northwestknowledge.net:8080/thredds/terraclimate_aggregated.html
-# path.clim <- 
-
-
-###############################
-# Example from http://www.climatologylab.org/uploads/2/2/1/3/22133936/read_terraclimate.r
-###############################
-# enter in longitude, latitude here
-x<-c(-77.71, -1.59)
-
-# enter in variable you want to download see: http://thredds.northwestknowledge.net:8080/thredds/terraclimate_aggregated.html
-var="aet"
-
-# install.packages("ncdf4")
-library(ncdf4)
-
-
-baseurlagg <- paste0(paste0("http://thredds.northwestknowledge.net:8080/thredds/dodsC/agg_terraclimate_",var),"_1958_CurrentYear_GLOBE.nc")
-
-nc <- nc_open(baseurlagg)
-lon <- ncvar_get(nc, "lon")
-lat <- ncvar_get(nc, "lat")
-flat = match(abs(lat - x[2]) < 1/48, 1)
-latindex = which(flat %in% 1)
-flon = match(abs(lon - x[1]) < 1/48, 1)
-lonindex = which(flon %in% 1)
-start <- c(lonindex, latindex, 1)
-count <- c(1, 1, -1)
-
-
-# read in the full period of record using aggregated files
-
-data <- as.numeric(ncvar_get(nc, varid = var,start = start, count))
-###############################
