@@ -19,12 +19,12 @@ path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
 # path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
-# path.occ <- "data/occurrence/spp_edited_points"
+# path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+path.occ <- "data/occurrence/spp_edited_points"
 
 # path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
-path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
-# path.out <- "data/Climate_Extract"
+# path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
+path.out <- "data/Climate_Extract"
 if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 
 # TerraClimate Data paths:
@@ -42,8 +42,8 @@ files.all <- dir(path.occ)
 
 # Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
 # path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
-# path.dat <- "/home/data/TERRACLIMATE"
-path.dat <- "~/Desktop/met_products/TERRACLIMATE"
+path.dat <- "/home/data/TERRACLIMATE"
+# path.dat <- "~/Desktop/met_products/TERRACLIMATE"
 
 
 cols.keep <- c("UID", "species_name_acc", "decimalLatitude", "decimalLongitude")
