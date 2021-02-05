@@ -124,7 +124,7 @@ for(VAR in vars.use){
     
     # tictoc::toc()
     # Save file
-    write.csv(dat.now, file.path(path.out, VAR, files.all[i]), row.names=F)
+    write.csv(spp.now, file.path(path.out, VAR, files.all[i]), row.names=F)
     
     rm(dat.arr, dat.agg, spp.now)
   } # End i File loop
