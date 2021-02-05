@@ -137,6 +137,7 @@ n.chunk=200 # The number of points to chunk into each file
       dimnames(dat.arr)[[3]] <- yrs.use
   
       # Loop through the points
+      # tictoc::tic()
       pb <- txtProgressBar(min=0, max=nrow(spp.met), style=3)
       # pb.ind=1
       # for(LAT in unique(spp.dat$lat.ind)){
@@ -166,6 +167,8 @@ n.chunk=200 # The number of points to chunk into each file
         
         setTxtProgressBar(pb, j)
       } # End spp.met loop
+      # tictoc::toc()
+      
       
       # --------------
       # Aggregate & Store Output -- NOTE: using the same array name to save memory, but it's slower :-/
