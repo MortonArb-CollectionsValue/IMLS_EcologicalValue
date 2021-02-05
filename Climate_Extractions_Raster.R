@@ -48,8 +48,33 @@ path.dat <- "/home/data/TERRACLIMATE"
 
 cols.keep <- c("UID", "species_name_acc", "decimalLatitude", "decimalLongitude")
 
-for(VAR in vars.use){
-  # VAR="tmax"
+
+# A funciton for chunking the points for speed
+pts.chunk <- function(xmin, xmax, ymin, ymax, spp.pts, met.in, met.array){
+  row.crop <- which(spp.pts$decimalLongitude>=xmin & spp.pts$decimalLongitude<xmax & 
+                      spp.pts$decimalLatitude>=ymin & spp.pts$decimalLatitude<ymax)
+  if(length(row.crop)>0){
+    ext.crop <- extent(spp.pts[row.crop,])+c(-res(met.in)[1], res(met.in)[1], -res(met.in)[2], res(met.in)[2]) # Set the extent with a buffer
+    met.crop <- crop(met.in, ext.crop) # Crop to the extent
+    pt.ext <- extract(met.crop, spp.pts[row.crop,]) # Extract the data
+    
+    met.array[row.crop,,] <- as.vector(pt.ext) # store the data
+    
+    message(paste0("Data Extracted! ", length(row.crop), " points"))
+    
+    return(met.array)
+    rm(ext.crop, met.crop)
+  } else {
+    message("No points in the chunk")
+    return(met.array)
+  }
+}
+
+
+
+# for(VAR in vars.use){
+for(VAR in rev(vars.use)){
+    # VAR="tmax"
   # tictoc::tic()
   print("")
   print(paste0("   ",VAR))
@@ -75,8 +100,7 @@ for(VAR in vars.use){
   # tictoc::tic()
   met.stack <- raster::stack(file.path(path.dat, fvar))
   # tictoc::toc()
-  
-  
+
   # Loop through the species files
   for(i in 1:length(files.all)){
     print("")
@@ -84,22 +108,26 @@ for(VAR in vars.use){
     
     spp.name <- stringr::str_split(files.all[i], "[.]")[[1]][1]
     
-    spp.now <- read.csv(file.path(path.occ, files.all[i]))
+    spp.now <- read.csv(file.path(path.occ, files.all[i]), stringsAsFactors = T)
     spp.now <- spp.now[!is.na(spp.now$UID),cols.keep]
     
     # Convert to a spatial points data frame
     spp.sp <- SpatialPointsDataFrame(coords=spp.now[,c("decimalLongitude", "decimalLatitude")], data=spp.now, proj4string=CRS("+proj=longlat +datum=WGS84 +no_defs"))
     
-    # This will take 30 sec to a maybe couple minutes, but will still be MUCH faster than the old loop
-    # tictoc::tic()
-    met.ext <- extract(met.stack, spp.sp, method="simple")
-    # tictoc::toc()
-    
-    # Ideally reshape the extract array to UID x mo X yrs
-    met.arr <- array(as.vector(met.ext), dim=c(nrow(spp.sp), 12, length(yrs.use)))
+    # Set up our met array place holder
+    met.arr <- array(dim=c(nrow(spp.sp), 12, length(yrs.use)))
     dimnames(met.arr) <- list(UID=spp.sp$UID, month=1:12, year=yrs.use)
     
     
+    # Extracting the data in chunks
+    met.arr <- pts.chunk(xmin=-10, xmax=90, ymin=0, ymax=Inf, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    met.arr <- pts.chunk(xmin=90, xmax=Inf, ymin=0, ymax=Inf, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    met.arr <- pts.chunk(xmin=-Inf, xmax=-10, ymin=10, ymax=Inf, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    met.arr <- pts.chunk(xmin=-Inf, xmax=-10, ymin=-Inf, ymax=10, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    met.arr <- pts.chunk(xmin=-10, xmax=90, ymin=-Inf, ymax=0, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    met.arr <- pts.chunk(xmin=90, xmax=Inf, ymin=-Inf, ymax=0, spp.pts=spp.sp, met.in=met.stack, met.array=met.arr)
+    
+
     # --------------
     # Aggregate & Store Output -- NOTE: using the same array name to save memory, but it's slower :-/
     # --------------
