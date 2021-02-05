@@ -23,8 +23,8 @@ path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/
 # path.occ <- "data/occurrence/spp_edited_points"
 
 # path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
-# path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
-path.out <- "data/Climate_Extract"
+path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
+# path.out <- "data/Climate_Extract"
 if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 
 # TerraClimate Data paths:
@@ -109,13 +109,13 @@ for(VAR in vars.use){
     spp.now[, paste0(VAR, ".ann.max") ] <- apply(dat.agg, 1, max)
     spp.now[, paste0(VAR, ".ann.min") ] <- apply(dat.agg, 1, min)
     
-    dat.agg <- apply(dat.arr, c(1,3), FUN=max)
+    dat.agg <- apply(met.arr, c(1,3), FUN=max)
     spp.now[, paste0(VAR, ".max.mean")] <- apply(dat.agg, 1, mean)
     spp.now[, paste0(VAR, ".max.sd")  ] <- apply(dat.agg, 1, sd)
     spp.now[, paste0(VAR, ".max.max") ] <- apply(dat.agg, 1, max)
     spp.now[, paste0(VAR, ".max.min") ] <- apply(dat.agg, 1, min)
     
-    dat.agg <- apply(dat.arr, c(1,3), FUN=min)
+    dat.agg <- apply(met.arr, c(1,3), FUN=min)
     spp.now[, paste0(VAR, ".min.mean")] <- apply(dat.agg, 1, mean)
     spp.now[, paste0(VAR, ".min.sd")  ] <- apply(dat.agg, 1, sd)
     spp.now[, paste0(VAR, ".min.max") ] <- apply(dat.agg, 1, max)
@@ -126,7 +126,7 @@ for(VAR in vars.use){
     # Save file
     write.csv(dat.now, file.path(path.out, VAR, files.all[i]), row.names=F)
     
-    rm(dat.arr, dat.agg, dat.now)
+    rm(dat.arr, dat.agg, spp.now)
   } # End i File loop
   
   rm(met.stack)
