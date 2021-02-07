@@ -37,7 +37,7 @@ vars.code <- c("ws", "vpd", "vap", "tmin", "tmax", "swe", "srad", "soil", "g", "
 vars.use <- c("tmax", "tmin", "ppt", "soil", "vpd", "srad")
 yrs.use <- 1990:2019
 
-files.all <- dir(path.occ)
+files.all <- dir(path.occ, ".csv")
 
 
 # Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
