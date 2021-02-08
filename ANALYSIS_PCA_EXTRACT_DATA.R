@@ -207,7 +207,8 @@ all_spp_pairs <- spp.pairs %>% rowwise() %>% mutate(area_overlap=
 
 # save data
 save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
-          all_spp_pairs, overlap2spp_polys, file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+          all_spp_pairs, overlap2spp_polys, 
+              file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
 
 # write out area data
   write.csv(all_spp_pairs, file.path(path.dat1, "Extracted Data", "areas_convex_hull_overlap.csv"), 
@@ -261,7 +262,8 @@ dist_pt2centroid <- function(a=ma.pt, b=species_name_acc, polys=polys.ch){
 
 # save data
 save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
-          all_spp_pairs, overlap2spp_polys, dist_pt2centroid, file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+          all_spp_pairs, overlap2spp_polys, dist_pt2centroid, 
+              file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
 
 # write out area and distance data
   write.csv(pca_ch_areas, file.path(path.dat1, "Extracted Data", "areas_distance_convex_hulls.csv"), 
