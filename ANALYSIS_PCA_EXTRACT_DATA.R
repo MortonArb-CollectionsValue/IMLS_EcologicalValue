@@ -13,7 +13,7 @@ path.local <- "/Users/aesculus/Box/Research/Active_Projects/IMLS_MortonArb/local
 
 # Load paths/folders
 path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract"
-path.figs <- file.path(path.dat, "..")
+# path.figs <- file.path(path.dat, "..")
 
 fsoils <- dir(path.dat, "Quercus")
 dat.arb <- read.csv(file.path(path.dat, "0_MortonArb.csv"))
@@ -215,12 +215,10 @@ save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, poly
               row.names = FALSE)
 
 ###############################
-# Calculate centroid of polygon
+
 load(file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
-  polys.ch[1,]
-  ch.pt <- st_centroid(polys.ch[1,])
-  
-# Distance from centroid of taxon to Morton Arboretum
+
+# Distance from Morton Arboretum to centroid of convex hull for a taxon
   # make st object for the PCA point for Morton Arboretum
     ma.pt <- st_as_sf(pca.df[pca.df$species_name_acc=="MortonArb",], coords=c("PC1","PC2"))
     
@@ -228,38 +226,28 @@ load(file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
     # subset each species polygon
       # centroid will be calculated in the function (how it is)
         #alternatively, could set centroid outside and feed into function
-    t.spp <- "Quercus alba"
-    poly.ch.t <- polys.ch %>% dplyr::filter(species_name_acc == t.spp)
 
-    
-  pca_ch_areas2 <- pca_ch_areas
-  pca_ch_areas <- pca_ch_areas2
-  
-      t.spp <- "Quercus alba"
-
-## function to calculate polygon overlap
+## function to calculate distance between two points, 
+        # where one is defined point and other is a polygon
 # dist_pt2centroid <- function(a=ma.pt, t.spp="Quercus alba", polys=polys.ch){
 dist_pt2centroid <- function(a=ma.pt, b=species_name_acc, polys=polys.ch){
     # load libraries
     require(sf); require(dplyr)
   
-      # make polygons of taxon/taxa you want to compare
-        # poly.ch.t <- polys.ch %>% dplyr::filter(species_name_acc == t.spp)
-      # poly.ch.pt <- polys.ch %>% dplyr::filter(species_name_acc == b) %>% 
-
       # calculate the area of that overlap for the 2 polygons
-        dist2points <- st_distance(ma.pt, st_centroid(polys.ch %>% dplyr::filter(species_name_acc == b)))
+        dist2points <- st_distance(ma.pt, st_centroid(polys.ch %>% 
+                                                      dplyr::filter(species_name_acc == b)))
     # return value    
       if(length(dist2points) == 0L){dist2points <- 0}
       
         return(dist2points)
-}
+  }
 
 # dist_pt2centroid(ma.pt, species_name_acc, polys=polys.ch)
   
-  pca_ch_areas <- pca_ch_areas %>% rowwise() %>% mutate(dist2Morton=
+  pca_ch_areas <- pca_ch_areas %>% rowwise() %>% mutate(distMortArb2centroid=
           dist_pt2centroid(ma.pt, species_name_acc, polys.ch))
-
+  
 # save data
 save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
           all_spp_pairs, overlap2spp_polys, dist_pt2centroid, 
@@ -268,3 +256,38 @@ save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, poly
 # write out area and distance data
   write.csv(pca_ch_areas, file.path(path.dat1, "Extracted Data", "areas_distance_convex_hulls.csv"), 
               row.names = FALSE)
+
+
+###############################  
+# Calculate distance from point to nearest edge of polygon  
+
+  dist_pt2edge <- function(a=ma.pt, b=species_name_acc, polys=polys.ch){
+    # load libraries
+    require(sf); require(dplyr)
+  
+      # calculate the distance between Morton Arb point and the closest edge of polygon
+        pt2edge <- st_geometry(obj = polys.ch %>% dplyr::filter(species_name_acc == b)) %>% 
+                        st_cast(to = 'LINESTRING') %>% st_distance(y = ma.pt)
+
+    # return value    
+      if(length(pt2edge) == 0L){pt2edge <- 0}
+      
+        return(pt2edge)
+    }
+
+  pca_ch_areas <- pca_ch_areas %>% rowwise() %>% mutate(dist_MortArb2edge=
+          dist_pt2edge(ma.pt, species_name_acc, polys.ch))
+  pca_ch_areas <- as_data_frame(pca_ch_areas) 
+  names(pca_ch_areas) <- c('species_name_acc', 'area.ch', 'distMortArb2centroid', 'dist_MortArb2edge')
+  # save data
+save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
+          all_spp_pairs, overlap2spp_polys, 
+              file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+
+# write out area data
+  write.csv(pca_ch_areas, file.path(path.dat1, "Extracted Data", "areas_distance_convex_hulls.csv"), 
+              row.names = FALSE)
+  
+## need to write a function to show whether the point is in the polygon or out of the polygon. 
+  ## If out, then maybe can make the value negative? 
+    ## Or just put anothee coulmn stating outside the species polygon.
