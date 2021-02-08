@@ -19,12 +19,12 @@ path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/"
 
 # Path to occurrence points; Shiven is D:; Christy can work directly with Google
 # path.occ <- "D:/spp_raw_points/spp_raw_points2/"
-# path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
-path.occ <- "data/occurrence/spp_edited_points"
+path.occ <- file.path(path.google, "occurrence_points/outputs/spp_edited_points/")
+# path.occ <- "data/occurrence/spp_edited_points"
 
 # path.out <- "D:/Data_IMLS_Ecological_Value/Soil_Extracts2/"
-# path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
-path.out <- "data/Climate_Extract"
+path.out <- file.path(path.google, "Environmental Niche Value/Extracted Data/Climate_Extract/")
+# path.out <- "data/Climate_Extract"
 if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 
 # TerraClimate Data paths:
@@ -37,13 +37,13 @@ vars.code <- c("ws", "vpd", "vap", "tmin", "tmax", "swe", "srad", "soil", "g", "
 vars.use <- c("tmax", "tmin", "ppt", "soil", "vpd", "srad")
 yrs.use <- 1990:2019
 
-files.all <- dir(path.occ)
+files.all <- dir(path.occ, ".csv")
 
 
 # Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
 # path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
-path.dat <- "/home/data/TERRACLIMATE"
-# path.dat <- "~/Desktop/met_products/TERRACLIMATE"
+# path.dat <- "/home/data/TERRACLIMATE"
+path.dat <- "~/Desktop/met_products/TERRACLIMATE"
 
 
 cols.keep <- c("UID", "species_name_acc", "decimalLatitude", "decimalLongitude")
@@ -72,8 +72,8 @@ pts.chunk <- function(xmin, xmax, ymin, ymax, spp.pts, met.in, met.array){
 
 
 
-# for(VAR in vars.use){
-for(VAR in rev(vars.use)){
+for(VAR in vars.use){
+# for(VAR in rev(vars.use)){
     # VAR="tmax"
   # tictoc::tic()
   print("")
@@ -103,6 +103,10 @@ for(VAR in rev(vars.use)){
 
   # Loop through the species files
   for(i in 1:length(files.all)){
+    
+    # Check to see if we've processed this file yet or not; if we have move on!
+    if(file.exists(file.path(path.out, VAR, files.all[i]))) next
+    
     print("")
     print(files.all[i])
     

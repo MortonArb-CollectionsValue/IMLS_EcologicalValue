@@ -17,11 +17,21 @@ mtcars
 #creating PCA
 mtcars.pca <- prcomp(mtcars[,c(1:7,10,11)], center = TRUE,scale. = TRUE)
 summary(mtcars.pca)      #PC1 explains 63% total variabnce, PC2 explains 23% and so on
+mtcars.pca
 str(mtcars.pca)
+
+mtcars.pca$sd^2 # This produces the explained variance
+mtcars.pca$rotation # Vectors -- have a direction (+/-) and magnitude (range form -1 to 1)
+mtcars.pca$x # "Scores" x/y coordinates = "eigenvalues"
+
+mtcars.pca2 <- princomp(mtcars[,c(1:7,10,11)], center = TRUE,scale. = TRUE)
+mtcars.pca2$loadings
+
+mtcars.pca$scale
 
 #plotting PCA
 library(devtools)
-#install_github("vqv/ggbiplot") #just used blank line when asked question
+# install_github("vqv/ggbiplot") #just used blank line when asked question
 library(ggbiplot)
 ggbiplot(mtcars.pca) #basic plot
 ggbiplot(mtcars.pca, labels=rownames(mtcars)) #puts name of car in question
