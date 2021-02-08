@@ -1,6 +1,17 @@
-library(ggplot2)
-library(plyr); library(readr); library(dplyr)
-# Step 1: Load the data for a single species
+my.packages <- c('ggplot2', 'plyr', 'readr', 'dplyr', 'sf', 'tidyverse')
+# install.packages (my.packages) #Turn on to install current versions
+lapply(my.packages, require, character.only=TRUE)
+rm(my.packages)
+
+## set pasths/folders
+path.dat1 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value"
+path.figs <- file.path(path.dat1, "figures")
+path.local <- "/Users/aesculus/Box/Research/Active_Projects/IMLS_MortonArb/local_data/PCA_Data"
+
+###################################################################################################
+
+
+# Load paths/folders
 path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract"
 path.figs <- file.path(path.dat, "..")
 
@@ -51,11 +62,11 @@ dim(dat.long)
 # }
 # dev.off()
 
-# Trying an ordination 
+# Trying an ordination
 # randomly subset from our data frame to see if that works
 dat.all <- dat.all[complete.cases(dat.all[, cols.soils]),] %>% group_by(species_name_acc)
 
-# pts.samp <- sample(1:nrow(dat.all), 1e6, replace = F) 
+# pts.samp <- sample(1:nrow(dat.all), 1e6, replace = F)
 pc.t1 <- prcomp(dat.all[, cols.soils])
 summary(pc.t1)
 pc.t1
@@ -81,10 +92,10 @@ dat.all$PC1 <- pc.t2$scores[,1]
 dat.all$PC2 <- pc.t2$scores[,2]
 
 # Calculating convex hulls for Q. alba, Q. velutina, Q. boyntonii
-library(tidyverse)
-pc.hulls <- dat.all %>% select(species_name_acc, PC1, PC2) %>% group_by(species_name_acc) %>% slice(chull(PC1, PC2))
-summary(pc.hulls)
-
+# library(tidyverse)
+# pc.hulls <- dat.all %>% select(species_name_acc, PC1, PC2) %>% group_by(species_name_acc) %>% slice(chull(PC1, PC2))
+# summary(pc.hulls)
+# 
 ## Commenting out the ordination as takes awhile. However, this code is good.
 # png("TEST_Ordination_Quercus.png", height=8, width=8, units="in", res=320)
 # ggplot(data=dat.all, aes(x=PC1, y=PC2)) +
@@ -102,7 +113,7 @@ summary(pc.hulls)
 ###################################################################################################
 ###################################################################################################
 ###################################################################################################
-## new code ##
+## set pasths/folders
 path.dat1 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value"
 path.figs <- file.path(path.dat1, "figures")
 path.local <- "/Users/aesculus/Box/Research/Active_Projects/IMLS_MortonArb/local_data/PCA_Data"
@@ -122,36 +133,136 @@ pca.df <- dat.all %>% select(species_name_acc, PC1, PC2)
 polys.ch <- pc.xy %>% dplyr::group_by(species_name_acc) %>% dplyr::summarise() %>% 
                   st_cast("POLYGON") %>% st_convex_hull() 
   names(polys.ch)[1] <- "species_name_acc"
-# add NA for area.ch for the convex hull area
-polys.ch <- polys.ch %>% mutate(area.ch = NA)
 
-# calculate convex hull area & add to object
-polys.ch$area.ch <- polys.ch %>% st_area()
+# create df for taxa and convex hull areas
+pca_ch_areas <- polys.ch %>% st_drop_geometry()
+pca_ch_areas$area.ch <- polys.ch %>% st_area()
 
 # save data
-save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pca.df, polys.ch, file=file.path(path.local, "PCA_output.RData")) # , pc.hull.area
+save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
+                    file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
 
 # write out area data
-  write.csv(st_drop_geometry(polys.ch), file.path(path.dat1, "Extracted Data", "areas_convex_hull.csv"), row.names = FALSE)
+  write.csv(pca_ch_areas, file.path(path.dat1, "Extracted Data", "areas_convex_hull.csv"), 
+                  row.names = FALSE)
 
 
 ####################
 load(file.path(path.local, "PCA_output.RData"))
 
-# define two taxa you want to compare
-spp.a <- "Quercus alba"
-spp.b <- "Quercus boyntonii"
+# # define two taxa you want to compare
+# spp.a <- "Quercus alba"
+# spp.b <- "Quercus boyntonii"
+# spp.c <- "Quercus brantii"
 
 ####################
-## going to make polygons and calculate areas using sf package
-# using sf package
+# ## going to make polygons and calculate areas using sf package
+# # using sf package
+# 
+# # # make polygons of two taxa you want to compare
+# poly.ch.a <- polys.ch %>% dplyr::filter(species_name_acc == spp.a)
+# poly.ch.b <- polys.ch %>% dplyr::filter(species_name_acc == spp.b)
+# # 
+# # # calculate the area of that overlap for the 2 polygons
+# overlap.area <- st_intersection(poly.ch.a, poly.ch.b) %>% st_area()
 
-# make polygons of two taxa you want to compare
-poly.ch.a <- polys.ch %>% dplyr::filter(species_name_acc == spp.a)
-poly.ch.b <- polys.ch %>% dplyr::filter(species_name_acc == spp.b)
-
-# calculate the area of that overlap for the 2 polygons
-overlap.area <- st_intersection(poly.g.a, poly.g.b) %>% st_area()
+## function to calculate polygon overlap
+overlap2spp_polys <- function(a=spp.a, b=spp.b, polys=polys.ch){
+    # load libraries
+    require(sf); require(dplyr)
   
-    plot(poly.g.a)
-    plot(poly.g.b, add=TRUE)
+      # make polygons of two taxa you want to compare
+      poly.ch.a <- polys.ch %>% dplyr::filter(species_name_acc == a)
+      poly.ch.b <- polys.ch %>% dplyr::filter(species_name_acc == b)
+    
+      # calculate the area of that overlap for the 2 polygons
+      overlap.area <- st_intersection(poly.ch.a, poly.ch.b) %>% st_area()
+    # return value    
+      if(length(overlap.area) == 0L){overlap.area <- 0}
+      
+        return(overlap.area)
+}
+
+
+# create table (spp.pairs) for every combination of polygons to overlap
+spp_comb <- as_data_frame(unique(polys.ch$species_name_acc))
+k <- 2    #k is 2 because want 2 columns in combined dataset
+rows <- spp_comb %>% group_by_all() %>% group_split()
+row_combinations <- t(combn(x = 1:nrow(spp_comb), m = k)) %>% as_tibble() %>% 
+                      rename(spp.a=V1, spp.b=V2) ; rm(spp_comb)
+
+spp.pairs <- row_combinations %>%
+  mutate_all(~ map(., ~ pluck(rows, .x))) %>% 
+    unnest(cols=c(spp.a, spp.b), names_sep = "_")
+  names(spp.pairs) <- c('spp.a', 'spp.b')
+
+# return value for overlap of convex hull polygons for species a (spp.a) and b (spp.b)
+  # iterate through all polygon combinations
+all_spp_pairs <- spp.pairs %>% rowwise() %>% mutate(area_overlap=
+                                                    overlap2spp_polys(spp.a, spp.b, polys.ch))
+
+# add in area for both spp.a and spp.b
+  # might want to have species area here to help calculate percentage of overlap
+## STILL NEED TO DO, IF WANTED IN SAME DATASET AS AREA OVERLAP
+
+# save data
+save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
+          all_spp_pairs, overlap2spp_polys, file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+
+# write out area data
+  write.csv(all_spp_pairs, file.path(path.dat1, "Extracted Data", "areas_convex_hull_overlap.csv"), 
+              row.names = FALSE)
+
+###############################
+# Calculate centroid of polygon
+load(file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+  polys.ch[1,]
+  ch.pt <- st_centroid(polys.ch[1,])
+  
+# Distance from centroid of taxon to Morton Arboretum
+  # make st object for the PCA point for Morton Arboretum
+    ma.pt <- st_as_sf(pca.df[pca.df$species_name_acc=="MortonArb",], coords=c("PC1","PC2"))
+    
+  # define PCA point for a taxon
+    # subset each species polygon
+      # centroid will be calculated in the function (how it is)
+        #alternatively, could set centroid outside and feed into function
+    t.spp <- "Quercus alba"
+    poly.ch.t <- polys.ch %>% dplyr::filter(species_name_acc == t.spp)
+
+    
+  pca_ch_areas2 <- pca_ch_areas
+  pca_ch_areas <- pca_ch_areas2
+  
+      t.spp <- "Quercus alba"
+
+## function to calculate polygon overlap
+# dist_pt2centroid <- function(a=ma.pt, t.spp="Quercus alba", polys=polys.ch){
+dist_pt2centroid <- function(a=ma.pt, b=species_name_acc, polys=polys.ch){
+    # load libraries
+    require(sf); require(dplyr)
+  
+      # make polygons of taxon/taxa you want to compare
+        # poly.ch.t <- polys.ch %>% dplyr::filter(species_name_acc == t.spp)
+      # poly.ch.pt <- polys.ch %>% dplyr::filter(species_name_acc == b) %>% 
+
+      # calculate the area of that overlap for the 2 polygons
+        dist2points <- st_distance(ma.pt, st_centroid(polys.ch %>% dplyr::filter(species_name_acc == b)))
+    # return value    
+      if(length(dist2points) == 0L){dist2points <- 0}
+      
+        return(dist2points)
+}
+
+# dist_pt2centroid(ma.pt, species_name_acc, polys=polys.ch)
+  
+  pca_ch_areas <- pca_ch_areas %>% rowwise() %>% mutate(dist2Morton=
+          dist_pt2centroid(ma.pt, species_name_acc, polys.ch))
+
+# save data
+save(dat.all, dat.arb, dat.long, pc.t1, pc.t2, pc.xy, pca.df, pca_ch_areas, polys.ch, 
+          all_spp_pairs, overlap2spp_polys, dist_pt2centroid, file=file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+
+# write out area and distance data
+  write.csv(pca_ch_areas, file.path(path.dat1, "Extracted Data", "areas_distance_convex_hulls.csv"), 
+              row.names = FALSE)
