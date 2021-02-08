@@ -1,6 +1,14 @@
-.Rdata
+*.RData
+*.png
+*.pdf
+*.Rproj
 .Rhistory
 .history
 .DS_Store
+.Rapp.history
 .Rproj.user
-.RProj
+shannon_set_paths.R
+data/
+data_raw/ecoregions_wwf
+data_raw/hwsd
+figures/
