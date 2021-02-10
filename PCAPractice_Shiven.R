@@ -87,3 +87,150 @@ ggbiplot(mtcars.plusproj.pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circ
   ggtitle("PCA of mtcars dataset, with extra sample projected")+
   theme_minimal()+
   theme(legend.position = "bottom")
+
+
+
+
+#beginning to implement techniques from mtcars into phenological data
+#loading in packages used in soil graphs script
+library("dplyr"); library("plyr"); library("readr")
+library(ggplot2)
+library(rgdal); library(sp); library(raster)
+library(Hmisc)
+library(data.table)
+
+#Malus Collection with Morton Arb Data Point
+path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract"  
+  #if data is on hard drive
+#path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/" 
+  #if data is from shared google folder
+malus_soil <- list.files(path = path.dat,
+                         pattern = "Malus", full.names = TRUE)
+soilcols <- names(read.csv(malus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+malus_all <-  lapply(malus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+MortonArb_Data <- read.csv(file.path(path.dat,"0_MortonArb.csv"))
+malus_all <- rbind.fill(malus_all, MortonArb_Data)
+head(malus_all)
+tail(malus_all)
+
+#Quercus Collection with Morton Arb Data Point
+quercus_soil <- list.files(path = path.dat,
+                           pattern = "Quercus", full.names = TRUE)
+soilcols <- names(read.csv(quercus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+quercus_all <-  lapply(quercus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+quercus_all <- rbind.fill(quercus_all, MortonArb_Data)
+head(quercus_all)
+tail(quercus_all)
+
+#Tilia Collection with Morton Arb Data Point
+tilia_soil <- list.files(path = path.dat,
+                         pattern = "Tilia", full.names = TRUE)
+soilcols <- names(read.csv(tilia_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+tilia_all <-  lapply(tilia_soil, read.csv, colClasses=coltype) %>% bind_rows()
+tilia_all <- rbind.fill(tilia_all, MortonArb_Data)
+head(tilia_all)
+tail(tilia_all)
+
+#Ulmus Collection with Morton Arb Data Point
+ulmus_soil <- list.files(path = path.dat,
+                         pattern = "Ulmus", full.names = TRUE)
+soilcols <- names(read.csv(ulmus_soil[1]))
+col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+coltype <- rep(NA, length(soilcols))
+coltype[col.char] <- "character"
+ulmus_all <-  lapply(ulmus_soil, read.csv, colClasses=coltype) %>% bind_rows()
+ulmus_all <- rbind.fill(ulmus_all, MortonArb_Data)
+head(ulmus_all)
+tail(ulmus_all)
+
+
+#creating the PCA Plots for the Genera: considered the definite & potential characteristics from Work Plan
+#choosing only the important traits: only looked at topsoil
+#had no categorical variables: REF.DEPTH, T.USDA.TEX.CLASS
+important_traits <- c("T.GRAVEL", "T.SAND", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", 
+                      "T.TEB", "T.ECE", "AWC_VALUE", "T.REF.BULK.DENSITY", "T.TEXTURE", 
+                      "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
+
+#Trying to convert all important traits in malus to numerics: I'm sure I could do this as a loop somehow
+malus_all$T.GRAVEL <- as.numeric(as.factor(malus_all$T.GRAVEL))
+malus_all$T.SAND <- as.numeric(as.factor(malus_all$T.SAND))
+malus_all$T.SILT <- as.numeric(as.factor(malus_all$T.SILT))
+malus_all$T.CLAY <- as.numeric(as.factor(malus_all$T.CLAY))
+malus_all$AWC_VALUE <- as.numeric(as.factor(malus_all$AWC_VALUE))
+malus_all$T.TEXTURE <- as.numeric(as.factor(malus_all$T.TEXTURE))
+malus_all$ROOTS <- as.numeric(as.factor(malus_all$ROOTS))
+malus_all$T.CEC.CLAY <- as.numeric(as.factor(malus_all$T.CEC.CLAY))
+malus_all$T.ESP <- as.numeric(as.factor(malus_all$T.ESP))
+#getting rid of the malus NA values
+malus_all <- malus_all[complete.cases(malus_all[,important_traits]),]
+
+#malus PCA
+malus.pca <- prcomp(malus_all[,important_traits], center = TRUE,scale. = TRUE) 
+  #error with missing/infinite values: I think I need to get rid of the NAs or convert each column into a numeric
+summary(malus.pca)
+
+
+#Trying to convert all important traits in quercus to numerics: I'm sure I could do this as a loop somehow
+quercus_all$T.GRAVEL <- as.numeric(as.factor(quercus_all$T.GRAVEL))
+quercus_all$T.SAND <- as.numeric(as.factor(quercus_all$T.SAND))
+quercus_all$T.SILT <- as.numeric(as.factor(quercus_all$T.SILT))
+quercus_all$T.CLAY <- as.numeric(as.factor(quercus_all$T.CLAY))
+quercus_all$AWC_VALUE <- as.numeric(as.factor(quercus_all$AWC_VALUE))
+quercus_all$T.TEXTURE <- as.numeric(as.factor(quercus_all$T.TEXTURE))
+quercus_all$ROOTS <- as.numeric(as.factor(quercus_all$ROOTS))
+quercus_all$T.CEC.CLAY <- as.numeric(as.factor(quercus_all$T.CEC.CLAY))
+quercus_all$T.ESP <- as.numeric(as.factor(quercus_all$T.ESP))
+#getting rid of the quercus NA values
+quercus_all <- quercus_all[complete.cases(quercus_all[,important_traits]),]
+
+#quercus PCA
+quercus.pca <- prcomp(quercus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+summary(quercus.pca)
+quercus.pca$rotation
+
+
+#Trying to convert all important traits in tilia to numerics: I'm sure I could do this as a loop somehow
+tilia_all$T.GRAVEL <- as.numeric(as.factor(tilia_all$T.GRAVEL))
+tilia_all$T.SAND <- as.numeric(as.factor(tilia_all$T.SAND))
+tilia_all$T.SILT <- as.numeric(as.factor(tilia_all$T.SILT))
+tilia_all$T.CLAY <- as.numeric(as.factor(tilia_all$T.CLAY))
+tilia_all$AWC_VALUE <- as.numeric(as.factor(tilia_all$AWC_VALUE))
+tilia_all$T.TEXTURE <- as.numeric(as.factor(tilia_all$T.TEXTURE))
+tilia_all$ROOTS <- as.numeric(as.factor(tilia_all$ROOTS))
+tilia_all$T.CEC.CLAY <- as.numeric(as.factor(tilia_all$T.CEC.CLAY))
+tilia_all$T.ESP <- as.numeric(as.factor(tilia_all$T.ESP))
+#getting rid of the tilia NA values
+tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits]),]
+
+#tilia PCA
+tilia.pca <- prcomp(tilia_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+summary(tilia.pca)
+tilia.pca$rotation
+
+
+#Trying to convert all important traits in ulmus to numerics: I'm sure I could do this as a loop somehow
+ulmus_all$T.GRAVEL <- as.numeric(as.factor(ulmus_all$T.GRAVEL))
+ulmus_all$T.SAND <- as.numeric(as.factor(ulmus_all$T.SAND))
+ulmus_all$T.SILT <- as.numeric(as.factor(ulmus_all$T.SILT))
+ulmus_all$T.CLAY <- as.numeric(as.factor(ulmus_all$T.CLAY))
+ulmus_all$AWC_VALUE <- as.numeric(as.factor(ulmus_all$AWC_VALUE))
+ulmus_all$T.TEXTURE <- as.numeric(as.factor(ulmus_all$T.TEXTURE))
+ulmus_all$ROOTS <- as.numeric(as.factor(ulmus_all$ROOTS))
+ulmus_all$T.CEC.CLAY <- as.numeric(as.factor(ulmus_all$T.CEC.CLAY))
+ulmus_all$T.ESP <- as.numeric(as.factor(ulmus_all$T.ESP))
+#getting rid of the ulmus NA values
+ulmus_all <- ulmus_all[complete.cases(ulmus_all[,important_traits]),]
+
+#ulmus PCA
+ulmus.pca <- prcomp(ulmus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+summary(ulmus.pca)
+ulmus.pca$rotation
