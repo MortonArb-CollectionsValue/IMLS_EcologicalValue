@@ -93,6 +93,9 @@ ggbiplot(mtcars.plusproj.pca, obs.scale = 1, var.scale = 1, ellipse = TRUE, circ
 
 #beginning to implement techniques from mtcars into phenological data
 #loading in packages used in soil graphs script
+library(devtools)
+# install_github("vqv/ggbiplot") #just used blank line when asked question
+library(ggbiplot)
 library("dplyr"); library("plyr"); library("readr")
 library(ggplot2)
 library(rgdal); library(sp); library(raster)
@@ -153,6 +156,7 @@ head(ulmus_all)
 tail(ulmus_all)
 
 
+
 #creating the PCA Plots for the Genera: considered the definite & potential characteristics from Work Plan
 #choosing only the important traits: only looked at topsoil
 #had no categorical variables: REF.DEPTH, T.USDA.TEX.CLASS
@@ -160,77 +164,32 @@ important_traits <- c("T.GRAVEL", "T.SAND", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2
                       "T.TEB", "T.ECE", "AWC_VALUE", "T.REF.BULK.DENSITY", "T.TEXTURE", 
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
 
-#Trying to convert all important traits in malus to numerics: I'm sure I could do this as a loop somehow
-malus_all$T.GRAVEL <- as.numeric(as.factor(malus_all$T.GRAVEL))
-malus_all$T.SAND <- as.numeric(as.factor(malus_all$T.SAND))
-malus_all$T.SILT <- as.numeric(as.factor(malus_all$T.SILT))
-malus_all$T.CLAY <- as.numeric(as.factor(malus_all$T.CLAY))
-malus_all$AWC_VALUE <- as.numeric(as.factor(malus_all$AWC_VALUE))
-malus_all$T.TEXTURE <- as.numeric(as.factor(malus_all$T.TEXTURE))
-malus_all$ROOTS <- as.numeric(as.factor(malus_all$ROOTS))
-malus_all$T.CEC.CLAY <- as.numeric(as.factor(malus_all$T.CEC.CLAY))
-malus_all$T.ESP <- as.numeric(as.factor(malus_all$T.ESP))
+
 #getting rid of the malus NA values
 malus_all <- malus_all[complete.cases(malus_all[,important_traits]),]
-
-#malus PCA
+#Malus PCA
 malus.pca <- prcomp(malus_all[,important_traits], center = TRUE,scale. = TRUE) 
   #error with missing/infinite values: I think I need to get rid of the NAs or convert each column into a numeric
 summary(malus.pca)
+malus.pca$rotation
 
-
-#Trying to convert all important traits in quercus to numerics: I'm sure I could do this as a loop somehow
-quercus_all$T.GRAVEL <- as.numeric(as.factor(quercus_all$T.GRAVEL))
-quercus_all$T.SAND <- as.numeric(as.factor(quercus_all$T.SAND))
-quercus_all$T.SILT <- as.numeric(as.factor(quercus_all$T.SILT))
-quercus_all$T.CLAY <- as.numeric(as.factor(quercus_all$T.CLAY))
-quercus_all$AWC_VALUE <- as.numeric(as.factor(quercus_all$AWC_VALUE))
-quercus_all$T.TEXTURE <- as.numeric(as.factor(quercus_all$T.TEXTURE))
-quercus_all$ROOTS <- as.numeric(as.factor(quercus_all$ROOTS))
-quercus_all$T.CEC.CLAY <- as.numeric(as.factor(quercus_all$T.CEC.CLAY))
-quercus_all$T.ESP <- as.numeric(as.factor(quercus_all$T.ESP))
 #getting rid of the quercus NA values
 quercus_all <- quercus_all[complete.cases(quercus_all[,important_traits]),]
-
-#quercus PCA
+#Quercus PCA
 quercus.pca <- prcomp(quercus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(quercus.pca)
 quercus.pca$rotation
 
-
-#Trying to convert all important traits in tilia to numerics: I'm sure I could do this as a loop somehow
-tilia_all$T.GRAVEL <- as.numeric(as.factor(tilia_all$T.GRAVEL))
-tilia_all$T.SAND <- as.numeric(as.factor(tilia_all$T.SAND))
-tilia_all$T.SILT <- as.numeric(as.factor(tilia_all$T.SILT))
-tilia_all$T.CLAY <- as.numeric(as.factor(tilia_all$T.CLAY))
-tilia_all$AWC_VALUE <- as.numeric(as.factor(tilia_all$AWC_VALUE))
-tilia_all$T.TEXTURE <- as.numeric(as.factor(tilia_all$T.TEXTURE))
-tilia_all$ROOTS <- as.numeric(as.factor(tilia_all$ROOTS))
-tilia_all$T.CEC.CLAY <- as.numeric(as.factor(tilia_all$T.CEC.CLAY))
-tilia_all$T.ESP <- as.numeric(as.factor(tilia_all$T.ESP))
 #getting rid of the tilia NA values
 tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits]),]
-
-#tilia PCA
+#Tilia PCA
 tilia.pca <- prcomp(tilia_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(tilia.pca)
 tilia.pca$rotation
 
-
-#Trying to convert all important traits in ulmus to numerics: I'm sure I could do this as a loop somehow
-ulmus_all$T.GRAVEL <- as.numeric(as.factor(ulmus_all$T.GRAVEL))
-ulmus_all$T.SAND <- as.numeric(as.factor(ulmus_all$T.SAND))
-ulmus_all$T.SILT <- as.numeric(as.factor(ulmus_all$T.SILT))
-ulmus_all$T.CLAY <- as.numeric(as.factor(ulmus_all$T.CLAY))
-ulmus_all$AWC_VALUE <- as.numeric(as.factor(ulmus_all$AWC_VALUE))
-ulmus_all$T.TEXTURE <- as.numeric(as.factor(ulmus_all$T.TEXTURE))
-ulmus_all$ROOTS <- as.numeric(as.factor(ulmus_all$ROOTS))
-ulmus_all$T.CEC.CLAY <- as.numeric(as.factor(ulmus_all$T.CEC.CLAY))
-ulmus_all$T.ESP <- as.numeric(as.factor(ulmus_all$T.ESP))
 #getting rid of the ulmus NA values
 ulmus_all <- ulmus_all[complete.cases(ulmus_all[,important_traits]),]
-
-#ulmus PCA
+#Ulmus PCA
 ulmus.pca <- prcomp(ulmus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(ulmus.pca)
 ulmus.pca$rotation

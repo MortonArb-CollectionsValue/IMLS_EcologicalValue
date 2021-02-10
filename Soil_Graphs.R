@@ -90,6 +90,6 @@ shinyApp(
 
     })
   }
-)
+v)
 
    shinyApp(ui, server)
