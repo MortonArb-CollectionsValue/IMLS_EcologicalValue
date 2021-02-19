@@ -67,24 +67,18 @@ tail(ulmus_all)
 #creating the PCA Plots for the Genera: considered the definite & potential characteristics from Work Plan
 #choosing only the important traits: only looked at topsoil
 #had no categorical variables: REF.DEPTH, T.USDA.TEX.CLASS
-#Reduced T.SAND, T.REF.BULK.DENSITY, T.TEXTURE: 3 made up the greatest proportion of similarities
-important_traits <- c("T.GRAVEL", 
-                      #"T.SAND", 
-                      "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", 
-                      "T.TEB", "T.ECE", "AWC_VALUE", 
-                      #"T.REF.BULK.DENSITY", "T.TEXTURE", 
+important_traits <- c("T.GRAVEL", "T.SAND", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", 
+                      "T.TEB", "T.ECE", "AWC_VALUE", "T.REF.BULK.DENSITY", "T.TEXTURE", 
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
 
 
 #getting rid of the malus NA values
 malus_all <- malus_all[complete.cases(malus_all[,important_traits]),]
-# #getting rid of columns in R
-# malus_all$T.SAND <- NULL
 #Reduction of Malus Variables
-Malus_Reduction <- cor(malus_all[,important_traits])
-Malus_Reduction
+cor(malus_all[,important_traits])
 #Malus PCA
 malus.pca <- prcomp(malus_all[,important_traits], center = TRUE,scale. = TRUE) 
+#error with missing/infinite values: I think I need to get rid of the NAs or convert each column into a numeric
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
@@ -93,8 +87,7 @@ ggbiplot(malus.pca) #basic plot
 #getting rid of the quercus NA values
 quercus_all <- quercus_all[complete.cases(quercus_all[,important_traits]),]
 #Reduction of Quercus Variables
-Quercus_Reduction <- cor(quercus_all[,important_traits])
-Quercus_Reduction
+cor(quercus_all[,important_traits])
 #Quercus PCA
 quercus.pca <- prcomp(quercus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(quercus.pca)
@@ -105,8 +98,7 @@ ggbiplot(quercus,pca) #basic plot
 #getting rid of the tilia NA values
 tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits]),]
 #Reduction of Tilia Variables
-Tilia_Reduction <- cor(tilia_all[,important_traits])
-Tilia_Reduction
+cor(tilia_all[,important_traits])
 #Tilia PCA
 tilia.pca <- prcomp(tilia_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(tilia.pca)
@@ -117,12 +109,10 @@ ggbiplot(tilia.pc) #basic plot
 #getting rid of the ulmus NA values
 ulmus_all <- ulmus_all[complete.cases(ulmus_all[,important_traits]),]
 #Reduction of Ulmus Variables
-Ulmus_Reduction <- cor(ulmus_all[,important_traits])
-Ulmus_Reduction
+cor(ulmus_all[,important_traits])
 #Ulmus PCA
 ulmus.pca <- prcomp(ulmus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
 summary(ulmus.pca)
 ulmus.pca$rotation
 #analysis of PCA Plots
 ggbiplot(ulmus.pca) #basic plot
-
