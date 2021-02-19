@@ -119,8 +119,29 @@ ggbiplot(quercus.pca) #basic plot
 quercus.pca2 <- prcomp(quercus_all[,important_traits2], center = TRUE,scale. = TRUE) 
 summary(quercus.pca2)
 quercus.pca2$rotation
-#analysis of PCA Plots
-ggbiplot(quercus.pca2) #basic plot
+#analysis of PCA Plots: 
+ggbiplot(quercus.pca2) + scale_x_continuous(limits=c(-3,2)) +
+  scale_y_continuous(limits=c(-3,2))
+#basic plot
+
+pc1.mean <- mean(quercus.pca2$x[,1])
+pc1.sd <- sd(quercus.pca2$x[,1])
+#pc1.quant <- quantile(quercus.pca2$x[,1], c(0.01, 0.99))
+pc1.lim <- c(pc1.mean-3*pc1.sd, pc1.mean+3*pc1.sd)
+range(quercus.pca2$x[,1])
+
+
+pc2.mean <- mean(quercus.pca2$x[,2])
+pc2.sd <- sd(quercus.pca2$x[,2])
+pc2.quant <- quantile(quercus.pca2$x[,2], c(0.01, 0.99))
+pc2.lim <- c(pc1.mean-3*pc1.sd, pc1.mean+3*pc1.sd)
+range(quercus.pca2$x[,2])
+
+pc1.bound <- c(max(min(quercus.pca2$x[,1]), pc1.lim[1]), min(max(quercus.pca2$x[,1]), pc1.lim[2]))
+pc2.bound <- c(max(min(quercus.pca2$x[,2]), pc2.lim[1]), min(max(quercus.pca2$x[,2]), pc2.lim[2]))
+
+
+
 
 #getting rid of the Tilia NA values
 tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits]),]
