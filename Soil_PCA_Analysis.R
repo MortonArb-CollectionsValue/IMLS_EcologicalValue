@@ -70,49 +70,100 @@ tail(ulmus_all)
 important_traits <- c("T.GRAVEL", "T.SAND", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", 
                       "T.TEB", "T.ECE", "AWC_VALUE", "T.REF.BULK.DENSITY", "T.TEXTURE", 
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
+#revised to take out T.SAND, T.REF.BULK.DENSITY, T.TEXTURE
+important_traits2 <- c("T.GRAVEL", 
+                      #"T.SAND", 
+                      "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
+                      #"T.REF.BULK.DENSITY", "T.TEXTURE", 
+                      "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
 
 
-#getting rid of the malus NA values
+#getting rid of the Malus NA values
 malus_all <- malus_all[complete.cases(malus_all[,important_traits]),]
-#Reduction of Malus Variables
-cor(malus_all[,important_traits])
-#Malus PCA
+malus_all <- malus_all[complete.cases(malus_all[,important_traits2]),]
+#Reduction of Malus Variables: saved them to hard drive
+MalusSoils_Reduction1 <- cor(malus_all[,important_traits])
+#write.csv(MalusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/MalusSoils_Reduction1.csv", row.names=TRUE)
+MalusSoils_Reduction2 <- cor(malus_all[,important_traits2])
+#write.csv(MalusSoils_Reduction2, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/MalusSoils_Reduction2.csv", row.names=TRUE)
+#Malus PCA 1
 malus.pca <- prcomp(malus_all[,important_traits], center = TRUE,scale. = TRUE) 
-#error with missing/infinite values: I think I need to get rid of the NAs or convert each column into a numeric
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
 ggbiplot(malus.pca) #basic plot
+#Malus PCA 2
+malus.pca2 <- prcomp(malus_all[,important_traits2], center = TRUE,scale. = TRUE) 
+summary(malus.pca2)
+malus.pca2$rotation
+#analysis of PCA Plots
+ggbiplot(malus.pca2) #basic plot
 
-#getting rid of the quercus NA values
+#getting rid of the Quercus NA values
 quercus_all <- quercus_all[complete.cases(quercus_all[,important_traits]),]
-#Reduction of Quercus Variables
-cor(quercus_all[,important_traits])
-#Quercus PCA
-quercus.pca <- prcomp(quercus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+quercus_all <- quercus_all[complete.cases(quercus_all[,important_traits2]),]
+#Reduction of Quercus Variables: saved to Hard Drive
+QuercusSoils_Reduction1 <- cor(quercus_all[,important_traits])
+QuercusSoils_Reduction1
+#write.csv(QuercusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/QuercusSoils_Reduction1.csv", row.names=TRUE)
+QuercusSoils_Reduction2 <- cor(quercus_all[,important_traits2])
+QuercusSoils_Reduction2
+#write.csv(QuercusSoils_Reduction2, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/QuercusSoils_Reduction2.csv", row.names=TRUE)
+#Quercus PCA 1
+quercus.pca <- prcomp(quercus_all[,important_traits], center = TRUE,scale. = TRUE) 
 summary(quercus.pca)
 quercus.pca$rotation
 #analysis of PCA Plots
-ggbiplot(quercus,pca) #basic plot
+ggbiplot(quercus.pca) #basic plot
+#Quercus PCA 2
+quercus.pca2 <- prcomp(quercus_all[,important_traits2], center = TRUE,scale. = TRUE) 
+summary(quercus.pca2)
+quercus.pca2$rotation
+#analysis of PCA Plots
+ggbiplot(quercus.pca2) #basic plot
 
-#getting rid of the tilia NA values
+#getting rid of the Tilia NA values
 tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits]),]
-#Reduction of Tilia Variables
-cor(tilia_all[,important_traits])
-#Tilia PCA
-tilia.pca <- prcomp(tilia_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+tilia_all <- tilia_all[complete.cases(tilia_all[,important_traits2]),]
+#Reduction of Tilia Variables: saved to Hard Drive
+TiliaSoils_Reduction1 <- cor(tilia_all[,important_traits])
+TiliaSoils_Reduction1
+#write.csv(TiliaSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/TiliaSoils_Reduction1.csv", row.names=TRUE)
+TiliaSoils_Reduction2 <- cor(tilia_all[,important_traits2])
+TiliaSoils_Reduction2
+#write.csv(TiliaSoils_Reduction2, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/TiliaSoils_Reduction2.csv", row.names=TRUE)
+#Tilia PCA 1
+tilia.pca <- prcomp(tilia_all[,important_traits], center = TRUE,scale. = TRUE) 
 summary(tilia.pca)
 tilia.pca$rotation
 #analysis of PCA Plots
-ggbiplot(tilia.pc) #basic plot
+ggbiplot(tilia.pca) #basic plot
+#Tilia PCA 2
+tilia.pca2 <- prcomp(tilia_all[,important_traits2], center = TRUE,scale. = TRUE) 
+summary(tilia.pca2)
+tilia.pca2$rotation
+#analysis of PCA Plots
+ggbiplot(.pca2) #basic plot
 
-#getting rid of the ulmus NA values
+#getting rid of the Ulmus NA values
 ulmus_all <- ulmus_all[complete.cases(ulmus_all[,important_traits]),]
+ulmus_all <- ulmus_all[complete.cases(ulmus_all[,important_traits2]),]
 #Reduction of Ulmus Variables
-cor(ulmus_all[,important_traits])
-#Ulmus PCA
-ulmus.pca <- prcomp(ulmus_all[,c(important_traits)], center = TRUE,scale. = TRUE)
+UlmusSoils_Reduction1 <- cor(ulmus_all[,important_traits])
+UlmusSoils_Reduction1
+#write.csv(UlmusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/UlmusSoils_Reduction1.csv", row.names=TRUE)
+UlmusSoils_Reduction2 <- cor(ulmus_all[,important_traits2])
+UlmusSoils_Reduction2
+#write.csv(TiliaSoils_Reduction2, "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Reductions/UlmusSoils_Reduction2.csv", row.names=TRUE)
+#Ulmus PCA 1
+ulmus.pca <- prcomp(ulmus_all[,important_traits], center = TRUE,scale. = TRUE) 
 summary(ulmus.pca)
 ulmus.pca$rotation
 #analysis of PCA Plots
 ggbiplot(ulmus.pca) #basic plot
+#Ulmus PCA 2
+ulmus.pca2 <- prcomp(ulmus_all[,important_traits2], center = TRUE,scale. = TRUE) 
+summary(ulmus.pca2)
+ulmus.pca2$rotation
+#analysis of PCA Plots
+ggbiplot(ulmus.pca2) #basic plot
