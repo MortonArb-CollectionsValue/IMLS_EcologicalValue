@@ -13,3 +13,5 @@ data_raw/ecoregions_wwf
 data_raw/hwsd
 figures/
 *.Rproj*
+.RDataTmp
+.RDataTmp1
