@@ -94,8 +94,8 @@ sapply(malus_climate_ppt, mode)
 #getting rid of the Malus NA values
 malus_climate_ppt <- malus_climate_ppt[complete.cases(malus_climate_ppt[,important_traits]),]
 #Reduction of Malus Variables: saved them to hard drive
-MalusSoils_Reduction1 <- cor(malus_climate_ppt[,important_traits])
-#write.csv(MalusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction1.csv", row.names=TRUE)
+MalusPPT_Reduction1 <- cor(malus_climate_ppt[,important_traits])
+#write.csv(MalusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction1.csv", row.names=TRUE)
 #Malus PCA 1
 malus.pca <- prcomp(malus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
@@ -124,8 +124,8 @@ sapply(quercus_climate_ppt, mode)
 #getting rid of the Quercus NA values
 quercus_climate_ppt <- quercus_climate_ppt[complete.cases(quercus_climate_ppt[,important_traits]),]
 #Reduction of Quercus Variables: saved them to hard drive
-QuercusSoils_Reduction1 <- cor(quercus_climate_ppt[,important_traits])
-#write.csv(QuercusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/QuercusPPT_Reduction1.csv", row.names=TRUE)
+QuercusPPT_Reduction1 <- cor(quercus_climate_ppt[,important_traits])
+#write.csv(QuercusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/QuercusPPT_Reduction1.csv", row.names=TRUE)
 #Quercus PCA 1
 quercus.pca <- prcomp(quercus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
 summary(quercus.pca)
@@ -154,8 +154,8 @@ sapply(tilia_climate_ppt, mode)
 #getting rid of the Tilia NA values
 tilia_climate_ppt <- tilia_climate_ppt[complete.cases(tilia_climate_ppt[,important_traits]),]
 #Reduction of tilia Variables: saved them to hard drive
-TiliaSoils_Reduction1 <- cor(tilia_climate_ppt[,important_traits])
-#write.csv(TiliaSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/TiliaPPT_Reduction1.csv", row.names=TRUE)
+TiliaPPT_Reduction1 <- cor(tilia_climate_ppt[,important_traits])
+#write.csv(TiliaPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/TiliaPPT_Reduction1.csv", row.names=TRUE)
 #tilia PCA 1
 tilia.pca <- prcomp(tilia_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
 summary(tilia.pca)
@@ -184,8 +184,8 @@ sapply(ulmus_climate_ppt, mode)
 #getting rid of the Ulmus NA values
 ulmus_climate_ppt <- ulmus_climate_ppt[complete.cases(ulmus_climate_ppt[,important_traits]),]
 #Reduction of Ulmus Variables: saved them to hard drive
-UlmusSoils_Reduction1 <- cor(ulmus_climate_ppt[,important_traits])
-#write.csv(UlmusSoils_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/UlmusPPT_Reduction1.csv", row.names=TRUE)
+UlmusPPT_Reduction1 <- cor(ulmus_climate_ppt[,important_traits])
+#write.csv(UlmusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/UlmusPPT_Reduction1.csv", row.names=TRUE)
 #Ulmus PCA 1
 ulmus.pca <- prcomp(ulmus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
 summary(ulmus.pca)
