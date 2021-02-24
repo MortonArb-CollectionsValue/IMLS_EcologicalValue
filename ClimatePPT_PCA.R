@@ -70,9 +70,11 @@ tail(ulmus_climate_ppt)
 
 #PCA PLOTS
 #choosing only the important traits: no categorical
+#for reduction (important_traits2) looked at sums of each trait and then took least sum from each category (ppt.ann, ppt.max, ppt.min)
 important_traits <- c("ppt.ann.mean","ppt.ann.sd","ppt.ann.max","ppt.ann.min",
                       "ppt.max.mean","ppt.max.sd","ppt.max.max","ppt.max.min",
                       "ppt.min.mean","ppt.min.sd","ppt.min.max","ppt.min.min")
+important_traits2 <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
 
 #Malus PPT PCA
 #converting all malus columns to numerics
@@ -95,9 +97,17 @@ sapply(malus_climate_ppt, mode)
 malus_climate_ppt <- malus_climate_ppt[complete.cases(malus_climate_ppt[,important_traits]),]
 #Reduction of Malus Variables: saved them to hard drive
 MalusPPT_Reduction1 <- cor(malus_climate_ppt[,important_traits])
+MalusPPT_Reduction2 <- cor(malus_climate_ppt[,important_traits2])
 #write.csv(MalusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction1.csv", row.names=TRUE)
+#write.csv(MalusPPT_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction2.csv", row.names=TRUE)
 #Malus PCA 1
 malus.pca <- prcomp(malus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
+summary(malus.pca)
+malus.pca$rotation
+#analysis of PCA Plots
+ggbiplot(malus.pca) #basic plot
+#Malus PCA 2
+malus.pca <- prcomp(malus_climate_ppt[,important_traits2], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
