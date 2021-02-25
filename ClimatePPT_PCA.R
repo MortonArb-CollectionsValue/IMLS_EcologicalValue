@@ -23,7 +23,7 @@ pptcols <- names(read.csv(malus_ppt[1]))
 coltype <- rep(NA, length(pptcols))
 coltype <- "character"
 malus_climate_ppt <-  lapply(malus_ppt, read.csv, colClasses=coltype) %>% bind_rows()
-malus_climate_ppt <- rbind.fill(malus_climate_ppt, MortonArb_Data_ppt)
+#malus_climate_ppt <- rbind.fill(malus_climate_ppt, MortonArb_Data_ppt)
 malus_climate_ppt <- tidyr::separate(malus_climate_ppt, col = "species_name_acc", into=c("genus", "species"))
 head(malus_climate_ppt)
 tail(malus_climate_ppt)
@@ -36,7 +36,7 @@ climatecols <- names(read.csv(quercus_ppt[1]))
 coltype <- rep(NA, length(climatecols))
 coltype <- "character"
 quercus_climate_ppt <-  lapply(quercus_ppt, read.csv, colClasses=coltype) %>% bind_rows()
-quercus_climate_ppt <- rbind.fill(quercus_climate_ppt, MortonArb_Data_ppt)
+#quercus_climate_ppt <- rbind.fill(quercus_climate_ppt, MortonArb_Data_ppt)
 quercus_climate_ppt <- tidyr::separate(quercus_climate_ppt, col = "species_name_acc", into=c("genus", "species"))
 head(quercus_climate_ppt)
 tail(quercus_climate_ppt)
@@ -49,7 +49,7 @@ pptcols <- names(read.csv(tilia_ppt[1]))
 coltype <- rep(NA, length(pptcols))
 coltype <- "character"
 tilia_climate_ppt <-  lapply(tilia_ppt, read.csv, colClasses=coltype) %>% bind_rows()
-tilia_climate_ppt <- rbind.fill(tilia_climate_ppt, MortonArb_Data_ppt)
+#tilia_climate_ppt <- rbind.fill(tilia_climate_ppt, MortonArb_Data_ppt)
 tilia_climate_ppt <- tidyr::separate(tilia_climate_ppt, col = "species_name_acc", into=c("genus", "species"))
 head(tilia_climate_ppt)
 tail(tilia_climate_ppt)
@@ -62,19 +62,57 @@ pptcols <- names(read.csv(ulmus_ppt[1]))
 coltype <- rep(NA, length(pptcols))
 coltype <- "character"
 ulmus_climate_ppt <-  lapply(ulmus_ppt, read.csv, colClasses=coltype) %>% bind_rows()
-ulmus_climate_ppt <- rbind.fill(ulmus_climate_ppt, MortonArb_Data_ppt)
+#ulmus_climate_ppt <- rbind.fill(ulmus_climate_ppt, MortonArb_Data_ppt)
 ulmus_climate_ppt <- tidyr::separate(ulmus_climate_ppt, col = "species_name_acc", into=c("genus", "species"))
 head(ulmus_climate_ppt)
 tail(ulmus_climate_ppt)
 
+#PPT Boxplots to show data distribution
+#package for shiny
+library(shiny); library(shinydashboard); library(shinyWidgets); library(plyr)
 
-#PCA PLOTS
+#combining data frames of different genus to allow for dropdown chooser in shiny
+#Made rbind.fills to add Morton Arb to each genera's df comments so it is not counted 2x in total_ppt
+library(data.table)
+total_ppt <- rbind.fill(malus_climate_ppt, quercus_climate_ppt, tilia_climate_ppt,  ulmus_climate_ppt, MortonArb_Data_ppt)
+head(total_ppt)
+tail(total_ppt)
+
 #choosing only the important traits: no categorical
-#for reduction (important_traits2) looked at sums of each trait and then took least sum from each category (ppt.ann, ppt.max, ppt.min)
-important_traits <- c("ppt.ann.mean","ppt.ann.sd","ppt.ann.max","ppt.ann.min",
-                      "ppt.max.mean","ppt.max.sd","ppt.max.max","ppt.max.min",
-                      "ppt.min.mean","ppt.min.sd","ppt.min.max","ppt.min.min")
-important_traits2 <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
+important_traits_ppt <- c("ppt.ann.mean","ppt.ann.sd","ppt.ann.max","ppt.ann.min",
+                          "ppt.max.mean","ppt.max.sd","ppt.max.max","ppt.max.min",
+                          "ppt.min.mean","ppt.min.sd","ppt.min.max","ppt.min.min")
+
+#have to make sure MortonArb points is MortonArb so it doesn't show up in genera dropdown
+total_ppt$genus[total_ppt$UID=="MORTONARB"] <- "MortonArb"
+
+#boxplot/violinplot that displays dropdown for genus & variable
+#horizontal redline displaying Arb's value
+shinyApp(
+  ui = fluidPage(
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus[total$genus!="MortonArb"])))),
+    selectInput("Variable", "Variable:", list(Variable=names(total[important_traits_ppt]))),
+    plotOutput("data")
+  ),
+  server = function(input, output) {
+    output$data <- renderPlot({
+      total$VAR.GRAPH <- total[,input$Variable]
+      # what original looked like
+      ggplot(total[total$genus==input$Genus, ]) +
+        geom_violin(data=total[total$genus==input$Genus, ], aes(x=species, y=VAR.GRAPH), scale = "width") + #can be boxplots or violin plot
+        geom_hline(data=total[total$UID==MortonArb_Data_ppt,], aes(yintercept=VAR.GRAPH), color="red") +
+        theme(axis.text.x = element_text(angle = 90, hjust = 1))
+      
+    })
+  }
+)
+
+shinyApp(ui, server)
+
+
+u#PCA PLOTS
+#for reduction (important_traits_ppt2) looked at sums of each trait and then took least sum from each category (ppt.ann, ppt.max, ppt.min)
+important_traits_ppt2 <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
 
 #Malus PPT PCA
 #converting all malus columns to numerics
@@ -94,20 +132,20 @@ malus_climate_ppt$ppt.min.min <- as.numeric(malus_climate_ppt$ppt.min.min)
 sapply(malus_climate_ppt, mode)
 
 #getting rid of the Malus NA values
-malus_climate_ppt <- malus_climate_ppt[complete.cases(malus_climate_ppt[,important_traits]),]
+malus_climate_ppt <- malus_climate_ppt[complete.cases(malus_climate_ppt[,important_traits_ppt]),]
 #Reduction of Malus Variables: saved them to hard drive
-MalusPPT_Reduction1 <- cor(malus_climate_ppt[,important_traits])
-MalusPPT_Reduction2 <- cor(malus_climate_ppt[,important_traits2])
+MalusPPT_Reduction1 <- cor(malus_climate_ppt[,important_traits_ppt])
+MalusPPT_Reduction2 <- cor(malus_climate_ppt[,important_traits_ppt2])
 #write.csv(MalusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction1.csv", row.names=TRUE)
 #write.csv(MalusPPT_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/MalusPPT_Reduction2.csv", row.names=TRUE)
 #Malus PCA 1
-malus.pca <- prcomp(malus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
+malus.pca <- prcomp(malus_climate_ppt[,important_traits_ppt], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
 ggbiplot(malus.pca) #basic plot
 #Malus PCA 2
-malus.pca <- prcomp(malus_climate_ppt[,important_traits2], center = TRUE,scale. = TRUE) 
+malus.pca <- prcomp(malus_climate_ppt[,important_traits_ppt2], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
@@ -131,13 +169,17 @@ quercus_climate_ppt$ppt.min.max <- as.numeric(quercus_climate_ppt$ppt.min.max)
 quercus_climate_ppt$ppt.min.min <- as.numeric(quercus_climate_ppt$ppt.min.min)
 sapply(quercus_climate_ppt, mode)
 
+important_traits_ppt
+#apply to all scripts to condense code
+for(IMP in important_traits_ppt){ quercus_climate_ppt[,IMP] <- as.numeric(quercus_climate_ppt[,IMP])}
+
 #getting rid of the Quercus NA values
-quercus_climate_ppt <- quercus_climate_ppt[complete.cases(quercus_climate_ppt[,important_traits]),]
+quercus_climate_ppt <- quercus_climate_ppt[complete.cases(quercus_climate_ppt[,important_traits_ppt]),]
 #Reduction of Quercus Variables: saved them to hard drive
-QuercusPPT_Reduction1 <- cor(quercus_climate_ppt[,important_traits])
+QuercusPPT_Reduction1 <- cor(quercus_climate_ppt[,important_traits_ppt])
 #write.csv(QuercusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/QuercusPPT_Reduction1.csv", row.names=TRUE)
 #Quercus PCA 1
-quercus.pca <- prcomp(quercus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
+quercus.pca <- prcomp(quercus_climate_ppt[,important_traits_ppt], center = TRUE,scale. = TRUE) 
 summary(quercus.pca)
 quercus.pca$rotation
 #analysis of PCA Plots
@@ -162,12 +204,12 @@ tilia_climate_ppt$ppt.min.min <- as.numeric(tilia_climate_ppt$ppt.min.min)
 sapply(tilia_climate_ppt, mode)
 
 #getting rid of the Tilia NA values
-tilia_climate_ppt <- tilia_climate_ppt[complete.cases(tilia_climate_ppt[,important_traits]),]
+tilia_climate_ppt <- tilia_climate_ppt[complete.cases(tilia_climate_ppt[,important_traits_ppt]),]
 #Reduction of tilia Variables: saved them to hard drive
-TiliaPPT_Reduction1 <- cor(tilia_climate_ppt[,important_traits])
+TiliaPPT_Reduction1 <- cor(tilia_climate_ppt[,important_traits_ppt])
 #write.csv(TiliaPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/TiliaPPT_Reduction1.csv", row.names=TRUE)
 #tilia PCA 1
-tilia.pca <- prcomp(tilia_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
+tilia.pca <- prcomp(tilia_climate_ppt[,important_traits_ppt], center = TRUE,scale. = TRUE) 
 summary(tilia.pca)
 tilia.pca$rotation
 #analysis of PCA Plots
@@ -192,12 +234,12 @@ ulmus_climate_ppt$ppt.min.min <- as.numeric(ulmus_climate_ppt$ppt.min.min)
 sapply(ulmus_climate_ppt, mode)
 
 #getting rid of the Ulmus NA values
-ulmus_climate_ppt <- ulmus_climate_ppt[complete.cases(ulmus_climate_ppt[,important_traits]),]
+ulmus_climate_ppt <- ulmus_climate_ppt[complete.cases(ulmus_climate_ppt[,important_traits_ppt]),]
 #Reduction of Ulmus Variables: saved them to hard drive
-UlmusPPT_Reduction1 <- cor(ulmus_climate_ppt[,important_traits])
+UlmusPPT_Reduction1 <- cor(ulmus_climate_ppt[,important_traits_ppt])
 #write.csv(UlmusPPT_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt_Reductions/UlmusPPT_Reduction1.csv", row.names=TRUE)
 #Ulmus PCA 1
-ulmus.pca <- prcomp(ulmus_climate_ppt[,important_traits], center = TRUE,scale. = TRUE) 
+ulmus.pca <- prcomp(ulmus_climate_ppt[,important_traits_ppt], center = TRUE,scale. = TRUE) 
 summary(ulmus.pca)
 ulmus.pca$rotation
 #analysis of PCA Plots
