@@ -90,17 +90,17 @@ total_ppt$genus[total_ppt$UID=="MORTONARB"] <- "MortonArb"
 #horizontal redline displaying Arb's value
 shinyApp(
   ui = fluidPage(
-    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total$genus[total$genus!="MortonArb"])))),
-    selectInput("Variable", "Variable:", list(Variable=names(total[important_traits_ppt]))),
+    selectInput("Genus", "Choose a Genus:", list(Genus=as.list(unique(total_ppt$genus[total_ppt$genus!="MortonArb"])))),
+    selectInput("Variable", "Variable:", list(Variable=names(total_ppt[important_traits_ppt]))),
     plotOutput("data")
   ),
   server = function(input, output) {
     output$data <- renderPlot({
-      total$VAR.GRAPH <- total[,input$Variable]
+      total_ppt$VAR.GRAPH <- total_ppt[,input$Variable]
       # what original looked like
-      ggplot(total[total$genus==input$Genus, ]) +
-        geom_violin(data=total[total$genus==input$Genus, ], aes(x=species, y=VAR.GRAPH), scale = "width") + #can be boxplots or violin plot
-        geom_hline(data=total[total$UID==MortonArb_Data_ppt,], aes(yintercept=VAR.GRAPH), color="red") +
+      ggplot(total_ppt[total_ppt$genus==input$Genus, ]) +
+        geom_boxplot(data=total_ppt[total_ppt$genus==input$Genus, ], aes(x=species, y=VAR.GRAPH), scale = "width") + #can be boxplots or violin plot
+        geom_hline(data=total_ppt[total_ppt$UID==MortonArb_Data_ppt,], aes(yintercept=VAR.GRAPH), color="red") +
         theme(axis.text.x = element_text(angle = 90, hjust = 1))
       
     })
