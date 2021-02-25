@@ -1,6 +1,7 @@
 # Doing a script of some quick PCA/Permanova Analyses for an ESA abstract;
 library(dplyr); library(ggplot2); library(vegan)
 library(ggbiplot)
+path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Analysis/PrelimPCA/figures"
 
 # -----------------------
 # Load the data
@@ -135,17 +136,30 @@ quercus.pca3b$loadings
 
 quercus.scores <- data.frame(quercus.pca3$x)
 quercus.loads <- data.frame(quercus.pca3$rotation)
-quercus.loads$labx <- quercus.loads$PC1*max(quercus.scores$PC1)
-quercus.loads$laby <- quercus.loads$PC2*max(quercus.scores$PC2)
+quercus.loads$labx <- quercus.loads$PC1*(max(quercus.scores$PC1)+0.25)
+quercus.loads$laby <- quercus.loads$PC2*(max(quercus.scores$PC2)+0.25)
 quercus.loads$var <- row.names(quercus.loads)
 
 # png("../")
-ggplot(data=quercus.scores[,]) +
-  geom_point(aes(x=PC1, y=PC2), size=0.1, alpha=0.1) +
-  geom_point(data=quercus.scores[quercus.clean$UID=="MORTONARB",], aes(x=PC1, y=PC2), color="green3", size=5) +
-  geom_segment(data=quercus.loads, aes(x=0, y=0, xend=PC1*max(quercus.scores$PC1)-0.5, yend=PC2*max(quercus.scores$PC2)-0.5), arrow=arrow(length=unit(1/2, "picas")), color="blue2") +
-  geom_text(data=quercus.loads, aes(x=labx, y=laby, label=var), color="blue2")
-
+SPP="Quercus rubra"
+for(SPP in unique(quercus.clean$species_name_acc)){
+  png(file.path(path.out, paste0(SPP, " PrelimPCA.png")), height=8, width=8, units="in", res=180)
+  print(
+    ggplot(data=quercus.scores[,]) +
+      ggtitle(SPP) +
+      geom_point(aes(x=PC1, y=PC2), size=0.1, alpha=0.1, color="gray75") +
+      geom_point(data=quercus.scores[quercus.clean$species_name_acc==SPP,], aes(x=PC1, y=PC2), size=0.1, alpha=0.2, color="orange3") +
+      stat_ellipse(data=quercus.scores[quercus.clean$species_name_acc==SPP,], aes(x=PC1, y=PC2, fill="Quercus rubra"), alpha=0.5, geom="polygon") +
+      geom_point(data=quercus.scores[quercus.clean$UID=="MORTONARB",], aes(x=PC1, y=PC2), color="green3", size=5) +
+      geom_text(data=quercus.loads, aes(x=labx, y=laby, label=var), color="blue2", size=3) +
+      geom_segment(data=quercus.loads, aes(x=0, y=0, xend=PC1*(max(quercus.scores$PC1)-0.5), yend=PC2*(max(quercus.scores$PC2)-0.5)), arrow=arrow(length=unit(1/2, "picas")), color="blue2") +
+      guides(fill=F) +
+      scale_fill_manual(values="orange2") +
+      theme_bw() +
+      theme(title = element_text(face="italic"))
+  )  
+  dev.off()
+}
 # Doing a quick permanova to see if there are clear species groupings
 # adonis
 
