@@ -8,7 +8,7 @@ library(data.table)
 #Creating dfs that combine every species in each collection
 #Malus Collection
 path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract"
-path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+#path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
 malus_soil <- list.files(path = path.dat,
                         pattern = "Malus", full.names = TRUE)
 soilcols <- names(read.csv(malus_soil[1]))
@@ -61,7 +61,7 @@ library(shiny); library(shinydashboard); library(shinyWidgets)
 
 #combining data frames of different genus to allow for dropdown chooser in shiny
 library(data.table)
-total <- rbind(malus_all, MortonArb_Data)
+total <- rbind(malus_all, quercus_all, tilia_all,  ulmus_all, MortonArb_Data)
 # total <- rbind(malus_all, quercus_all, tilia_all, ulmus_all, MortonArb_Data)
 head(total)
 tail(total)
@@ -90,6 +90,6 @@ shinyApp(
 
     })
   }
-v)
+)
 
    shinyApp(ui, server)
