@@ -71,9 +71,13 @@ tail(ulmus_climate_vpd)
 
 #PCA PLOTS
 #choosing only the important traits: no categorical
-important_traits <- c("vpd.ann.mean","vpd.ann.sd","vpd.ann.max","vpd.ann.min",
+important_traits_vpd <- c("vpd.ann.mean","vpd.ann.sd","vpd.ann.max","vpd.ann.min",
                       "vpd.max.mean","vpd.max.sd","vpd.max.max","vpd.max.min",
                       "vpd.min.mean","vpd.min.sd","vpd.min.max","vpd.min.min")
+
+#for reduction at sums of each trait and then took least sum from each category (ann, min, max)
+important_traits_vpd2 <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
+
 
 #Malus vpd PCA
 #converting all malus columns to numerics
@@ -93,12 +97,20 @@ malus_climate_vpd$vpd.min.min <- as.numeric(malus_climate_vpd$vpd.min.min)
 sapply(malus_climate_vpd, mode)
 
 #getting rid of the Malus NA values
-malus_climate_vpd <- malus_climate_vpd[complete.cases(malus_climate_vpd[,important_traits]),]
+malus_climate_vpd <- malus_climate_vpd[complete.cases(malus_climate_vpd[,important_traits_vpd]),]
 #Reduction of Malus Variables: saved them to hard drive
-MalusVPD_Reduction1 <- cor(malus_climate_vpd[,important_traits])
+MalusVPD_Reduction1 <- cor(malus_climate_vpd[,important_traits_vpd])
+MalusVPD_Reduction2 <- cor(malus_climate_vpd[,important_traits_vpd2])
 #write.csv(MalusVPD_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/MalusVPD_Reduction1.csv", row.names=TRUE)
+#write.csv(MalusVPD_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/MalusVPD_Reduction2.csv", row.names=TRUE)
 #Malus PCA 1
-malus.pca <- prcomp(malus_climate_vpd[,important_traits], center = TRUE,scale. = TRUE) 
+malus.pca <- prcomp(malus_climate_vpd[,important_traits_vpd], center = TRUE,scale. = TRUE) 
+summary(malus.pca)
+malus.pca$rotation
+#analysis of PCA Plots
+ggbiplot(malus.pca) #basic plot
+#Malus PCA 2
+malus.pca <- prcomp(malus_climate_vpd[,important_traits_vpd2], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
@@ -123,12 +135,20 @@ quercus_climate_vpd$vpd.min.min <- as.numeric(quercus_climate_vpd$vpd.min.min)
 sapply(quercus_climate_vpd, mode)
 
 #getting rid of the Quercus NA values
-quercus_climate_vpd <- quercus_climate_vpd[complete.cases(quercus_climate_vpd[,important_traits]),]
+quercus_climate_vpd <- quercus_climate_vpd[complete.cases(quercus_climate_vpd[,important_traits_vpd]),]
 #Reduction of Quercus Variables: saved them to hard drive
-QuercusVPD_Reduction1 <- cor(quercus_climate_vpd[,important_traits])
+QuercusVPD_Reduction1 <- cor(quercus_climate_vpd[,important_traits_vpd])
+QuercusVPD_Reduction2 <- cor(quercus_climate_vpd[,important_traits_vpd2])
 #write.csv(QuercusVPD_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/QuercusVPD_Reduction1.csv", row.names=TRUE)
+#write.csv(QuercusVPD_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/QuercusVPD_Reduction2.csv", row.names=TRUE)
 #Quercus PCA 1
-quercus.pca <- prcomp(quercus_climate_vpd[,important_traits], center = TRUE,scale. = TRUE) 
+quercus.pca <- prcomp(quercus_climate_vpd[,important_traits_vpd], center = TRUE,scale. = TRUE) 
+summary(quercus.pca)
+quercus.pca$rotation
+#analysis of PCA Plots
+ggbiplot(quercus.pca) #basic plot
+#Quercus PCA 2
+quercus.pca <- prcomp(quercus_climate_vpd[,important_traits_vpd2], center = TRUE,scale. = TRUE) 
 summary(quercus.pca)
 quercus.pca$rotation
 #analysis of PCA Plots
@@ -153,12 +173,20 @@ tilia_climate_vpd$vpd.min.min <- as.numeric(tilia_climate_vpd$vpd.min.min)
 sapply(tilia_climate_vpd, mode)
 
 #getting rid of the Tilia NA values
-tilia_climate_vpd <- tilia_climate_vpd[complete.cases(tilia_climate_vpd[,important_traits]),]
+tilia_climate_vpd <- tilia_climate_vpd[complete.cases(tilia_climate_vpd[,important_traits_vpd]),]
 #Reduction of tilia Variables: saved them to hard drive
-TiliaVPD_Reduction1 <- cor(tilia_climate_vpd[,important_traits])
+TiliaVPD_Reduction1 <- cor(tilia_climate_vpd[,important_traits_vpd])
+TiliaVPD_Reduction2 <- cor(tilia_climate_vpd[,important_traits_vpd2])
 #write.csv(TiliaVPD_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/TiliaVPD_Reduction1.csv", row.names=TRUE)
+#write.csv(TiliaVPD_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/TiliaVPD_Reduction2.csv", row.names=TRUE)
 #tilia PCA 1
-tilia.pca <- prcomp(tilia_climate_vpd[,important_traits], center = TRUE,scale. = TRUE) 
+tilia.pca <- prcomp(tilia_climate_vpd[,important_traits_vpd], center = TRUE,scale. = TRUE) 
+summary(tilia.pca)
+tilia.pca$rotation
+#analysis of PCA Plots
+ggbiplot(tilia.pca) #basic plot
+#tilia PCA 2
+tilia.pca <- prcomp(tilia_climate_vpd[,important_traits_vpd2], center = TRUE,scale. = TRUE) 
 summary(tilia.pca)
 tilia.pca$rotation
 #analysis of PCA Plots
@@ -183,12 +211,20 @@ ulmus_climate_vpd$vpd.min.min <- as.numeric(ulmus_climate_vpd$vpd.min.min)
 sapply(ulmus_climate_vpd, mode)
 
 #getting rid of the Ulmus NA values
-ulmus_climate_vpd <- ulmus_climate_vpd[complete.cases(ulmus_climate_vpd[,important_traits]),]
+ulmus_climate_vpd <- ulmus_climate_vpd[complete.cases(ulmus_climate_vpd[,important_traits_vpd]),]
 #Reduction of Ulmus Variables: saved them to hard drive
-UlmusVPD_Reduction1 <- cor(ulmus_climate_vpd[,important_traits])
+UlmusVPD_Reduction1 <- cor(ulmus_climate_vpd[,important_traits_vpd])
+UlmusVPD_Reduction2 <- cor(ulmus_climate_vpd[,important_traits_vpd2])
 #write.csv(UlmusVPD_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/UlmusVPD_Reduction1.csv", row.names=TRUE)
+#write.csv(UlmusVPD_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/vpd_Reductions/UlmusVPD_Reduction2.csv", row.names=TRUE)
 #Ulmus PCA 1
-ulmus.pca <- prcomp(ulmus_climate_vpd[,important_traits], center = TRUE,scale. = TRUE) 
+ulmus.pca <- prcomp(ulmus_climate_vpd[,important_traits_vpd], center = TRUE,scale. = TRUE) 
+summary(ulmus.pca)
+ulmus.pca$rotation
+#analysis of PCA Plots
+ggbiplot(ulmus.pca) #basic plot
+#Ulmus PCA 2
+ulmus.pca <- prcomp(ulmus_climate_vpd[,important_traits_vpd2], center = TRUE,scale. = TRUE) 
 summary(ulmus.pca)
 ulmus.pca$rotation
 #analysis of PCA Plots
