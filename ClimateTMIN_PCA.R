@@ -76,7 +76,7 @@ important_traits_tmin <- c("tmin.ann.mean","tmin.ann.sd","tmin.ann.max","tmin.an
                       "tmin.min.mean","tmin.min.sd","tmin.min.max","tmin.min.min")
 
 #for reduction at sums of each trait and then took least sum from each category (ann, min, max)
-important_traits_tmin2 <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.")
+important_traits_tmin2 <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
 
 #Malus tmin PCA
 #converting all malus columns to numerics
