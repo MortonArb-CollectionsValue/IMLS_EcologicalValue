@@ -7,14 +7,17 @@
   #Should I keep it?: decided to keep it for now
 
 #Combining different Climate Traits of Malus
-malus_climate_total <- cbind(malus_climate_ppt[,1:5], malus_climate_ppt[important_traits_ppt2], malus_climate_soil[important_traits_soil2],
-                             malus_climate_srad[important_traits_srad2], malus_climate_tmax[important_traits_tmax2], 
-                             malus_climate_tmin[important_traits_tmin2], malus_climate_vpd[important_traits_vpd2])
+malus_climate_total <- cbind(malus_climate_ppt_original[,1:5], malus_climate_ppt_original[important_traits_ppt2], malus_climate_soil_original[important_traits_soil2],
+                             malus_climate_srad_original[important_traits_srad2], malus_climate_tmax_original[important_traits_tmax2], 
+                             malus_climate_tmin_original[important_traits_tmin2], malus_climate_vpd_original[important_traits_vpd2], malus_all[important_traits2])
+
+#getting rid of the Malus NA values
+malus_climate_total <- malus_climate_total[complete.cases(malus_climate_total[,6:37]),]
 #looking at similarity between diff. columns
-MalusTotal_Reduction1 <- cor(malus_climate_total[,6:23])
-#write.csv(MalusTotal_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/MalusTotal_Reduction1.csv", row.names=TRUE)
+MalusTotal_Reduction1 <- cor(malus_climate_total[,6:37])
+#write.csv(MalusTotal_Reduction1, "D:/Data_IMLS_Ecological_Value/Malus_Reduction1.csv", row.names=TRUE)
 #Malus PCA 1
-malus.pca <- prcomp(malus_climate_total[,6:23], center = TRUE,scale. = TRUE) 
+malus.pca <- prcomp(malus_climate_total[,6:37], center = TRUE,scale. = TRUE) 
 summary(malus.pca)
 malus.pca$rotation
 #analysis of PCA Plots
