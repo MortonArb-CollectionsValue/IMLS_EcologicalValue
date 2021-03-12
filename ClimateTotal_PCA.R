@@ -64,3 +64,15 @@ summary(ulmus.pca)
 ulmus.pca$rotation
 #analysis of PCA Plots
 ggbiplot(ulmus.pca) #basic plot
+
+
+#Combining Climate w/ Soil Data: need to load data from Soil_PCA_Analysis
+  #Different Number of Rows: Doesn't work
+malus_total <- cbind(malus_climate_total, malus_all[important_traits2])
+#Malus PCA 1
+malus.pca <- prcomp(malus_total[,6:23], center = TRUE,scale. = TRUE) 
+summary(malus.pca)
+malus.pca$rotation
+#analysis of PCA Plots
+ggbiplot(malus.pca) #basic plot
+

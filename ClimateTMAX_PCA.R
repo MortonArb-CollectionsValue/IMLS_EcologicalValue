@@ -23,11 +23,11 @@ tmaxcols <- names(read.csv(malus_tmax[1]))
 # col.char <- which(tmaxcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(tmaxcols))
 coltype <- "character"
-malus_climate_tmax <-  lapply(malus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
-malus_climate_tmax <- rbind.fill(malus_climate_tmax, MortonArb_Data_tmax)
-malus_climate_tmax <- tidyr::separate(malus_climate_tmax, col = "species_name_acc", into=c("genus", "species"))
-head(malus_climate_tmax)
-tail(malus_climate_tmax)
+malus_climate_tmax_original <-  lapply(malus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
+malus_climate_tmax_original <- rbind.fill(malus_climate_tmax_original, MortonArb_Data_tmax)
+malus_climate_tmax_original <- tidyr::separate(malus_climate_tmax_original, col = "species_name_acc", into=c("genus", "species"))
+head(malus_climate_tmax_original)
+tail(malus_climate_tmax_original)
 
 #Quercus TMAX Data
 quercus_tmax <- list.files(path = path.dat.tmax,
@@ -36,11 +36,11 @@ tmaxcols <- names(read.csv(quercus_tmax[1]))
 # col.char <- which(tmaxcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(tmaxcols))
 coltype <- "character"
-quercus_climate_tmax <-  lapply(quercus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
-quercus_climate_tmax <- rbind.fill(quercus_climate_tmax, MortonArb_Data_tmax)
-quercus_climate_tmax <- tidyr::separate(quercus_climate_tmax, col = "species_name_acc", into=c("genus", "species"))
-head(quercus_climate_tmax)
-tail(quercus_climate_tmax)
+quercus_climate_tmax_original <-  lapply(quercus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
+quercus_climate_tmax_original <- rbind.fill(quercus_climate_tmax_original, MortonArb_Data_tmax)
+quercus_climate_tmax_original <- tidyr::separate(quercus_climate_tmax_original, col = "species_name_acc", into=c("genus", "species"))
+head(quercus_climate_tmax_original)
+tail(quercus_climate_tmax_original)
 
 #Tilia TMAX Data
 tilia_tmax <- list.files(path = path.dat.tmax,
@@ -49,11 +49,11 @@ tmaxcols <- names(read.csv(tilia_tmax[1]))
 # col.char <- which(tmaxcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(tmaxcols))
 coltype <- "character"
-tilia_climate_tmax <-  lapply(tilia_tmax, read.csv, colClasses=coltype) %>% bind_rows()
-tilia_climate_tmax <- rbind.fill(tilia_climate_tmax, MortonArb_Data_tmax)
-tilia_climate_tmax <- tidyr::separate(tilia_climate_tmax, col = "species_name_acc", into=c("genus", "species"))
-head(tilia_climate_tmax)
-tail(tilia_climate_tmax)
+tilia_climate_tmax_original <-  lapply(tilia_tmax, read.csv, colClasses=coltype) %>% bind_rows()
+tilia_climate_tmax_original <- rbind.fill(tilia_climate_tmax_original, MortonArb_Data_tmax)
+tilia_climate_tmax_original <- tidyr::separate(tilia_climate_tmax_original, col = "species_name_acc", into=c("genus", "species"))
+head(tilia_climate_tmax_original)
+tail(tilia_climate_tmax_original)
 
 #Ulmus TMAX Data
 ulmus_tmax <- list.files(path = path.dat.tmax,
@@ -62,15 +62,17 @@ tmaxcols <- names(read.csv(ulmus_tmax[1]))
 # col.char <- which(tmaxcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(tmaxcols))
 coltype <- "character"
-ulmus_climate_tmax <-  lapply(ulmus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
-ulmus_climate_tmax <- rbind.fill(ulmus_climate_tmax, MortonArb_Data_tmax)
-ulmus_climate_tmax <- tidyr::separate(ulmus_climate_tmax, col = "species_name_acc", into=c("genus", "species"))
-head(ulmus_climate_tmax)
-tail(ulmus_climate_tmax)
+ulmus_climate_tmax_original <-  lapply(ulmus_tmax, read.csv, colClasses=coltype) %>% bind_rows()
+ulmus_climate_tmax_original <- rbind.fill(ulmus_climate_tmax_original, MortonArb_Data_tmax)
+ulmus_climate_tmax_original <- tidyr::separate(ulmus_climate_tmax_original, col = "species_name_acc", into=c("genus", "species"))
+head(ulmus_climate_tmax_original)
+tail(ulmus_climate_tmax_original)
 
 
 
 #PCA PLOTS
+  #made each data frame end with original to indicate before NA values were removed
+  #used to combine climate and soil data
 #choosing only the important traits: no categorical
 important_traits_tmax <- c("tmax.ann.mean","tmax.ann.sd","tmax.ann.max","tmax.ann.min",
                       "tmax.max.mean","tmax.max.sd","tmax.max.max","tmax.max.min",
@@ -81,23 +83,23 @@ important_traits_tmax2 <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
 
 #Malus TMAX PCA
 #converting all malus columns to numerics
-sapply(malus_climate_tmax, mode)
-malus_climate_tmax$tmax.ann.mean <- as.numeric(malus_climate_tmax$tmax.ann.mean)
-malus_climate_tmax$tmax.ann.sd <- as.numeric(malus_climate_tmax$tmax.ann.sd)
-malus_climate_tmax$tmax.ann.max <- as.numeric(malus_climate_tmax$tmax.ann.max)
-malus_climate_tmax$tmax.ann.min <- as.numeric(malus_climate_tmax$tmax.ann.min)
-malus_climate_tmax$tmax.max.mean <- as.numeric(malus_climate_tmax$tmax.max.mean)
-malus_climate_tmax$tmax.max.sd <- as.numeric(malus_climate_tmax$tmax.max.sd)
-malus_climate_tmax$tmax.max.max <- as.numeric(malus_climate_tmax$tmax.max.max)
-malus_climate_tmax$tmax.max.min <- as.numeric(malus_climate_tmax$tmax.max.min)
-malus_climate_tmax$tmax.min.mean <- as.numeric(malus_climate_tmax$tmax.min.mean)
-malus_climate_tmax$tmax.min.sd <- as.numeric(malus_climate_tmax$tmax.min.sd)
-malus_climate_tmax$tmax.min.max <- as.numeric(malus_climate_tmax$tmax.min.max)
-malus_climate_tmax$tmax.min.min <- as.numeric(malus_climate_tmax$tmax.min.min)
-sapply(malus_climate_tmax, mode)
+sapply(malus_climate_tmax_original, mode)
+malus_climate_tmax_original$tmax.ann.mean <- as.numeric(malus_climate_tmax_original$tmax.ann.mean)
+malus_climate_tmax_original$tmax.ann.sd <- as.numeric(malus_climate_tmax_original$tmax.ann.sd)
+malus_climate_tmax_original$tmax.ann.max <- as.numeric(malus_climate_tmax_original$tmax.ann.max)
+malus_climate_tmax_original$tmax.ann.min <- as.numeric(malus_climate_tmax_original$tmax.ann.min)
+malus_climate_tmax_original$tmax.max.mean <- as.numeric(malus_climate_tmax_original$tmax.max.mean)
+malus_climate_tmax_original$tmax.max.sd <- as.numeric(malus_climate_tmax_original$tmax.max.sd)
+malus_climate_tmax_original$tmax.max.max <- as.numeric(malus_climate_tmax_original$tmax.max.max)
+malus_climate_tmax_original$tmax.max.min <- as.numeric(malus_climate_tmax_original$tmax.max.min)
+malus_climate_tmax_original$tmax.min.mean <- as.numeric(malus_climate_tmax_original$tmax.min.mean)
+malus_climate_tmax_original$tmax.min.sd <- as.numeric(malus_climate_tmax_original$tmax.min.sd)
+malus_climate_tmax_original$tmax.min.max <- as.numeric(malus_climate_tmax_original$tmax.min.max)
+malus_climate_tmax_original$tmax.min.min <- as.numeric(malus_climate_tmax_original$tmax.min.min)
+sapply(malus_climate_tmax_original, mode)
 
 #getting rid of the Malus NA values
-malus_climate_tmax <- malus_climate_tmax[complete.cases(malus_climate_tmax[,important_traits_tmax]),]
+malus_climate_tmax <- malus_climate_tmax_original[complete.cases(malus_climate_tmax_original[,important_traits_tmax]),]
 #Reduction of Malus Variables: saved them to hard drive
 MalusTMAX_Reduction1 <- cor(malus_climate_tmax[,important_traits_tmax])
 MalusTMAX_Reduction2 <- cor(malus_climate_tmax[,important_traits_tmax2])
@@ -119,23 +121,23 @@ ggbiplot(malus.pca) #basic plot
 
 #Quercus TMAX PCA
 #converting all quercus columns to numerics
-sapply(quercus_climate_tmax, mode)
-quercus_climate_tmax$tmax.ann.mean <- as.numeric(quercus_climate_tmax$tmax.ann.mean)
-quercus_climate_tmax$tmax.ann.sd <- as.numeric(quercus_climate_tmax$tmax.ann.sd)
-quercus_climate_tmax$tmax.ann.max <- as.numeric(quercus_climate_tmax$tmax.ann.max)
-quercus_climate_tmax$tmax.ann.min <- as.numeric(quercus_climate_tmax$tmax.ann.min)
-quercus_climate_tmax$tmax.max.mean <- as.numeric(quercus_climate_tmax$tmax.max.mean)
-quercus_climate_tmax$tmax.max.sd <- as.numeric(quercus_climate_tmax$tmax.max.sd)
-quercus_climate_tmax$tmax.max.max <- as.numeric(quercus_climate_tmax$tmax.max.max)
-quercus_climate_tmax$tmax.max.min <- as.numeric(quercus_climate_tmax$tmax.max.min)
-quercus_climate_tmax$tmax.min.mean <- as.numeric(quercus_climate_tmax$tmax.min.mean)
-quercus_climate_tmax$tmax.min.sd <- as.numeric(quercus_climate_tmax$tmax.min.sd)
-quercus_climate_tmax$tmax.min.max <- as.numeric(quercus_climate_tmax$tmax.min.max)
-quercus_climate_tmax$tmax.min.min <- as.numeric(quercus_climate_tmax$tmax.min.min)
-sapply(quercus_climate_tmax, mode)
+sapply(quercus_climate_tmax_original, mode)
+quercus_climate_tmax_original$tmax.ann.mean <- as.numeric(quercus_climate_tmax_original$tmax.ann.mean)
+quercus_climate_tmax_original$tmax.ann.sd <- as.numeric(quercus_climate_tmax_original$tmax.ann.sd)
+quercus_climate_tmax_original$tmax.ann.max <- as.numeric(quercus_climate_tmax_original$tmax.ann.max)
+quercus_climate_tmax_original$tmax.ann.min <- as.numeric(quercus_climate_tmax_original$tmax.ann.min)
+quercus_climate_tmax_original$tmax.max.mean <- as.numeric(quercus_climate_tmax_original$tmax.max.mean)
+quercus_climate_tmax_original$tmax.max.sd <- as.numeric(quercus_climate_tmax_original$tmax.max.sd)
+quercus_climate_tmax_original$tmax.max.max <- as.numeric(quercus_climate_tmax_original$tmax.max.max)
+quercus_climate_tmax_original$tmax.max.min <- as.numeric(quercus_climate_tmax_original$tmax.max.min)
+quercus_climate_tmax_original$tmax.min.mean <- as.numeric(quercus_climate_tmax_original$tmax.min.mean)
+quercus_climate_tmax_original$tmax.min.sd <- as.numeric(quercus_climate_tmax_original$tmax.min.sd)
+quercus_climate_tmax_original$tmax.min.max <- as.numeric(quercus_climate_tmax_original$tmax.min.max)
+quercus_climate_tmax_original$tmax.min.min <- as.numeric(quercus_climate_tmax_original$tmax.min.min)
+sapply(quercus_climate_tmax_original, mode)
 
 #getting rid of the Quercus NA values
-quercus_climate_tmax <- quercus_climate_tmax[complete.cases(quercus_climate_tmax[,important_traits_tmax]),]
+quercus_climate_tmax <- quercus_climate_tmax_original[complete.cases(quercus_climate_tmax_original[,important_traits_tmax]),]
 #Reduction of Quercus Variables: saved them to hard drive
 QuercusTMAX_Reduction1 <- cor(quercus_climate_tmax[,important_traits_tmax])
 QuercusTMAX_Reduction2 <- cor(quercus_climate_tmax[,important_traits_tmax2])
@@ -158,23 +160,23 @@ ggbiplot(quercus.pca) #basic plot
 
 #Tilia TMAX PCA
 #converting all tilia columns to numerics
-sapply(tilia_climate_tmax, mode)
-tilia_climate_tmax$tmax.ann.mean <- as.numeric(tilia_climate_tmax$tmax.ann.mean)
-tilia_climate_tmax$tmax.ann.sd <- as.numeric(tilia_climate_tmax$tmax.ann.sd)
-tilia_climate_tmax$tmax.ann.max <- as.numeric(tilia_climate_tmax$tmax.ann.max)
-tilia_climate_tmax$tmax.ann.min <- as.numeric(tilia_climate_tmax$tmax.ann.min)
-tilia_climate_tmax$tmax.max.mean <- as.numeric(tilia_climate_tmax$tmax.max.mean)
-tilia_climate_tmax$tmax.max.sd <- as.numeric(tilia_climate_tmax$tmax.max.sd)
-tilia_climate_tmax$tmax.max.max <- as.numeric(tilia_climate_tmax$tmax.max.max)
-tilia_climate_tmax$tmax.max.min <- as.numeric(tilia_climate_tmax$tmax.max.min)
-tilia_climate_tmax$tmax.min.mean <- as.numeric(tilia_climate_tmax$tmax.min.mean)
-tilia_climate_tmax$tmax.min.sd <- as.numeric(tilia_climate_tmax$tmax.min.sd)
-tilia_climate_tmax$tmax.min.max <- as.numeric(tilia_climate_tmax$tmax.min.max)
-tilia_climate_tmax$tmax.min.min <- as.numeric(tilia_climate_tmax$tmax.min.min)
-sapply(tilia_climate_tmax, mode)
+sapply(tilia_climate_tmax_original, mode)
+tilia_climate_tmax_original$tmax.ann.mean <- as.numeric(tilia_climate_tmax_original$tmax.ann.mean)
+tilia_climate_tmax_original$tmax.ann.sd <- as.numeric(tilia_climate_tmax_original$tmax.ann.sd)
+tilia_climate_tmax_original$tmax.ann.max <- as.numeric(tilia_climate_tmax_original$tmax.ann.max)
+tilia_climate_tmax_original$tmax.ann.min <- as.numeric(tilia_climate_tmax_original$tmax.ann.min)
+tilia_climate_tmax_original$tmax.max.mean <- as.numeric(tilia_climate_tmax_original$tmax.max.mean)
+tilia_climate_tmax_original$tmax.max.sd <- as.numeric(tilia_climate_tmax_original$tmax.max.sd)
+tilia_climate_tmax_original$tmax.max.max <- as.numeric(tilia_climate_tmax_original$tmax.max.max)
+tilia_climate_tmax_original$tmax.max.min <- as.numeric(tilia_climate_tmax_original$tmax.max.min)
+tilia_climate_tmax_original$tmax.min.mean <- as.numeric(tilia_climate_tmax_original$tmax.min.mean)
+tilia_climate_tmax_original$tmax.min.sd <- as.numeric(tilia_climate_tmax_original$tmax.min.sd)
+tilia_climate_tmax_original$tmax.min.max <- as.numeric(tilia_climate_tmax_original$tmax.min.max)
+tilia_climate_tmax_original$tmax.min.min <- as.numeric(tilia_climate_tmax_original$tmax.min.min)
+sapply(tilia_climate_tmax_original, mode)
 
 #getting rid of the Tilia NA values
-tilia_climate_tmax <- tilia_climate_tmax[complete.cases(tilia_climate_tmax[,important_traits_tmax]),]
+tilia_climate_tmax <- tilia_climate_tmax_original[complete.cases(tilia_climate_tmax_original[,important_traits_tmax]),]
 #Reduction of tilia Variables: saved them to hard drive
 TiliaTMAX_Reduction1 <- cor(tilia_climate_tmax[,important_traits_tmax])
 TiliaTMAX_Reduction2 <- cor(tilia_climate_tmax[,important_traits_tmax2])
@@ -196,23 +198,23 @@ ggbiplot(tilia.pca) #basic plot
 
 #Ulmus TMAX PCA
 #converting all ulmus columns to numerics
-sapply(ulmus_climate_tmax, mode)
-ulmus_climate_tmax$tmax.ann.mean <- as.numeric(ulmus_climate_tmax$tmax.ann.mean)
-ulmus_climate_tmax$tmax.ann.sd <- as.numeric(ulmus_climate_tmax$tmax.ann.sd)
-ulmus_climate_tmax$tmax.ann.max <- as.numeric(ulmus_climate_tmax$tmax.ann.max)
-ulmus_climate_tmax$tmax.ann.min <- as.numeric(ulmus_climate_tmax$tmax.ann.min)
-ulmus_climate_tmax$tmax.max.mean <- as.numeric(ulmus_climate_tmax$tmax.max.mean)
-ulmus_climate_tmax$tmax.max.sd <- as.numeric(ulmus_climate_tmax$tmax.max.sd)
-ulmus_climate_tmax$tmax.max.max <- as.numeric(ulmus_climate_tmax$tmax.max.max)
-ulmus_climate_tmax$tmax.max.min <- as.numeric(ulmus_climate_tmax$tmax.max.min)
-ulmus_climate_tmax$tmax.min.mean <- as.numeric(ulmus_climate_tmax$tmax.min.mean)
-ulmus_climate_tmax$tmax.min.sd <- as.numeric(ulmus_climate_tmax$tmax.min.sd)
-ulmus_climate_tmax$tmax.min.max <- as.numeric(ulmus_climate_tmax$tmax.min.max)
-ulmus_climate_tmax$tmax.min.min <- as.numeric(ulmus_climate_tmax$tmax.min.min)
-sapply(ulmus_climate_tmax, mode)
+sapply(ulmus_climate_tmax_original, mode)
+ulmus_climate_tmax_original$tmax.ann.mean <- as.numeric(ulmus_climate_tmax_original$tmax.ann.mean)
+ulmus_climate_tmax_original$tmax.ann.sd <- as.numeric(ulmus_climate_tmax_original$tmax.ann.sd)
+ulmus_climate_tmax_original$tmax.ann.max <- as.numeric(ulmus_climate_tmax_original$tmax.ann.max)
+ulmus_climate_tmax_original$tmax.ann.min <- as.numeric(ulmus_climate_tmax_original$tmax.ann.min)
+ulmus_climate_tmax_original$tmax.max.mean <- as.numeric(ulmus_climate_tmax_original$tmax.max.mean)
+ulmus_climate_tmax_original$tmax.max.sd <- as.numeric(ulmus_climate_tmax_original$tmax.max.sd)
+ulmus_climate_tmax_original$tmax.max.max <- as.numeric(ulmus_climate_tmax_original$tmax.max.max)
+ulmus_climate_tmax_original$tmax.max.min <- as.numeric(ulmus_climate_tmax_original$tmax.max.min)
+ulmus_climate_tmax_original$tmax.min.mean <- as.numeric(ulmus_climate_tmax_original$tmax.min.mean)
+ulmus_climate_tmax_original$tmax.min.sd <- as.numeric(ulmus_climate_tmax_original$tmax.min.sd)
+ulmus_climate_tmax_original$tmax.min.max <- as.numeric(ulmus_climate_tmax_original$tmax.min.max)
+ulmus_climate_tmax_original$tmax.min.min <- as.numeric(ulmus_climate_tmax_original$tmax.min.min)
+sapply(ulmus_climate_tmax_original, mode)
 
 #getting rid of the Ulmus NA values
-ulmus_climate_tmax <- ulmus_climate_tmax[complete.cases(ulmus_climate_tmax[,important_traits_tmax]),]
+ulmus_climate_tmax <- ulmus_climate_tmax_original[complete.cases(ulmus_climate_tmax_original[,important_traits_tmax]),]
 #Reduction of Ulmus Variables: saved them to hard drive
 UlmusTMAX_Reduction1 <- cor(ulmus_climate_tmax[,important_traits_tmax])
 UlmusTMAX_Reduction2 <- cor(ulmus_climate_tmax[,important_traits_tmax2])
