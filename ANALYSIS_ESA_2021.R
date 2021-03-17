@@ -56,7 +56,7 @@ quercus_all <- quercus_all[complete.cases(quercus_all),]
 summary(quercus_all)
 row.arb <- which(quercus_all$UID=="MORTONARB")
 
-quercus.scale <- cbind[quescale(quercus_all)]
+# quercus.scale <- cbind[quescale(quercus_all)]
 # -----------------------
 
 # -----------------------
