@@ -27,8 +27,6 @@ trait <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 
 
-#think of making intermediate df's more simple, doing that
-#Potential Mistake: need j inside bracket with Genera, i inside bracket with trait
 for(i in 1:length(trait)) {
   path.dat.specific <- file.path(path.dat, trait[i]) #file paths for different folders
   MortonArb_Data_path <-  read.csv(file.path(path.dat.specific,"0_MortonArb.csv")) #morton arb values in diff. folders
@@ -40,20 +38,22 @@ for(i in 1:length(trait)) {
     #assign(paste(trait[1], "cols", sep = ''), names(read.csv()))
     extractioncols <- names(read.csv(initial_extraction[1]))
     coltype <- rep(NA, length(extractioncols))
-    coltype <- "character"
+    col.char <- which(extractioncols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+    coltype[col.char] <- "character"
     intermediate_extraction <- lapply(initial_extraction, read.csv, colClasses=coltype) %>% bind_rows()
     intermediate_extraction <- rbind.fill(intermediate_extraction, MortonArb_Data_path)
     intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
     
     #choosing only the important traits: no categorical, cols 6;17
     assign(paste("important_traits_", trait[i], sep = ''), c(colnames(intermediate_extraction[6:17])))
-    #converting them to numerics
-    for (g in 6:17) {
-      intermediate_extraction[,g] <- as.numeric(intermediate_extraction[,g])
-    }
+    #converting them to numerics: don't need this anymore
+    # for (g in 6:17) {
+    #   intermediate_extraction[,g] <- as.numeric(intermediate_extraction[,g])
+    # }
     #getting rid of the (genus) NA values
     final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,6:17])]),]
-    assign(paste(Genera[j], "_climate_", trait[i], sep = ''), final_extraction)
+    assign(paste(Genera[j], "_climate_", trait[i], sep = ''), final_extraction) #could save this as R Data file or csv, save to preloaded data folder
+    ##save(final_extraction, "paste0(Genera[j], [.], ".RData") #How to save as a R Data file
   }
 }
 
