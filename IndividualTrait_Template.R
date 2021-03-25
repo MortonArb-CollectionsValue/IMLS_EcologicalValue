@@ -26,6 +26,13 @@ Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 trait <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 
+#Sort out reduced columns for combining all together
+important_traits2_ppt <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
+important_traits2_soil <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
+important_traits2_srad <- c("srad.ann.sd","srad.max.sd", "srad.min.min")
+important_traits2_tmax <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
+important_traits2_tmin <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
+important_traits2_vpd <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
 
 for(i in 1:length(trait)) {
   path.dat.specific <- file.path(path.dat, trait[i]) #file paths for different folders
@@ -44,34 +51,40 @@ for(i in 1:length(trait)) {
     intermediate_extraction <- rbind.fill(intermediate_extraction, MortonArb_Data_path)
     intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
     
-    #choosing only the important traits: no categorical, cols 6;17
-    assign(paste("important_traits_", trait[i], sep = ''), c(colnames(intermediate_extraction[6:17])))
-    #converting them to numerics: don't need this anymore
-    # for (g in 6:17) {
-    #   intermediate_extraction[,g] <- as.numeric(intermediate_extraction[,g])
-    # }
+    # #choosing only the important traits: no categorical, cols 6;17
+    # assign(paste("important_traits_", trait[i], sep = ''), c(colnames(intermediate_extraction[6:17])))
     #getting rid of the (genus) NA values
     final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,6:17])]),]
-    assign(paste(Genera[j], "_climate_", trait[i], sep = ''), final_extraction) #could save this as R Data file or csv, save to preloaded data folder
+    #assign(paste(Genera[j], "_climate_", trait[i], sep = ''), final_extraction) #could save this as R Data file or csv, save to preloaded data folder
+    #creating loop so that reduced data (1 variable per ann, max, min) is saved as csv so it can be extracted easier
+    if (i==1) {
+      final_extraction2 <- final_extraction[,important_traits2_ppt]
+      write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/ppt/ppt_", Genera[j], ".csv"), row.names=TRUE)
+    } else { if (i==2) {
+      final_extraction2 <- final_extraction[,important_traits2_soil]
+      write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/soil/soil_", Genera[j], ".csv"), row.names=TRUE)
+      } else { if (i==3) {
+        final_extraction2 <- final_extraction[,important_traits2_srad]
+        write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/srad/srad_", Genera[j], ".csv"), row.names=TRUE)
+        } else { if (i==4) {
+          final_extraction2 <- final_extraction[,important_traits2_tmax]
+          write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/tmax/tmax_", Genera[j], ".csv"), row.names=TRUE)
+          } else { if (i==5) {
+            final_extraction2 <- final_extraction[,important_traits2_tmin]
+            write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/tmin/tmin_", Genera[j], ".csv"), row.names=TRUE)
+            } else {
+              final_extraction2 <- final_extraction[,important_traits2_vpd]
+              write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/vpd/vpd_", Genera[j], ".csv"), row.names=TRUE)
+            }
+          }
+        }
+      }
+    }
     ##save(final_extraction, "paste0(Genera[j], [.], ".RData") #How to save as a R Data file
   }
 }
 
-# #Testing to see if PCA works: works
-# #Tilia PCA 1
-# Tilia.pca <- prcomp(Tilia_climate_vpd[,important_traits_vpd], center = TRUE,scale. = TRUE)
-# summary(Tilia.pca)
-# Tilia.pca$rotation
-# #analysis of PCA Plots
-# ggbiplot(Tilia.pca) #basic plot
-
-#Sort out reduced columns for combining all together
-important_traits_ppt2 <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
-important_traits_soil2 <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
-important_traits_srad2 <- c("srad.ann.sd","srad.max.sd", "srad.min.min")
-important_traits_tmax2 <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
-important_traits_tmin2 <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
-important_traits_vpd2 <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
+final_extraction2
 
 #PCA PLOTS
 
