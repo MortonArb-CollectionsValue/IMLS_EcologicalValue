@@ -1,3 +1,5 @@
+#CURRENTLY NOT USING THIS SCRIPT FOR ANALYSIS
+
 #changed entire script (file paths) so that it uses the occurrence points without the issues
 #columns were: taxonIdentificationNotes, localityDescription, county, stateProvince
 # Biome/Ecoregion Dataset from WWF: 
