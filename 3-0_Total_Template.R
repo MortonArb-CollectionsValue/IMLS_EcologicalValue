@@ -1,12 +1,12 @@
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
-trait <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
+predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data"
 
-for (j in 1:length(trait)) {
+for (j in 1:length(predictor)) {
   for (i in 1:length(Genera)) {
-    a <- read.csv(file.path(path.dat, trait[j], paste0(trait[j], "_", Genera[i], ".csv")))
+    a <- read.csv(file.path(path.dat, predictor[j], paste0(predictor[j], "_", Genera[i], ".csv")))
     a$X <- NULL
-    assign(paste(trait[j], "_", Genera[i], sep=''), a)
+    assign(paste(predictor[j], "_", Genera[i], sep=''), a)
   }
 }
 

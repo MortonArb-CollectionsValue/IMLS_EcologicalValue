@@ -2,7 +2,7 @@
   #Load in Packages
   #File Paths & Loading in Plots
   #PCA Plots
-    #Important Traits
+    #Important Predictors
     #Morton Arb Genera Dropdown
     #Convert to Numerics & Get rid of NAs
     #have to create individual loops to sort out only reduced variables
@@ -23,26 +23,26 @@ library(data.table)
 
 #creating real for loop
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
-trait <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
+predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 
 #Sort out reduced columns for combining all together
-important_traits2_ppt <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
-important_traits2_soil <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
-important_traits2_srad <- c("srad.ann.sd","srad.max.sd", "srad.min.min")
-important_traits2_tmax <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
-important_traits2_tmin <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
-important_traits2_vpd <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
+important_predictors2_ppt <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
+important_predictors2_soil <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
+important_predictors2_srad <- c("srad.ann.sd","srad.max.sd", "srad.min.min")
+important_predictors2_tmax <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
+important_predictors2_tmin <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
+important_predictors2_vpd <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
 
-for(i in 1:length(trait)) {
-  path.dat.specific <- file.path(path.dat, trait[i]) #file paths for different folders
+for(i in 1:length(predictor)) {
+  path.dat.specific <- file.path(path.dat, predictor[i]) #file paths for different folders
   MortonArb_Data_path <-  read.csv(file.path(path.dat.specific,"0_MortonArb.csv")) #morton arb values in diff. folders
   for (j in 1:length(Genera)) {
     #made each data frame end with original to indicate before NA values were removed
     #Data Extraction
     initial_extraction <- list.files(path = path.dat.specific, pattern = Genera[j], full.names=TRUE)
-    #assign(paste(Genera[j], "_", trait[i]), sep = ''), list.files(path = file.path(path.dat, trait[i]), pattern = Genera[i], full.names=TRUE))
-    #assign(paste(trait[1], "cols", sep = ''), names(read.csv()))
+    #assign(paste(Genera[j], "_", predictor[i]), sep = ''), list.files(path = file.path(path.dat, predictor[i]), pattern = Genera[i], full.names=TRUE))
+    #assign(paste(predictor[1], "cols", sep = ''), names(read.csv()))
     extractioncols <- names(read.csv(initial_extraction[1]))
     coltype <- rep(NA, length(extractioncols))
     col.char <- which(extractioncols %in% c("nativeDatabaseID", "MU.SOURCE1"))
@@ -51,29 +51,29 @@ for(i in 1:length(trait)) {
     intermediate_extraction <- rbind.fill(intermediate_extraction, MortonArb_Data_path)
     intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
     
-    # #choosing only the important traits: no categorical, cols 6;17
-    # assign(paste("important_traits_", trait[i], sep = ''), c(colnames(intermediate_extraction[6:17])))
+    # #choosing only the important predictors: no categorical, cols 6;17
+    # assign(paste("important_predictors_", predictor[i], sep = ''), c(colnames(intermediate_extraction[6:17])))
     #getting rid of the (genus) NA values
     final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,6:17])]),]
-    #assign(paste(Genera[j], "_climate_", trait[i], sep = ''), final_extraction) #could save this as R Data file or csv, save to preloaded data folder
+    #assign(paste(Genera[j], "_climate_", predictor[i], sep = ''), final_extraction) #could save this as R Data file or csv, save to preloaded data folder
     #creating loop so that reduced data (1 variable per ann, max, min) is saved as csv so it can be extracted easier
     if (i==1) {
-      final_extraction2 <- final_extraction[,important_traits2_ppt]
+      final_extraction2 <- final_extraction[,important_predictors2_ppt]
       write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/ppt/ppt_", Genera[j], ".csv"), row.names=TRUE)
     } else { if (i==2) {
-      final_extraction2 <- final_extraction[,important_traits2_soil]
+      final_extraction2 <- final_extraction[,important_predictors2_soil]
       write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/soil/soil_", Genera[j], ".csv"), row.names=TRUE)
       } else { if (i==3) {
-        final_extraction2 <- final_extraction[,important_traits2_srad]
+        final_extraction2 <- final_extraction[,important_predictors2_srad]
         write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/srad/srad_", Genera[j], ".csv"), row.names=TRUE)
         } else { if (i==4) {
-          final_extraction2 <- final_extraction[,important_traits2_tmax]
+          final_extraction2 <- final_extraction[,important_predictors2_tmax]
           write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/tmax/tmax_", Genera[j], ".csv"), row.names=TRUE)
           } else { if (i==5) {
-            final_extraction2 <- final_extraction[,important_traits2_tmin]
+            final_extraction2 <- final_extraction[,important_predictors2_tmin]
             write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/tmin/tmin_", Genera[j], ".csv"), row.names=TRUE)
             } else {
-              final_extraction2 <- final_extraction[,important_traits2_vpd]
+              final_extraction2 <- final_extraction[,important_predictors2_vpd]
               write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data/vpd/vpd_", Genera[j], ".csv"), row.names=TRUE)
             }
           }
@@ -89,18 +89,18 @@ final_extraction2
 #PCA PLOTS
 
 # #Reduction of (genus) Variables: saved them to hard drive
-# (genus)(trait)_Reduction1 <- cor((genus)_climate_(trait)[,important_traits_(trait)])
-# (genus)(trait)_Reduction2 <- cor((genus)_climate_(trait)[,important_traits_(trait)2])
-# #write.csv((genus)(trait)_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(trait)_Reductions/(genus)(trait)_Reduction1.csv", row.names=TRUE)
-# #write.csv((genus)(trait)_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(trait)_Reductions/(genus)(trait)_Reduction2.csv", row.names=TRUE)
+# (genus)(predictor)_Reduction1 <- cor((genus)_climate_(predictor)[,important_predictors_(predictor)])
+# (genus)(predictor)_Reduction2 <- cor((genus)_climate_(predictor)[,important_predictors_(predictor)2])
+# #write.csv((genus)(predictor)_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(predictor)_Reductions/(genus)(predictor)_Reduction1.csv", row.names=TRUE)
+# #write.csv((genus)(predictor)_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(predictor)_Reductions/(genus)(predictor)_Reduction2.csv", row.names=TRUE)
 # #(genus) PCA 1
-# (genus).pca <- prcomp((genus)_climate_(trait)[,important_traits_(trait)], center = TRUE,scale. = TRUE) 
+# (genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)], center = TRUE,scale. = TRUE) 
 # summary((genus).pca)
 # (genus).pca$rotation
 # #analysis of PCA Plots
 # ggbiplot((genus).pca) #basic plot
 # #(genus) PCA 2
-# (genus).pca <- prcomp((genus)_climate_(trait)[,important_traits_(trait)2], center = TRUE,scale. = TRUE) 
+# (genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)2], center = TRUE,scale. = TRUE) 
 # summary((genus).pca)
 # (genus).pca$rotation
 # #analysis of PCA Plots

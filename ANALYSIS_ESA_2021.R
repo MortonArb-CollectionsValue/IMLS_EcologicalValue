@@ -11,7 +11,7 @@ path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Val
 path.soils <- file.path(path.dat, "Soil_Extract")
 path.clim <- file.path(path.dat, "Climate_Extract")
 cols.meta <- c("UID", "species_name_acc")
-trait.soil <- c("T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL")
+predictor.soil <- c("T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL")
 clim.suff <- c("ann.mean", "ann.sd", "max.max", "min.min")
 clim.vars <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 
@@ -26,7 +26,7 @@ col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(soilcols))
 coltype[col.char] <- "character"
 quercus_soil <-  lapply(soil_files, read.csv, colClasses=coltype) %>% bind_rows()
-quercus_soil <- rbind.fill(quercus_soil[,c(cols.meta, trait.soil)], morton.soil[,c(cols.meta, trait.soil)])
+quercus_soil <- rbind.fill(quercus_soil[,c(cols.meta, predictor.soil)], morton.soil[,c(cols.meta, predictor.soil)])
 head(quercus_soil)
 tail(quercus_soil)
 
@@ -82,9 +82,9 @@ var.cor[,grep("vpd", colnames(var.cor))]
 var.cor[,grep("soil", colnames(var.cor))] # Doesn't correlate super high with precip; corr with mostly itself
 
 # This is a bit ad hoc, but we'll check it out Reducing climate variables --> ditch VPD, SRAD
-trait.clim <- c("ppt.ann.mean", "ppt.max.max", "ppt.min.min", "tmax.ann.mean", "tmax.max.max", "tmin.min.min", "soil.ann.mean")
+predictor.clim <- c("ppt.ann.mean", "ppt.max.max", "ppt.min.min", "tmax.ann.mean", "tmax.max.max", "tmin.min.min", "soil.ann.mean")
 
-vars.pca2 <- c(trait.soil, trait.clim)
+vars.pca2 <- c(predictor.soil, predictor.clim)
 quercus.pca2 <- prcomp(quercus_all[,vars.pca2], center = TRUE,scale. = TRUE) 
 
 summary(quercus.pca2)
@@ -115,9 +115,9 @@ summary(quercus.clean)
 # -----------------------
 # PCA3: reduced variables, removing weirdo outliers
 # -----------------------
-trait.clim <- c("ppt.ann.mean", "ppt.max.max", "ppt.min.min", "tmax.ann.mean", "tmax.max.max", "tmin.min.min", "soil.ann.mean")
+predictor.clim <- c("ppt.ann.mean", "ppt.max.max", "ppt.min.min", "tmax.ann.mean", "tmax.max.max", "tmin.min.min", "soil.ann.mean")
 
-vars.pca2 <- c(trait.soil, trait.clim)
+vars.pca2 <- c(predictor.soil, predictor.clim)
 
 quercus.pca3 <- prcomp(quercus.clean[,vars.pca2]) 
 summary(quercus.pca3)
