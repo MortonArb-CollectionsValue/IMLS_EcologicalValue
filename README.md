@@ -1,5 +1,5 @@
 # IMLS_EcologicalValue
- Ecological Value Analyeses
+ Ecological Value Analyses
 ## 1-0 Soil_Extractions
 Used soil codes to find individual species soil predictor values
 
