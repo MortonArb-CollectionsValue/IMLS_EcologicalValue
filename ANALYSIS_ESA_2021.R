@@ -64,6 +64,7 @@ row.arb <- which(quercus_all$UID=="MORTONARB")
 # -----------------------
 vars.pca <- names(quercus_all)[!names(quercus_all) %in% cols.meta]
 
+set.seed(1637)
 quercus.pca1 <- prcomp(quercus_all[,vars.pca], center = TRUE,scale. = TRUE) 
 # -----------------------
 
