@@ -65,7 +65,6 @@ row.arb <- which(quercus_all$UID=="MORTONARB")
 vars.pca <- names(quercus_all)[!names(quercus_all) %in% cols.meta]
 
 quercus.pca1 <- prcomp(quercus_all[,vars.pca], center = TRUE,scale. = TRUE) 
-
 # -----------------------
 
 # -----------------------
@@ -97,16 +96,20 @@ summary(quercus.pca2$x[,1:3])
 # - In future, could go and do this by each species
 # -----------------------
 # test <- scale(quercus_all[,3:])
-quercus.scale <- cbind(quercus_all[,1:2], scale(quercus_all[,3:ncol(quercus_all)]))
+# scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
+# This needs to happen at the genus level
+quercus.scale <- cbind(quercus_all[,1:2], scale(quercus_all[,3:ncol(quercus_all)])) # putting descriptors w/ scaled data
 summary(quercus.scale)
 
 # Remove variables that are supreme outliers in any one variable
 # NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
-rows.remove <- which(quercus.scale[,3:ncol(quercus.scale)]>6)
-summary(rows.remove)
+#rows.remove <- which(quercus.scale[,3:ncol(quercus.scale)]>6)
+#summary(rows.remove)
 
+# Removing weirdos
 # Being fairly stringent with the outlier number for our sanity
-rows.keep <- apply(quercus.scale[,3:ncol(quercus.scale)], 1, FUN=function(x){all(x<=4)})
+# Currently happening at the genus level --> down the road we'll try to adjust by species
+rows.keep <- apply(quercus.scale[,3:ncol(quercus.scale)], 1, FUN=function(x){all(abs(x)<=4)})
 
 quercus.clean <- quercus.scale[rows.keep,]
 summary(quercus.clean)
