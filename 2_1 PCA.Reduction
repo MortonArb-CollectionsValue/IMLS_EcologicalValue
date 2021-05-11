@@ -41,12 +41,14 @@ for (j in 1:length(Genera)) {
   }
 }
 
+pptMalus <- read.csv("D:/Data_IMLS_Ecological_Value/PCA_Reductions/pptMalus.csv")
+
 #Reduction of (genus) Variables: saved them to hard drive
-(genus)(predictor)_Reduction1 <- cor((predictor)Final_(Genera[i]))
+pptMalus_Reduction1 <- cor(pptMalus[7:18])
 #(genus) PCA 1
-(genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)], center = TRUE,scale. = TRUE)
-summary((genus).pca)
-(genus).pca$rotation
+malus.pca <- prcomp(pptMalus_Reduction1, center = TRUE,scale. = TRUE)
+summary(malus.pca)
+malus.pca$rotation
 #analysis of PCA Plots
-ggbiplot((genus).pca) #basic plot
+ggbiplot(malus.pca) #basic plot
 
