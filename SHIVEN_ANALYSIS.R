@@ -12,19 +12,25 @@ Ulmus_Climate_Final <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostReducti
 set.seed(1608)
 #Malus PCA
 malus.pca1 <- prcomp(Malus_Climate_Final[,7:12], center = TRUE,scale. = TRUE)
-save(malus.pca1, )
+summary(malus.pca1)
+save(malus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca1.RData")
+ggbiplot(malus.pca1) #basic plot
 
 #Quercus PCA
 quercus.pca1 <- prcomp(Quercus_Climate_Final[,7:12], center = TRUE,scale. = TRUE)
-save(quercus.pca1, )
+summary(quercus.pca1)
+save(quercus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca1.RData")
+ggbiplot(quercus.pca1) #basic plot
 
 #Tilia PCA
 tilia.pca1 <- prcomp(Tilia_Climate_Final[,7:12], center = TRUE,scale. = TRUE)
-save(tilia.pca1, )
+summary(tilia.pca1)
+save(tilia.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca1.RData")
 
 #Ulmus PCA
 ulmus.pca1 <- prcomp(Ulmus_Climate_Final[,7:12], center = TRUE,scale. = TRUE)
-save(ulmus.pca1, )
+summary(ulmus.pca1)
+save(ulmus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca1.RData")
 
 
 # #genus PCA 1

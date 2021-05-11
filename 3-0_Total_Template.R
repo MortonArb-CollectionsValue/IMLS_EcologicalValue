@@ -10,7 +10,7 @@ library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
-path.dat <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data"
+path.dat <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2"
 
 for (j in 1:length(predictor)) {
   for (i in 1:length(Genera)) {
@@ -67,50 +67,55 @@ for (j in 1:length(Genera)) {
 
 Malus_climate_total <- cbind(ppt_Malus, soil_Malus, srad_Malus, tmax_Malus, tmin_Malus, vpd_Malus)
 #Malus_climate_total <- Malus_climate_total[complete.cases(Malus_climate_total[,6:37]),]
-MalusTotal_Reduction1 <- cor(Malus_climate_total)
-#write.csv(MalusTotal_Reduction1, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions/MalusTotal_Reduction1.csv"), row.names=TRUE)
-Malus_Climate_Final <- Malus_climate_total[,c(3,5,8,12,14,18)]
-  #Malus Reduced Variables: ppt.min.min, soil.max.sd, srad.max.sd, tmax.min.sd, tmin.max.sd, vpd.min.min
+MalusTotal_Reduction <- cor(Malus_climate_total)
+write.csv(MalusTotal_Reduction, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions2/MalusTotal_Reduction.csv"), row.names=TRUE)
+# # write.csv(MalusTotal_Reduction1, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions/MalusTotal_Reduction1.csv"), row.names=TRUE)
+# # Malus_Climate_Final <- Malus_climate_total[,c(3,5,8,12,14,18)]
+# #   #Malus Reduced Variables: ppt.min.min, soil.max.sd, srad.max.sd, tmax.min.sd, tmin.max.sd, vpd.min.min
+
 
 #Adding in Categorical Variables & Saving
-Malus_Climate_Final <- cbind(important_malus, Malus_Climate_Final)
-write.csv(Malus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions/Malus_Climate_Final.csv", row.names = TRUE)
+Malus_Climate_Final <- cbind(important_malus, Malus_climate_total)
+write.csv(Malus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Malus_Climate_Final.csv", row.names = TRUE)
 
 
 Quercus_climate_total <- cbind(ppt_Quercus, soil_Quercus, srad_Quercus, tmax_Quercus, tmin_Quercus, vpd_Quercus)
 #Quercus_climate_total <- Quercus_climate_total[complete.cases(Quercus_climate_total[,6:37]),]
-QuercusTotal_Reduction1 <- cor(Quercus_climate_total)
+QuercusTotal_Reduction <- cor(Quercus_climate_total)
+write.csv(QuercusTotal_Reduction, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions2/QuercusTotal_Reduction.csv"), row.names=TRUE)
 #write.csv(QuercusTotal_Reduction1, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions/QuercusTotal_Reduction1.csv"), row.names=TRUE)
-Quercus_Climate_Final <- Quercus_climate_total[,c(3,5,7,10,13,17)]
+#Quercus_Climate_Final <- Quercus_climate_total[,c(3,5,7,10,13,17)]
   #Quercus Reduced Variables: ppt.min.min, soil.max.sd, srad.ann.sd, tmax.ann.sd, tmin.ann.sd, vpd.max.sd
 
 #Adding in Categorical Variables & Saving
-Quercus_Climate_Final <- cbind(important_quercus, Quercus_Climate_Final)
-write.csv(Quercus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions/Quercus_Climate_Final.csv", row.names = TRUE)
+Quercus_Climate_Final <- cbind(important_quercus, Quercus_climate_total)
+write.csv(Quercus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Quercus_Climate_Final.csv", row.names = TRUE)
 
 
 Tilia_climate_total <- cbind(ppt_Tilia, soil_Tilia, srad_Tilia, tmax_Tilia, tmin_Tilia, vpd_Tilia)
 #Tilia_climate_total <- Tilia_climate_total[complete.cases(Tilia_climate_total[,6:37]),]
-TiliaTotal_Reduction1 <- cor(Tilia_climate_total)
+TiliaTotal_Reduction <- cor(Tilia_climate_total)
+write.csv(TiliaTotal_Reduction, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions2/TiliaTotal_Reduction.csv"), row.names=TRUE)
 #write.csv(TiliaTotal_Reduction1, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions/TiliaTotal_Reduction1.csv"), row.names=TRUE)
-Tilia_Climate_Final <- Tilia_climate_total[,c(3,5,8,10,14,17)]
+#Tilia_Climate_Final <- Tilia_climate_total[,c(3,5,8,10,14,17)]
   #Tilia Reduced Variables: ppt.min.min, soil.max.sd, srad.max.sd, tmax.ann.sd, tmin.max.sd, vpd.max.sd
 
 #Adding in Categorical Variables & Saving
-Tilia_Climate_Final <- cbind(important_tilia, Tilia_Climate_Final)
-write.csv(Tilia_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions/Tilia_Climate_Final.csv", row.names = TRUE)
+Tilia_Climate_Final <- cbind(important_tilia, Tilia_climate_total)
+write.csv(Tilia_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Tilia_Climate_Final.csv", row.names = TRUE)
 
 
 Ulmus_climate_total <- cbind(ppt_Ulmus, soil_Ulmus, srad_Ulmus, tmax_Ulmus, tmin_Ulmus, vpd_Ulmus)
 #Ulmus_climate_total <- Ulmus_climate_total[complete.cases(Ulmus_climate_total[,6:37]),]
-UlmusTotal_Reduction1 <- cor(Ulmus_climate_total)
+UlmusTotal_Reduction <- cor(Ulmus_climate_total)
+write.csv(UlmusTotal_Reduction, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions2/UlmusTotal_Reduction.csv"), row.names=TRUE)
 #write.csv(UlmusTotal_Reduction1, paste0("D:/Data_IMLS_Ecological_Value/Total_PreReductions/UlmusTotal_Reduction1.csv"), row.names=TRUE)
-Ulmus_Climate_Final <- Ulmus_climate_total[,c(3,6,8,12,14,17)]
+#Ulmus_Climate_Final <- Ulmus_climate_total[,c(3,6,8,12,14,17)]
   #Ulmus Reduced Variables: ppt.min.min, soil.min.sd, srad.max.sd, tmax.min.sd, tmin.max.sd, vpd.max.sd
 
 #Adding in Categorical Variables & Saving
-Ulmus_Climate_Final <- cbind(important_ulmus, Ulmus_Climate_Final)
-write.csv(Ulmus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions/Ulmus_Climate_Final.csv", row.names = TRUE)
+Ulmus_Climate_Final <- cbind(important_ulmus, Ulmus_climate_total)
+write.csv(Ulmus_Climate_Final, "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Ulmus_Climate_Final.csv", row.names = TRUE)
 
 # for (i in 1:length(Genera)) {
 #   # genus <- paste(Genera[i])
@@ -135,7 +140,7 @@ genus.pca$rotation
 ggbiplot(genus.pca) #basic plot
 
 
-##Reduced Variables
+##Reduced Variables: not anymore
 #Malus: ppt.min.min, soil.max.sd, srad.max.sd, tmax.min.sd, tmin.max.sd, vpd.min.min
 #Quercus: ppt.min.min, soil.max.sd, srad.ann.sd, tmax.ann.sd, tmin.ann.sd, vpd.max.sd
 #Tilia: ppt.min.min, soil.max.sd, srad.max.sd, tmax.ann.sd, tmin.max.sd, vpd.max.sd

@@ -1,0 +1,52 @@
+# #Reduction of (genus) Variables: saved them to hard drive
+# (genus)(predictor)_Reduction1 <- cor((genus)_climate_(predictor)[,important_predictors_(predictor)])
+# (genus)(predictor)_Reduction2 <- cor((genus)_climate_(predictor)[,important_predictors_(predictor)2])
+# #write.csv((genus)(predictor)_Reduction1, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(predictor)_Reductions/(genus)(predictor)_Reduction1.csv", row.names=TRUE)
+# #write.csv((genus)(predictor)_Reduction2, "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/(predictor)_Reductions/(genus)(predictor)_Reduction2.csv", row.names=TRUE)
+# #(genus) PCA 1
+# (genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)], center = TRUE,scale. = TRUE) 
+# summary((genus).pca)
+# (genus).pca$rotation
+# #analysis of PCA Plots
+# ggbiplot((genus).pca) #basic plot
+# #(genus) PCA 2
+# (genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)2], center = TRUE,scale. = TRUE) 
+# summary((genus).pca)
+# (genus).pca$rotation
+# #analysis of PCA Plots
+# ggbiplot((genus).pca) #basic plot
+
+Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
+predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
+path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
+
+for (j in 1:length(Genera)) {
+  for(i in 1:length(predictor)) {
+    path.dat.specific <- file.path(path.dat, predictor[i]) #file paths for different folders
+    MortonArb_Data_path <-  read.csv(file.path(path.dat.specific,"0_MortonArb.csv")) #morton arb values in diff. folders
+    #made each data frame end with original to indicate before NA values were removed
+    #Data Extraction
+    initial_extraction <- list.files(path = path.dat.specific, pattern = Genera[j], full.names=TRUE)
+    #assign(paste(Genera[j], "_", predictor[i]), sep = ''), list.files(path = file.path(path.dat, predictor[i]), pattern = Genera[i], full.names=TRUE))
+    #assign(paste(predictor[1], "cols", sep = ''), names(read.csv()))
+    extractioncols <- names(read.csv(initial_extraction[1]))
+    coltype <- rep(NA, length(extractioncols))
+    col.char <- which(extractioncols %in% c("nativeDatabaseID", "MU.SOURCE1"))
+    coltype[col.char] <- "character"
+    intermediate_extraction <- lapply(initial_extraction, read.csv, colClasses=coltype) %>% bind_rows()
+    intermediate_extraction <- rbind.fill(intermediate_extraction, MortonArb_Data_path)
+    intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
+    final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,6:17])]),]
+    write.csv(final_extraction, paste0("D:/Data_IMLS_Ecological_Value/PCA_Reductions/", predictor[i], Genera[j], ".csv"), row.names=TRUE)
+  }
+}
+
+#Reduction of (genus) Variables: saved them to hard drive
+(genus)(predictor)_Reduction1 <- cor((predictor)Final_(Genera[i]))
+#(genus) PCA 1
+(genus).pca <- prcomp((genus)_climate_(predictor)[,important_predictors_(predictor)], center = TRUE,scale. = TRUE)
+summary((genus).pca)
+(genus).pca$rotation
+#analysis of PCA Plots
+ggbiplot((genus).pca) #basic plot
+
