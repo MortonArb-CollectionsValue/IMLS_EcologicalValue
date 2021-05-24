@@ -10,7 +10,7 @@ library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 path.dat <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data"
-important.traits <- c("T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
+important.traits <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
 
 #Loading in Data

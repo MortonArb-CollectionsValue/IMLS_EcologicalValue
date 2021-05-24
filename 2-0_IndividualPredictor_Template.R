@@ -33,12 +33,12 @@ path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 # important_predictors2_tmax <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
 # important_predictors2_tmin <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
 # important_predictors2_vpd <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
-important_predictors_ppt <- c("ppt.ann.mean", "ppt.min.min")
-important_predictors_soil <- c("soil.ann.max", "soil.max.sd")
-important_predictors_srad <- c("srad.ann.max", "srad.ann.sd")
-important_predictors_tmax <- c("tmax.ann.min", "tmax.min.sd")
-important_predictors_tmin <- c("tmin.ann.min", "tmin.ann.sd")
-important_predictors_vpd <- c("vpd.ann.max", "vpd.max.sd")
+important_predictors_ppt <- c("UID", "ppt.ann.mean", "ppt.min.min")
+important_predictors_soil <- c("UID", "soil.ann.max", "soil.max.sd")
+important_predictors_srad <- c("UID", "srad.ann.max", "srad.ann.sd")
+important_predictors_tmax <- c("UID", "tmax.ann.min", "tmax.min.sd")
+important_predictors_tmin <- c("UID", "tmin.ann.min", "tmin.ann.sd")
+important_predictors_vpd <- c("UID", "vpd.ann.max", "vpd.max.sd")
 
 
 for(i in 1:length(predictor)) {

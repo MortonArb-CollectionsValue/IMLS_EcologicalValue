@@ -17,11 +17,11 @@ ulmus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/
 important.traits <- c("T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
 
-#Combining Climate & Soil Data
-malus.all <-  merge(malus.clim, malus.soils[,important.traits])
-quercus.all <-  merge(quercus.clim, quercus.soils[,important.traits])
-tilia.all <-  merge(tilia.clim, tilia.soils[,important.traits])
-ulmus.all <-  merge(ulmus.clim, ulmus.soils[,important.traits])
+#Combining Climate & Soil Data: only using the variables for analysis
+malus.all <-  merge(malus.clim[,6:17], malus.soils[,important.traits])
+quercus.all <-  merge(quercus.clim[,6:17], quercus.soils[,important.traits])
+tilia.all <-  merge(tilia.clim[,6:17], tilia.soils[,important.traits])
+ulmus.all <-  merge(ulmus.clim[,6:17], ulmus.soils[,important.traits])
 
 # PCA 1: kitchen sink approach -- throw it all in
 set.seed(1608)
