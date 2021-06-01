@@ -18,11 +18,15 @@ important.soil.traits <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
 
 #Combining Climate & Soil Data: only using the variables for analysis
-#SAID IT TOOK TOO MUCH SPACE
-malus.all <-  merge(malus.clim[,6:17], malus.soils[,important.soil.traits], all.x = "UID", all.y = "UID")
-quercus.all <-  merge(quercus.clim[,6:17], quercus.soils[,important.soil.traits], all.x = "UID", all.y = "UID")
-tilia.all <-  merge(tilia.clim[,6:17], tilia.soils[,important.soil.traits], all.x = "UID", all.y = "UID")
-ulmus.all <-  merge(ulmus.clim[,6:17], ulmus.soils[,important.soil.traits], all.x = "UID", all.y = "UID")
+  #Only takes the variables that are in both, gets rid of the variables that are only in 1
+malus.all <-  merge(malus.clim, malus.soils, by.x="UID", by.y="UID")
+malus.all <- malus.all[,c(6:17, 22:35)]
+quercus.all <-  merge(quercus.clim, quercus.soils, by.x="UID", by.y="UID")
+quercus.all <- quercus.all[,c(6:17, 22:35)]
+tilia.all <-  merge(tilia.clim, tilia.soils, by.x="UID", by.y="UID")
+tilia.all <- tilia.all[,c(6:17, 22:35)]
+ulmus.all <-  merge(ulmus.clim, ulmus.soils, by.x="UID", by.y="UID")
+ulmus.all <- ulmus.all[,c(6:17, 22:35)]
 
 # PCA 1: kitchen sink approach -- throw it all in
 set.seed(1608)
