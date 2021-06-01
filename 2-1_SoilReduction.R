@@ -15,7 +15,9 @@ path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
 soil.predictors <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
                       "ROOTS", "T.CEC.CLAY",	"T.CEC.SOIL",	"T.CACO3",	"T.CASO4",	"T.ESP")
 
-
+Brevipes <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/Malus_brevipes.csv")
+colnames(Brevipes)
+c()
 
 for (j in 1:length(Genera)) {
   MortonArb_Data_path <-  read.csv(file.path(path.dat,"0_MortonArb.csv")) #morton arb values in diff. folders
@@ -31,7 +33,7 @@ for (j in 1:length(Genera)) {
   intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
   
   #getting rid of the (genus) NA values
-  final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,6:17])]),]
+  final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,soil.predictors])]),]
   final_extraction2 <- final_extraction[,soil.predictors]
-  write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=TRUE)
+  write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=FALSE)
 }
