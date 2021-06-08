@@ -1,16 +1,22 @@
 #Loading in correct packages to extract
-library(devtools)
+# library(devtools)
 # install_github("vqv/ggbiplot") #just used blank line when asked question
 library(ggbiplot)
-library("dplyr"); library("plyr"); library("readr")
+library(dplyr); library(plyr); library(readr)
 library(ggplot2)
-library(rgdal); library(sp); library(raster)
+# library(rgdal); library(sp); library(raster)
 library(Hmisc)
 library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
 path.out <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/"
+
+# Google Drive File paths on a Mac
+# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
+
+if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 
 #Sort out reduced columns for combining all together
 soil.predictors <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
