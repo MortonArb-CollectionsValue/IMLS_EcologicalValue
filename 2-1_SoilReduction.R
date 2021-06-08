@@ -10,6 +10,7 @@ library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
+path.out <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/"
 
 #Sort out reduced columns for combining all together
 soil.predictors <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
@@ -32,5 +33,5 @@ for (j in 1:length(Genera)) {
   final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path) 
     #did this after so arb data would not be filtered out since UID is one of the important traits & Arb does not have UID
   final_extraction <- final_extraction[,soil.predictors]
-  write.csv(final_extraction, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=FALSE)
+  write.csv(final_extraction, file.path(path.out, paste0(Genera[j], ".csv")), row.names=FALSE)
 }

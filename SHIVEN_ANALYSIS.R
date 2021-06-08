@@ -2,17 +2,21 @@
 library(dplyr); library(ggplot2); library(vegan)
 library(ggbiplot)
 
+path.clim <- "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/"
+path.soils <- "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/"
+path.pcas <- "D:/Data_IMLS_Ecological_Value/PCAs"
+
 #Loading in Climate Data
-malus.clim <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Malus_Climate_Final.csv")
-quercus.clim <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Quercus_Climate_Final.csv")
-tilia.clim <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Tilia_Climate_Final.csv")
-ulmus.clim <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostReductions2/Ulmus_Climate_Final.csv")
+malus.clim <- read.csv(file.path(path.clim, "Malus_Climate_Final.csv"))
+quercus.clim <- read.csv(file.path(path.clim, "Quercus_Climate_Final.csv"))
+tilia.clim <- read.csv(file.path(path.clim, "Tilia_Climate_Final.csv"))
+ulmus.clim <- read.csv(file.path(path.clim, "Ulmus_Climate_Final.csv"))
 
 #Loading in Soils Data
-malus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Malus_Soil_Final.csv")
-quercus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Quercus_Soil_Final.csv")
-tilia.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Tilia_Soil_Final.csv")
-ulmus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Ulmus_Soil_Final.csv")
+malus.soils <- read.csv(file.path(path.soils, "Malus_Soil_Final.csv"))
+quercus.soils <- read.csv(file.path(path.soils, "Quercus_Soil_Final.csv"))
+tilia.soils <- read.csv(file.path(path.soils, "Tilia_Soil_Final.csv"))
+ulmus.soils <- read.csv(file.path(path.soils, "Ulmus_Soil_Final.csv"))
 
 important.traits <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.min",      
                       "tmax.min.sd", "tmin.ann.min", "tmin.ann.sd", "vpd.ann.max", "vpd.max.sd", "T.GRAVEL", "T.SILT", "T.CLAY", 
@@ -46,7 +50,7 @@ summary(malus.pca1)
 #save(malus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca1.RData")
 malus.pca.plot <- ggbiplot(malus.pca1) #basic plot
 malus.pca.plot
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/malus_pca.png")
+dev.copy(png, file.path(path.pcas, "malus_pca.png"))
 dev.off()
 
 #Quercus PCA
@@ -55,7 +59,7 @@ summary(quercus.pca1)
 #save(quercus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca1.RData")
 quercus.pca.plot <- ggbiplot(quercus.pca1) #basic plot
 quercus.pca.plot
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/quercus_pca.png")
+dev.copy(png, file.path(path.pcas, "quercus_pca.png"))
 dev.off()
 
 #Tilia PCA
@@ -64,7 +68,7 @@ summary(tilia.pca1)
 #save(tilia.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca1.RData")
 tilia.pca.plot <- ggbiplot(tilia.pca1) #basic plot
 tilia.pca.plot
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/tilia_pca.png")
+dev.copy(png, file.path(path.pcas, "tilia_pca.png"))
 dev.off()
 
 #Ulmus PCA
@@ -73,7 +77,7 @@ summary(ulmus.pca1)
 #save(ulmus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca1.RData")
 ulmus.pca.plot <- ggbiplot(ulmus.pca1) #basic plot
 ulmus.pca.plot
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/ulmus_pca.png")
+dev.copy(png, file.path(path.pcas, "ulmus_pca.png"))
 dev.off()
 
 
@@ -92,8 +96,8 @@ summary(malus.scale)
 
 # Remove variables that are supreme outliers in any one variable
 # NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
-rows.remove <- which(malus.scale[,important.traits]>6)
-summary(rows.remove)
+# rows.remove <- which(malus.scale[,important.traits]>6)
+# summary(rows.remove)
 
 # Removing weirdos
 # Being fairly stringent with the outlier number for our sanity
@@ -112,8 +116,8 @@ summary(quercus.scale)
 
 # Remove variables that are supreme outliers in any one variable
 # NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
-rows.remove <- which(quercus.scale[,important.traits]>6)
-summary(rows.remove)
+# rows.remove <- which(quercus.scale[,important.traits]>6)
+# summary(rows.remove)
 
 # Removing weirdos
 # Being fairly stringent with the outlier number for our sanity
@@ -132,8 +136,8 @@ summary(tilia.scale)
 
 # Remove variables that are supreme outliers in any one variable
 # NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
-rows.remove <- which(tilia.scale[,important.traits]>6)
-summary(rows.remove)
+# rows.remove <- which(tilia.scale[,important.traits]>6)
+# summary(rows.remove)
 
 # Removing weirdos
 # Being fairly stringent with the outlier number for our sanity
@@ -172,7 +176,7 @@ summary(malus.pca2)
 #save(malus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca2.RData")
 malus.pca.plot2 <- ggbiplot(malus.pca2) #basic plot
 malus.pca.plot2
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/malus_pca2.png")
+dev.copy(png, file.path(path.pcas, "malus_pca2.png"))
 dev.off()
 
 #Quercus PCA 2
@@ -181,7 +185,7 @@ summary(quercus.pca2)
 #save(quercus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca2.RData")
 quercus.pca.plot2 <- ggbiplot(quercus.pca2) #basic plot
 quercus.pca.plot2
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/quercus_pca2.png")
+dev.copy(png, file.path(path.pcas, "quercus_pca2.png"))
 dev.off()
 
 #Tilia PCA 2
@@ -190,7 +194,7 @@ summary(tilia.pca2)
 #save(tilia.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca2.RData")
 tilia.pca.plot2 <- ggbiplot(tilia.pca2) #basic plot
 tilia.pca.plot2
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/tilia_pca2.png")
+dev.copy(png, file.path(path.pcas, "tilia_pca2.png"))
 dev.off()
 
 #Ulmus PCA
@@ -199,5 +203,5 @@ summary(ulmus.pca2)
 #save(ulmus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca2.RData")
 ulmus.pca.plot2 <- ggbiplot(ulmus.pca2) #basic plot
 ulmus.pca.plot2
-dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/ulmus_pca2.png")
+dev.copy(png, file.path(path.pcas, "ulmus_pca2.png"))
 dev.off()
