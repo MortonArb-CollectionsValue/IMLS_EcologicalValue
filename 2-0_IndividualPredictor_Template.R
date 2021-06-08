@@ -25,7 +25,7 @@ library(data.table)
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
-
+path.out <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2/"
 #Sort out reduced columns for combining all together
 # important_predictors2_ppt <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
 # important_predictors2_soil <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
@@ -66,22 +66,22 @@ for(i in 1:length(predictor)) {
     #creating loop so that reduced data (1 variable per ann, max, min) is saved as csv so it can be extracted easier
     if (i==1) {
       final_extraction2 <- final_extraction[,important_predictors_ppt]
-      write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/ppt/ppt_", Genera[j], ".csv"), row.names=TRUE)
+      write.csv(final_extraction2, paste0(path.out, "/ppt/ppt_", Genera[j], ".csv"), row.names=TRUE)
     } else { if (i==2) {
       final_extraction2 <- final_extraction[,important_predictors_soil]
-      write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/soil/soil_", Genera[j], ".csv"), row.names=TRUE)
+      write.csv(final_extraction2, paste0(path.out, "/soil/soil_", Genera[j], ".csv"), row.names=TRUE)
       } else { if (i==3) {
         final_extraction2 <- final_extraction[,important_predictors_srad]
-        write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/srad/srad_", Genera[j], ".csv"), row.names=TRUE)
+        write.csv(final_extraction2, paste0(path.out, "/srad/srad_", Genera[j], ".csv"), row.names=TRUE)
         } else { if (i==4) {
           final_extraction2 <- final_extraction[,important_predictors_tmax]
-          write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/tmax/tmax_", Genera[j], ".csv"), row.names=TRUE)
+          write.csv(final_extraction2, paste0(path.out, "/tmax/tmax_", Genera[j], ".csv"), row.names=TRUE)
           } else { if (i==5) {
             final_extraction2 <- final_extraction[,important_predictors_tmin]
-            write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/tmin/tmin_", Genera[j], ".csv"), row.names=TRUE)
+            write.csv(final_extraction2, paste0(path.out, "/tmin/tmin_", Genera[j], ".csv"), row.names=TRUE)
             } else {
               final_extraction2 <- final_extraction[,important_predictors_vpd]
-              write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/Preloaded_Data2/vpd/vpd_", Genera[j], ".csv"), row.names=TRUE)
+              write.csv(final_extraction2, paste0(path.out, "/vpd/vpd_", Genera[j], ".csv"), row.names=TRUE)
             }
           }
         }
