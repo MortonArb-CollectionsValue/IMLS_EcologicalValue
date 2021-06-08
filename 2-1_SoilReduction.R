@@ -39,5 +39,5 @@ for (j in 1:length(Genera)) {
   final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path) 
     #did this after so arb data would not be filtered out since UID is one of the important traits & Arb does not have UID
   final_extraction <- final_extraction[,soil.predictors]
-  write.csv(final_extraction, file.path(path.out, paste0(Genera[j], ".csv")), row.names=FALSE)
+  write.csv(final_extraction, file.path(path.out, paste0("Soil_", Genera[j], ".csv")), row.names=FALSE)
 }
