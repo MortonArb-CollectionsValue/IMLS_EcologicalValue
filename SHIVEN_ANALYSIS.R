@@ -14,28 +14,25 @@ quercus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReduction
 tilia.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Tilia_Soil_Final.csv")
 ulmus.soils <- read.csv("D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Ulmus_Soil_Final.csv")
 
+#ROOTS was omitted because Arb Data is NA at this value
 important.traits <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.min",      
                       "tmax.min.sd", "tmin.ann.min", "tmin.ann.sd", "vpd.ann.max", "vpd.max.sd", "T.GRAVEL", "T.SILT", "T.CLAY", 
-                      "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
+                      "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
 
 #Combining Climate & Soil Data: only using the variables for analysis
   #Only takes the variables that are in both, gets rid of the variables that are only in 1
   #Filtering OUt Morton Arb Data since PCA does not work with Arb point: ROOTS is NA
 malus.all <-  merge(malus.clim, malus.soils, by.x="UID", by.y="UID")
-malus.all2 <- filter(malus.all, !genus.x %in% 
-                    c('MortonArb'))
+#malus.all2 <- filter(malus.all, !genus.x %in% c('MortonArb'))
 #malus.all <- malus.all[,c(7:18, 22:35)]
 quercus.all <-  merge(quercus.clim, quercus.soils, by.x="UID", by.y="UID")
-quercus.all2 <- filter(quercus.all, !genus.x %in% 
-                      c('MortonArb'))
+#quercus.all2 <- filter(quercus.all, !genus.x %in% c('MortonArb'))
 #quercus.all <- quercus.all[,c(6:17, 22:35)]
 tilia.all <-  merge(tilia.clim, tilia.soils, by.x="UID", by.y="UID")
-tilia.all2 <- filter(tilia.all, !genus.x %in% 
-                    c('MortonArb'))
+#tilia.all2 <- filter(tilia.all, !genus.x %in% c('MortonArb'))
 #tilia.all <- tilia.all[,c(6:17, 22:35)]
 ulmus.all <-  merge(ulmus.clim, ulmus.soils, by.x="UID", by.y="UID")
-ulmus.all2 <- filter(ulmus.all, !genus.x %in% 
-                    c('MortonArb'))
+#ulmus.all2 <- filter(ulmus.all, !genus.x %in% c('MortonArb'))
 #ulmus.all <- ulmus.all[,c(6:17, 22:35)]
 
 # PCA 1: kitchen sink approach -- throw it all in
@@ -167,7 +164,7 @@ summary(ulmus.clean)
 # Used centered data without outliers (don't need to center or scale)
 set.seed(1608)
 #Malus PCA 2
-malus.pca2 <- prcomp(malus.all2[,important.traits], center = FALSE, scale. = FALSE)
+malus.pca2 <- prcomp(malus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(malus.pca2)
 #save(malus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca2.RData")
 malus.pca.plot2 <- ggbiplot(malus.pca2) #basic plot
@@ -176,7 +173,7 @@ dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/malus_pca2.png")
 dev.off()
 
 #Quercus PCA 2
-quercus.pca2 <- prcomp(quercus.all2[,important.traits], center = FALSE, scale. = FALSE)
+quercus.pca2 <- prcomp(quercus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(quercus.pca2)
 #save(quercus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca2.RData")
 quercus.pca.plot2 <- ggbiplot(quercus.pca2) #basic plot
@@ -185,7 +182,7 @@ dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/quercus_pca2.png")
 dev.off()
 
 #Tilia PCA 2
-tilia.pca2 <- prcomp(tilia.all2[,important.traits], center = FALSE, scale. = FALSE)
+tilia.pca2 <- prcomp(tilia.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(tilia.pca2)
 #save(tilia.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca2.RData")
 tilia.pca.plot2 <- ggbiplot(tilia.pca2) #basic plot
@@ -194,10 +191,11 @@ dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/tilia_pca2.png")
 dev.off()
 
 #Ulmus PCA
-ulmus.pca2 <- prcomp(ulmus.all2[,important.traits], center = FALSE, scale. = FALSE)
+ulmus.pca2 <- prcomp(ulmus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(ulmus.pca2)
 #save(ulmus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca2.RData")
 ulmus.pca.plot2 <- ggbiplot(ulmus.pca2) #basic plot
 ulmus.pca.plot2
 dev.copy(png, "D:/Data_IMLS_Ecological_Value/PCAs/ulmus_pca2.png")
 dev.off()
+
