@@ -15,10 +15,6 @@ path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
 soil.predictors <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
                       "ROOTS", "T.CEC.CLAY",	"T.CEC.SOIL",	"T.CACO3",	"T.CASO4",	"T.ESP")
 
-Brevipes <- read.csv("D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/Malus_brevipes.csv")
-colnames(Brevipes)
-c()
-
 for (j in 1:length(Genera)) {
   MortonArb_Data_path <-  read.csv(file.path(path.dat,"0_MortonArb.csv")) #morton arb values in diff. folders
   #made each data frame end with original to indicate before NA values were removed
@@ -29,11 +25,12 @@ for (j in 1:length(Genera)) {
   col.char <- which(extractioncols %in% c("nativeDatabaseID", "MU.SOURCE1"))
   coltype[col.char] <- "character"
   intermediate_extraction <- lapply(initial_extraction, read.csv, colClasses=coltype) %>% bind_rows()
-  intermediate_extraction <- rbind.fill(intermediate_extraction, MortonArb_Data_path)
   intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
   
   #getting rid of the (genus) NA values
   final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,soil.predictors])]),]
-  final_extraction2 <- final_extraction[,soil.predictors]
-  write.csv(final_extraction2, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=FALSE)
+  final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path) 
+    #did this after so arb data would not be filtered out since UID is one of the important traits & Arb does not have UID
+  final_extraction <- final_extraction[,soil.predictors]
+  write.csv(final_extraction, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=FALSE)
 }
