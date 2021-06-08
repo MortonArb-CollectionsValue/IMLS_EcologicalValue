@@ -98,7 +98,7 @@ summary(quercus.pca2$x[,1:3])
 # -----------------------
 # test <- scale(quercus_all[,3:])
 # scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
-# This needs to happen at the genus level
+# This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(quercus_all) is "important.traits"
 quercus.scale <- cbind(quercus_all[,1:2], scale(quercus_all[,3:ncol(quercus_all)])) # putting descriptors w/ scaled data
 summary(quercus.scale)
 
