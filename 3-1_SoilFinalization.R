@@ -27,7 +27,7 @@ important_tilia <- data.frame(UID=character(), species_name_acc=character(), dec
 important_ulmus <- data.frame(UID=character(), species_name_acc=character(), decimalLatitude=double(), decimalLongitude=double(), stringsAsFactors=FALSE)
 
 for (j in 1:length(Genera)) {
-    #MortonArb_Data_path <-  read.csv(file.path(path.dat,"0_MortonArb.csv")) #morton arb values in diff. folders
+    MortonArb_Data_path <-  read.csv(file.path(path.dat,"0_MortonArb.csv")) #morton arb values in diff. folders
     #made each data frame end with original to indicate before NA values were removed
     #Data Extraction
     initial_extraction <- list.files(path = path.dat, pattern = Genera[j], full.names=TRUE)
@@ -39,6 +39,7 @@ for (j in 1:length(Genera)) {
     intermediate_extraction <- rbind.fill(intermediate_extraction)
     intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
     final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,important.traits])]),]
+    final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path)
     final_extraction <- final_extraction[,c(3,4,5,11,12)]
     if (j==1) {
       important_malus <- rbind(important_malus, final_extraction)
@@ -58,35 +59,39 @@ for (j in 1:length(Genera)) {
 }
 
 
-#DOES NOT WORK: NOT MATCHING # OF TERMS
+#SHOULD I GET RID OF THE UID BEFORE SO THEN I DON'T HAVE TO HARD CODE
 
 #Adding in Categorical Variables & Saving
-Soil_Malus <- Soil_Malus[complete.cases(Soil_Malus), ]
+#Soil_Malus <- Soil_Malus[complete.cases(Soil_Malus), ]
 #important_malus <- important_malus[complete.cases(important_malus), ]
+Soil_Malus$UID <- NULL
 Malus_Soil_Final <- cbind(important_malus, Soil_Malus)
-Malus_Soil_Final[, 6] <- NULL
+#Malus_Soil_Final[, 6] <- NULL
 write.csv(Malus_Soil_Final, "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Malus_Soil_Final.csv", row.names = FALSE)
 
 
 #Adding in Categorical Variables & Saving
-Soil_Quercus <- Soil_Quercus[complete.cases(Soil_Quercus), ]
+#Soil_Quercus <- Soil_Quercus[complete.cases(Soil_Quercus), ]
 #important_quercus <- important_quercus[complete.cases(important_quercus), ]
+Soil_Quercus$UID <- NULL
 Quercus_Soil_Final <- cbind(important_quercus, Soil_Quercus)
-Quercus_Soil_Final[, 6] <- NULL
+#Quercus_Soil_Final[, 6] <- NULL
 write.csv(Quercus_Soil_Final, "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Quercus_Soil_Final.csv", row.names = FALSE)
 
 
 #Adding in Categorical Variables & Saving
-Soil_Tilia <- Soil_Tilia[complete.cases(Soil_Tilia), ]
+#Soil_Tilia <- Soil_Tilia[complete.cases(Soil_Tilia), ]
 #important_tilia <- important_tilia[complete.cases(important_tilia), ]
+Soil_Tilia$UID <- NULL
 Tilia_Soil_Final <- cbind(important_tilia, Soil_Tilia)
-Tilia_Soil_Final[, 6] <- NULL
+#Tilia_Soil_Final[, 6] <- NULL
 write.csv(Tilia_Soil_Final, "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Tilia_Soil_Final.csv", row.names = FALSE)
 
 
 #Adding in Categorical Variables & Saving
-Soil_Ulmus <- Soil_Ulmus[complete.cases(Soil_Ulmus), ]
+#Soil_Ulmus <- Soil_Ulmus[complete.cases(Soil_Ulmus), ]
 #important_ulmus <- important_ulmus[complete.cases(important_ulmus), ]
+Soil_Ulmus$UID <- NULL
 Ulmus_Soil_Final <- cbind(important_ulmus, Soil_Ulmus)
-Ulmus_Soil_Final[, 6] <- NULL
+#Ulmus_Soil_Final[, 6] <- NULL
 write.csv(Ulmus_Soil_Final, "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/Ulmus_Soil_Final.csv", row.names = FALSE)
