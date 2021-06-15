@@ -1,4 +1,3 @@
-# Doing a script of some quick PCA/Permanova Analyses for an ESA abstract;
 library(dplyr); library(ggplot2); library(vegan)
 library(ggbiplot)
 
@@ -39,43 +38,43 @@ ulmus.all <-  merge(ulmus.clim, ulmus.soils, by.x="UID", by.y="UID")
 #ulmus.all2 <- filter(ulmus.all, !genus.x %in% c('MortonArb'))
 #ulmus.all <- ulmus.all[,c(6:17, 22:35)]
 
-# PCA 1: kitchen sink approach -- throw it all in
-set.seed(1608)
-#Malus PCA
-malus.pca1 <- prcomp(malus.all2[,important.traits], center = TRUE, scale. = TRUE)
-summary(malus.pca1)
-#save(malus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca1.RData")
-malus.pca.plot <- ggbiplot(malus.pca1) #basic plot
-malus.pca.plot
-dev.copy(png, file.path(path.pcas, "malus_pca.png"))
-dev.off()
-
-#Quercus PCA
-quercus.pca1 <- prcomp(quercus.all2[,important.traits], center = TRUE, scale. = TRUE)
-summary(quercus.pca1)
-#save(quercus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca1.RData")
-quercus.pca.plot <- ggbiplot(quercus.pca1) #basic plot
-quercus.pca.plot
-dev.copy(png, file.path(path.pcas, "quercus_pca.png"))
-dev.off()
-
-#Tilia PCA
-tilia.pca1 <- prcomp(tilia.all2[,important.traits], center = TRUE, scale. = TRUE)
-summary(tilia.pca1)
-#save(tilia.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca1.RData")
-tilia.pca.plot <- ggbiplot(tilia.pca1) #basic plot
-tilia.pca.plot
-dev.copy(png, file.path(path.pcas, "tilia_pca.png"))
-dev.off()
-
-#Ulmus PCA
-ulmus.pca1 <- prcomp(ulmus.all2[,important.traits], center = TRUE, scale. = TRUE)
-summary(ulmus.pca1)
-#save(ulmus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca1.RData")
-ulmus.pca.plot <- ggbiplot(ulmus.pca1) #basic plot
-ulmus.pca.plot
-dev.copy(png, file.path(path.pcas, "ulmus_pca.png"))
-dev.off()
+# # PCA 1: kitchen sink approach -- throw it all in
+# set.seed(1608)
+# #Malus PCA
+# malus.pca1 <- prcomp(malus.all2[,important.traits], center = TRUE, scale. = TRUE)
+# summary(malus.pca1)
+# #save(malus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCA_Graphs/maluspca1.RData")
+# malus.pca.plot <- ggbiplot(malus.pca1) #basic plot
+# malus.pca.plot
+# dev.copy(png, file.path(path.pcas, "malus_pca.png"))
+# dev.off()
+# 
+# #Quercus PCA
+# quercus.pca1 <- prcomp(quercus.all2[,important.traits], center = TRUE, scale. = TRUE)
+# summary(quercus.pca1)
+# #save(quercus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCA_Graphs/quercuspca1.RData")
+# quercus.pca.plot <- ggbiplot(quercus.pca1) #basic plot
+# quercus.pca.plot
+# dev.copy(png, file.path(path.pcas, "quercus_pca.png"))
+# dev.off()
+# 
+# #Tilia PCA
+# tilia.pca1 <- prcomp(tilia.all2[,important.traits], center = TRUE, scale. = TRUE)
+# summary(tilia.pca1)
+# #save(tilia.pca1, file = "D:/Data_IMLS_Ecological_Value/PCA_Graphs/tiliapca1.RData")
+# tilia.pca.plot <- ggbiplot(tilia.pca1) #basic plot
+# tilia.pca.plot
+# dev.copy(png, file.path(path.pcas, "tilia_pca.png"))
+# dev.off()
+# 
+# #Ulmus PCA
+# ulmus.pca1 <- prcomp(ulmus.all2[,important.traits], center = TRUE, scale. = TRUE)
+# summary(ulmus.pca1)
+# #save(ulmus.pca1, file = "D:/Data_IMLS_Ecological_Value/PCA_Graphs/ulmuspca1.RData")
+# ulmus.pca.plot <- ggbiplot(ulmus.pca1) #basic plot
+# ulmus.pca.plot
+# dev.copy(png, file.path(path.pcas, "ulmus_pca.png"))
+# dev.off()
 
 
 #Removing predictor outliers -- used ESA script lines 95-117
@@ -88,7 +87,7 @@ meta.traits <- c("UID", "genus.x", "species.x", "decimalLatitude.x", "decimalLon
 # - In future, could go and do this by each species
 # scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
 # This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(malus.all2) is "important.traits"
-malus.scale <- cbind(malus.all2[,meta.traits], scale(malus.all2[,important.traits])) # putting descriptors w/ scaled data
+malus.scale <- cbind(malus.all[,meta.traits], scale(malus.all[,important.traits])) # putting descriptors w/ scaled data
 summary(malus.scale)
 
 # Remove variables that are supreme outliers in any one variable
@@ -108,7 +107,7 @@ summary(malus.clean)
 # - In future, could go and do this by each species
 # scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
 # This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(quercus.all2) is "important.traits"
-quercus.scale <- cbind(quercus.all2[,meta.traits], scale(quercus.all2[,important.traits])) # putting descriptors w/ scaled data
+quercus.scale <- cbind(quercus.all[,meta.traits], scale(quercus.all[,important.traits])) # putting descriptors w/ scaled data
 summary(quercus.scale)
 
 # Remove variables that are supreme outliers in any one variable
@@ -128,7 +127,7 @@ summary(quercus.clean)
 # - In future, could go and do this by each species
 # scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
 # This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(tilia.all2) is "important.traits"
-tilia.scale <- cbind(tilia.all2[,meta.traits], scale(tilia.all2[,important.traits])) # putting descriptors w/ scaled data
+tilia.scale <- cbind(tilia.all[,meta.traits], scale(tilia.all[,important.traits])) # putting descriptors w/ scaled data
 summary(tilia.scale)
 
 # Remove variables that are supreme outliers in any one variable
@@ -148,7 +147,7 @@ summary(tilia.clean)
 # - In future, could go and do this by each species
 # scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
 # This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(ulmus.all2) is "important.traits"
-ulmus.scale <- cbind(ulmus.all2[,meta.traits], scale(ulmus.all2[,important.traits])) # putting descriptors w/ scaled data
+ulmus.scale <- cbind(ulmus.all[,meta.traits], scale(ulmus.all[,important.traits])) # putting descriptors w/ scaled data
 summary(ulmus.scale)
 
 # Remove variables that are supreme outliers in any one variable
@@ -170,7 +169,7 @@ set.seed(1608)
 #Malus PCA 2
 malus.pca2 <- prcomp(malus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(malus.pca2)
-#save(malus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/maluspca2.RData")
+write.csv(as.data.frame.matrix(malus.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Malus_pca2.csv", row.names = TRUE)
 malus.pca.plot2 <- ggbiplot(malus.pca2) #basic plot
 malus.pca.plot2
 dev.copy(png, file.path(path.pcas, "malus_pca2.png"))
@@ -179,7 +178,7 @@ dev.off()
 #Quercus PCA 2
 quercus.pca2 <- prcomp(quercus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(quercus.pca2)
-#save(quercus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/quercuspca2.RData")
+write.csv(as.data.frame.matrix(quercus.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Quercus_pca2.csv", row.names = TRUE)
 quercus.pca.plot2 <- ggbiplot(quercus.pca2) #basic plot
 quercus.pca.plot2
 dev.copy(png, file.path(path.pcas, "quercus_pca2.png"))
@@ -188,7 +187,7 @@ dev.off()
 #Tilia PCA 2
 tilia.pca2 <- prcomp(tilia.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(tilia.pca2)
-#save(tilia.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/tiliapca2.RData")
+write.csv(as.data.frame.matrix(tilia.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Tilia_pca2.csv", row.names = TRUE)
 tilia.pca.plot2 <- ggbiplot(tilia.pca2) #basic plot
 tilia.pca.plot2
 dev.copy(png, file.path(path.pcas, "tilia_pca2.png"))
@@ -197,9 +196,8 @@ dev.off()
 #Ulmus PCA
 ulmus.pca2 <- prcomp(ulmus.clean[,important.traits], center = FALSE, scale. = FALSE)
 summary(ulmus.pca2)
-#save(ulmus.pca2, file = "D:/Data_IMLS_Ecological_Value/PCAs/ulmuspca2.RData")
+write.csv(as.data.frame.matrix(ulmus.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Ulmus_pca2.csv", row.names = TRUE)
 ulmus.pca.plot2 <- ggbiplot(ulmus.pca2) #basic plot
 ulmus.pca.plot2
 dev.copy(png, file.path(path.pcas, "ulmus_pca2.png"))
 dev.off()
-
