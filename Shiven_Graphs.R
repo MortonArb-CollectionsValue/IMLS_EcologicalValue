@@ -26,9 +26,23 @@ for (i in 1:length(Genera)) {
 }
 
 total_pca2
+total_pca2$Trait
+#Creating Graph: saving image
+  #Changes to Make: ALL climate on top, ALL Soil on bottom
+  #Could also make climate one color & soil one color
 
-#Creating Graph
-ggplot(total_pca2, aes(x = Trait, y = Value)) +
+#trying to make it so that soil is on top and climate on bottom
+total_pca2$Trait <- factor(total_pca2$Trait, 
+                           levels=c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", 
+                                     "tmax.ann.min", "tmax.min.sd",  "tmin.ann.min", "tmin.ann.sd", "vpd.ann.max",  "vpd.max.sd",  
+                                     "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "T.CEC.CLAY", 
+                                     "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP"))
+
+png("PCA_Loadings_3PCs.png", height=6, width=6, units="in", res=320)
+
+ggplot(total_pca2, aes(x = Trait, y=abs(Value), fill=ifelse(Value<0, "Neg", "Pos"))) +
   geom_bar(stat = "identity", position = position_stack()) +
   coord_flip() + 
   facet_grid(PC~Genus, scales="free", space="free_x")
+
+dev.off()
