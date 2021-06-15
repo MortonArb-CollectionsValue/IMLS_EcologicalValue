@@ -9,10 +9,11 @@ library(Hmisc)
 library(data.table)
 
 #File Paths for PPT
-path.dat.ppt <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt"  
-
+# path.dat.ppt <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive/ppt"  
+# path.google <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA"
+path.dat.ppt <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Climate_Extract/ppt"
 #Morton Arb Values in PPT
-MortonArb_Data_ppt <- read.csv(file.path(path.dat.ppt,"0_MortonArb.csv"))
+MortonArb_Data_ppt <- read.csv(file.path(path.dat.ppt,"0_MortonArb.csv"), )
 
 #PPT Plots: 
   #made each data frame end with original to indicate before NA values were removed
