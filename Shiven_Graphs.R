@@ -30,4 +30,5 @@ total_pca2
 #Creating Graph
 ggplot(total_pca2, aes(x = Trait, y = Value)) +
   geom_bar(stat = "identity", position = position_stack()) +
-  coord_flip()
+  coord_flip() + 
+  facet_grid(PC~Genus, scales="free", space="free_x")
