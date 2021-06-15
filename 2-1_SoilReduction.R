@@ -1,15 +1,22 @@
 #Loading in correct packages to extract
-library(devtools)
+# library(devtools)
 # install_github("vqv/ggbiplot") #just used blank line when asked question
 library(ggbiplot)
-library("dplyr"); library("plyr"); library("readr")
+library(dplyr); library(plyr); library(readr)
 library(ggplot2)
-library(rgdal); library(sp); library(raster)
+# library(rgdal); library(sp); library(raster)
 library(Hmisc)
 library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
+path.out <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/"
+
+# Google Drive File paths on a Mac
+# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
+
+if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 
 #Sort out reduced columns for combining all together
 soil.predictors <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
@@ -32,5 +39,5 @@ for (j in 1:length(Genera)) {
   final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path) 
     #did this after so arb data would not be filtered out since UID is one of the important traits & Arb does not have UID
   final_extraction <- final_extraction[,soil.predictors]
-  write.csv(final_extraction, paste0("D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/", Genera[j], ".csv"), row.names=FALSE)
+  write.csv(final_extraction, file.path(path.out, paste0("Soil_", Genera[j], ".csv")), row.names=FALSE)
 }

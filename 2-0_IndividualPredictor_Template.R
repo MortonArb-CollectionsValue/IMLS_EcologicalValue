@@ -14,9 +14,9 @@
 library(devtools)
 # install_github("vqv/ggbiplot") #just used blank line when asked question
 library(ggbiplot)
-library("dplyr"); library("plyr"); library("readr")
+library(dplyr); library(plyr); library(readr)
 library(ggplot2)
-library(rgdal); library(sp); library(raster)
+# library(rgdal); library(sp); library(raster)
 library(Hmisc)
 library(data.table)
 
@@ -26,6 +26,15 @@ Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 path.out <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2/"
+
+# File paths for Googel Dr
+# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Climate_Extract/"
+# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Preloaded_Data2/"
+
+for(PRED in predictor){
+  if(!dir.exists(file.path(path.out, PRED))) dir.create(file.path(path.out, PRED), recursive = T)
+}
+
 #Sort out reduced columns for combining all together
 # important_predictors2_ppt <- c("ppt.ann.sd","ppt.max.sd","ppt.min.min")
 # important_predictors2_soil <- c("soil.ann.sd","soil.max.sd", "soil.min.sd")
@@ -36,7 +45,7 @@ path.out <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2/"
 important_predictors_ppt <- c("UID", "ppt.ann.mean", "ppt.min.min")
 important_predictors_soil <- c("UID", "soil.ann.max", "soil.max.sd")
 important_predictors_srad <- c("UID", "srad.ann.max", "srad.ann.sd")
-important_predictors_tmax <- c("UID", "tmax.ann.min", "tmax.min.sd")
+important_predictors_tmax <- c("UID", "tmax.ann.max", "tmax.min.sd")
 important_predictors_tmin <- c("UID", "tmin.ann.min", "tmin.ann.sd")
 important_predictors_vpd <- c("UID", "vpd.ann.max", "vpd.max.sd")
 

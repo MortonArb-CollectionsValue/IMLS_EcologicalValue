@@ -1,10 +1,10 @@
 #Loading in correct packages to extract
-library(devtools)
+# library(devtools)
 # install_github("vqv/ggbiplot") #just used blank line when asked question
 library(ggbiplot)
-library("dplyr"); library("plyr"); library("readr")
+library(dplyr); library(plyr); library(readr)
 library(ggplot2)
-library(rgdal); library(sp); library(raster)
+# library(rgdal); library(sp); library(raster)
 library(Hmisc)
 library(data.table)
 
@@ -13,9 +13,21 @@ predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
 path.dat <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2"
 path.clim <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
 
-# Where teh data is getting saved
+# Mac Google Drive
+# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Preloaded_Data2/"
+# path.clim <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Climate_Extract/"
+
+# Where the data is getting saved
 pre.out  <- "D:/Data_IMLS_Ecological_Value/Total_PreReductions2/"
 post.out <- "D:/Data_IMLS_Ecological_Value/Total_PostReductions2/"
+
+if(!dir.exists(pre.out)) dir.create(pre.out, recursive = T)
+if(!dir.exists(post.out)) dir.create(post.out, recursive = T)
+
+# Mac Google Drive
+# pre.out  <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Analysis/Toal_PreReductions2/"
+# post.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Analysis/Total_PostReductions2/"
+
 
 for (j in 1:length(predictor)) {
   for (i in 1:length(Genera)) {
