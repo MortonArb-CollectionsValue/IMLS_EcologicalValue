@@ -9,6 +9,16 @@ dat.arb <- read.csv(file.path(path.dat, "0_MortonArb.csv"))
 
 cols.soils <- c("T.GRAVEL", "T.SAND", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "T.REF.BULK.DENSITY")
 
+
+important.traits <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.min",      
+                      "tmax.min.sd", "tmin.ann.min", "tmin.ann.sd", "vpd.ann.max", "vpd.max.sd", "T.GRAVEL", "T.SILT", "T.CLAY", 
+                      "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
+
+#Combining Climate & Soil Data: only using the variables for analysis
+  #Only takes the variables that are in both, gets rid of the variables that are only in 1
+  #Filtering out Morton Arb Data since PCA does not work with Arb point: ROOTS is NA
+meta.traits <- c("genus", "species", "decimalLatitude", "decimalLongitude")
+
 # Setting up some column stuff to make it work when things get weird
 soilcols <- names(dat.arb)
 col.char <- which(soilcols %in% c("nativeDatabaseID", "MU.SOURCE1"))

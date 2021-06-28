@@ -21,48 +21,6 @@ lapply(my.packages, require, character.only=TRUE)
 
 ####################################################################################################
 ####################################################################################################
-### Load functions
-spatial.outlier<-function(data,x=data,threshold=0.05){
-  spatial.depth=function(x,data){
-    if(ncol(as.matrix(x))==1)
-      x<-t(x)
-    if(ncol(data)!=ncol(as.matrix(x))){
-      sd<-"Dimensions do not match"
-    }else{
-      spd<-function(data,x)
-      {
-        v=array(0,ncol(data))
-        for(j in 1:ncol(data))
-        {
-          for(i in 1:nrow(data))
-          {
-            if(sqrt(sum((x-data[i,])^2))!=0)
-              v[j]=v[j]+((x[j]-data[i,j])/sqrt(sum((x-data[i,])^2)))
-          }
-          v[j]=v[j]/nrow(data)
-        }
-        sd=1-sqrt(sum(v^2))
-      }
-      sd<-apply(x,1,function(y){spd(data,y)})
-    }
-    sd
-  }
-  sd<-spatial.depth(x,data)
-  if(length(dim(x))!=0){
-    m<-list()
-    m[[1]]<-which(sd<=threshold)
-    m[[2]]<-x[m[[1]],]
-    names(m)<-c("index","observation")
-    if(length(m[[1]])==0)
-      m<-"FALSE"
-  }else{
-    m<-ifelse(sd<=threshold,"TRUE","FALSE")
-  }
-  return(m)
-}
-
-####################################################################################################
-####################################################################################################
 ### set paths/folders
   # path to the shared Google Drive folder
   path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value"
@@ -76,54 +34,62 @@ spatial.outlier<-function(data,x=data,threshold=0.05){
 ####################################################################################################
 ####################################################################################################
 ## bring in data
-path.clim <- file.path(path.dat, "Analysis/Total_PostReductions2")
-path.soils <- file.path(path.dat, "Analysis/Total_PostSoilReductions")
-path.pcas <- file.path(path.dat, "Analysis/PCAs")
+path.clim   <- file.path(path.dat, "Analysis/Total_PostReductions2")
+path.soils  <- file.path(path.dat, "Analysis/Total_PostSoilReductions")
+path.pcas   <- file.path(path.dat, "Analysis/PCAs")
 
 load(file.path(path.dat, "Analysis", "PCA_data.RData"))
 
+####################################################################################################
 ####################################################################################################
 ####################################################################################################
 ## get list of species and genera
   # spp.ls <- 
   gen.ls <- c('Malus', 'Quercus', 'Tilia', 'Ulmus')
 
-df.in <- all.clean
+    df.in <- xxx
+    # df.in <- all.clean
 
   i.ge <- 'Malus'
 ## set genus iteration
   for(i.ge in gen.ls){
     i.ge
     pc.i <- df.in %>% filter(genus==i.ge)
-
-    in.pca <- prcomp(pc.i[,important.traits], center = FALSE, scale. = FALSE)
-
     
-    
-    
-    pca.plot <- ggbiplot(in.pca) #basic plot
-    # malus.pca.plot2
-    dev.copy(png, file.path(path.pcas, paste0(i.ge, "_pca.png")))
-    dev.off()
-pc.r <- as.data.frame(in.pca$rotation)
-set.seed(1234)
-d <- pc.r[,1:2]
-kd <- ks::kde(d, compute.cont=TRUE)
-
-contour_95 <- with(kd, contourLines(x=eval.points[[1]], y=eval.points[[2]],
-                                    z=estimate, levels=cont["5%"])[[1]])
-contour_95 <- data.frame(contour_95)
-
-
-ggplot(data=d, aes(PC1, PC2)) +
-  geom_point() +
-  geom_path(aes(x, y), data=contour_95) +
-  theme_bw()
-###################################################################################################
-
-
+  png(paste0("Ordination_", i.ge, ".png"), height=8, width=8, units="in", res=320)
+    ggplot(data=dat.all, aes(x=PC1, y=PC2)) +
+    geom_point(aes(x=PC1, y=PC2), size=0.25, color="gray50")  +
+    geom_polygon(data=pc.hulls[pc.hulls$genus %in% i.ge,], aes(fill=i.ge), alpha=0.25) +
+    geom_point(data=dat.all[dat.all$genus %in% i.ge,], aes(color=i.ge)) +
+    geom_point(data=dat.all[dat.all$genus=="MortonArb",], aes(color=i.ge), size=8) +
+    scale_color_manual(name="Genus", values=c("MortonArb"="green4", i.ge="blue2")) +
+    scale_fill_manual(name="Genus", values=c("MortonArb"="green4", i.ge="blue2"))
+      dev.off()
   }
 
+####################################################################################################
+####################################################################################################
+#     in.pca <- prcomp(pc.i[,important.traits], center = FALSE, scale. = FALSE)
+# 
+#     pca.plot <- ggbiplot(in.pca) #basic plot
+#     # malus.pca.plot2
+#     dev.copy(png, file.path(path.pcas, paste0(i.ge, "_pca.png")))
+#     dev.off()
+# pc.r <- as.data.frame(in.pca$rotation)
+# set.seed(1234)
+# d <- pc.r[,1:2]
+# kd <- ks::kde(d, compute.cont=TRUE)
+# 
+# contour_95 <- with(kd, contourLines(x=eval.points[[1]], y=eval.points[[2]],
+#                                     z=estimate, levels=cont["5%"])[[1]])
+# contour_95 <- data.frame(contour_95)
+# 
+# 
+# ggplot(data=d, aes(PC1, PC2)) +
+#   geom_point() +
+#   geom_path(aes(x, y), data=contour_95) +
+#   theme_bw()
+# 
 # ## set species iteration
 #   for(i.sp in spp.ls){
 #     

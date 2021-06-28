@@ -3,17 +3,17 @@ my.packages <- c('ggplot2', 'plyr', 'readr', 'dplyr', 'sf', 'tidyverse')
 lapply(my.packages, require, character.only=TRUE)
 rm(my.packages)
 
-## set pasths/folders
-path.dat1 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value"
-path.figs <- file.path(path.dat1, "figures")
-path.local <- "/Users/aesculus/Box/Research/Active_Projects/IMLS_MortonArb/local_data/PCA_Data"
+## set paths/folders
+path.dat    <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value"
+path.figs   <- file.path(path.dat, "figures")
+path.local  <- "/Users/aesculus/Box/Research/Active_Projects/IMLS_MortonArb/local_data/PCA_Data"
 
 ###################################################################################################
 # Load paths/folders
-path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract"
+# path.dat1 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract"
 library(OutlierDetection)
 ###################################################################################################
-load(file.path(path.dat1, "Extracted Data", "PCA_output.RData"))
+load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
 ###################################################################################################
 # PCOutlierDetection(iris[,-5])
@@ -26,19 +26,20 @@ pc.a <- pca.df %>% filter(species_name_acc==spp.a) #%>% select(PC1, PC2)
 pc.b <- pca.df %>% filter(species_name_acc==spp.b) #%>% select(PC1, PC2)
 pc.c <- pca.df %>% filter(species_name_acc==spp.c) #%>% select(PC1, PC2)
 
-pc.out.a <- OutlierDetection(pc.a[,2:3], distance=TRUE)
-pc.out.b <- OutlierDetection(pc.b[,2:3], distance=TRUE)
-pc.out.c <- OutlierDetection(pc.c[,2:3], distance=TRUE)
+# pc.out.a <- OutlierDetection(pc.a[,2:3], distance=TRUE)
+# pc.out.b <- OutlierDetection(pc.b[,2:3], distance=TRUE)
+# pc.out.c <- OutlierDetection(pc.c[,2:3], distance=TRUE)
+# 
+# pc.out.a2 <- PCOutlierDetection(pc.a[,2:3], distance=TRUE)
+# pc.out.b2 <- PCOutlierDetection(pc.b[,2:3], distance=TRUE)
+# pc.out.c2 <- PCOutlierDetection(pc.c[,2:3], distance=TRUE)
+# 
+# pc.out.c; pc.out.c2
+# 
+# pc.out.a3 <- spatial.outlier(pc.a[,2:3])
+# pc.out.b3 <- spatial.outlier(pc.b[,2:3])
+# pc.out.c3 <- spatial.outlier(pc.c[,2:3])
 
-pc.out.a2 <- PCOutlierDetection(pc.a[,2:3], distance=TRUE)
-pc.out.b2 <- PCOutlierDetection(pc.b[,2:3], distance=TRUE)
-pc.out.c2 <- PCOutlierDetection(pc.c[,2:3], distance=TRUE)
-
-pc.out.c; pc.out.c2
-
-pc.out.a3 <- spatial.outlier(pc.a[,2:3])
-pc.out.b3 <- spatial.outlier(pc.b[,2:3])
-pc.out.c3 <- spatial.outlier(pc.c[,2:3])
 ###################################################################################################
 
 spatial.outlier<-function(data,x=data,threshold=0.05){
