@@ -131,7 +131,8 @@ write.csv(UlmusTotal_Reduction, file.path(pre.out, "UlmusTotal_Reduction.csv"), 
 
 #Adding in Categorical Variables & Saving
 Ulmus_Climate_Final <- cbind(important_ulmus, Ulmus_climate_total)
-write.csv(Ulmus_Climate_Final, file.path(post.out, "Ulmus_Climate_Final.csv"), row.names = TRUE)
+write.csv(Ulmus_Climate_Final, file.path(post.out, "Ulmus_Climate_Final.csv"), row.names = FALSE)
+
 
 # for (i in 1:length(Genera)) {
 #   # genus <- paste(Genera[i])

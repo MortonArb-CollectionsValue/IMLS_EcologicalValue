@@ -25,18 +25,27 @@ important.traits <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.s
 #Combining Climate & Soil Data: only using the variables for analysis
   #Only takes the variables that are in both, gets rid of the variables that are only in 1
   #Filtering OUt Morton Arb Data since PCA does not work with Arb point: ROOTS is NA
+  #Got rid of Arb data so it is not in data frame 4x
 malus.all <-  merge(malus.clim, malus.soils, by.x="UID", by.y="UID")
+morton.all <- malus.all[malus.all$genus.x=="MortonArb", ]
+malus.all <- malus.all[!(malus.all$genus.x=="MortonArb"), ]
 #malus.all2 <- filter(malus.all, !genus.x %in% c('MortonArb'))
 #malus.all <- malus.all[,c(7:18, 22:35)]
 quercus.all <-  merge(quercus.clim, quercus.soils, by.x="UID", by.y="UID")
+quercus.all <- quercus.all[!(quercus.all$genus.x=="MortonArb"), ]
 #quercus.all2 <- filter(quercus.all, !genus.x %in% c('MortonArb'))
 #quercus.all <- quercus.all[,c(6:17, 22:35)]
 tilia.all <-  merge(tilia.clim, tilia.soils, by.x="UID", by.y="UID")
+tilia.all <- tilia.all[!(tilia.all$genus.x=="MortonArb"), ]
 #tilia.all2 <- filter(tilia.all, !genus.x %in% c('MortonArb'))
 #tilia.all <- tilia.all[,c(6:17, 22:35)]
 ulmus.all <-  merge(ulmus.clim, ulmus.soils, by.x="UID", by.y="UID")
+ulmus.all <- ulmus.all[!(ulmus.all$genus.x=="MortonArb"), ]
 #ulmus.all2 <- filter(ulmus.all, !genus.x %in% c('MortonArb'))
 #ulmus.all <- ulmus.all[,c(6:17, 22:35)]
+
+total.all <- rbind(malus.all, quercus.all, tilia.all, ulmus.all, morton.all)
+##WHY ARE ROW #'S ALL MESSED UP
 
 # # PCA 1: kitchen sink approach -- throw it all in
 # set.seed(1608)
@@ -82,6 +91,41 @@ ulmus.all <-  merge(ulmus.clim, ulmus.soils, by.x="UID", by.y="UID")
 important.traits
 meta.traits <- c("UID", "genus.x", "species.x", "decimalLatitude.x", "decimalLongitude.x")
   #Do I need to include the duplicate genus, species, latitude, & longtiude with the Y?
+
+
+# Identify euclidean outliers from the first 2 PCs; based on 4 SDs
+# - In future, could go and do this by each species
+# scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
+# This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(malus.all2) is "important.traits"
+total.scale <- cbind(total.all[,meta.traits], scale(total.all[,important.traits])) # putting descriptors w/ scaled data
+summary(total.scale)
+
+# Remove variables that are supreme outliers in any one variable
+# NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
+# rows.remove <- which(malus.scale[,important.traits]>6)
+# summary(rows.remove)
+
+# Removing weirdos
+# Being fairly stringent with the outlier number for our sanity
+# Currently happening at the genus level --> down the road we'll try to adjust by species
+rows.keep <- apply(total.scale[,important.traits], 1, FUN=function(x){all(abs(x)<=4)})
+total.clean <- total.scale[rows.keep,]
+summary(total.clean)
+
+
+# PCA 2: kitchen sink approach -- throw it all in
+# Used centered data without outliers (don't need to center or scale)
+set.seed(1608)
+#Malus PCA 2
+total.pca2 <- prcomp(total.clean[,important.traits], center = FALSE, scale. = FALSE)
+malus.pca2<- total.pca2 %>% genus.x=="Malus"
+summary(total.pca2)
+write.csv(as.data.frame.matrix(total.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Total_pca2.csv", row.names = TRUE)
+total.pca.plot2 <- ggbiplot(total.pca2) #basic plot
+total.pca.plot2
+dev.copy(png, file.path(path.pcas, "total_pca2.png"))
+dev.off()
+
 
 # Identify euclidean outliers from the first 2 PCs; based on 4 SDs
 # - In future, could go and do this by each species
