@@ -90,41 +90,7 @@ total.all <- rbind(malus.all, quercus.all, tilia.all, ulmus.all, morton.all)
 
 important.traits
 meta.traits <- c("UID", "genus.x", "species.x", "decimalLatitude.x", "decimalLongitude.x")
-  #Do I need to include the duplicate genus, species, latitude, & longtiude with the Y?
 
-
-# Identify euclidean outliers from the first 2 PCs; based on 4 SDs
-# - In future, could go and do this by each species
-# scale() function makes data normally distributed with mean = 0 and standard deviation = 1 (puts things on common scale; overcomes challenges of different units)
-# This needs to happen at the genus level: 1:2 is "meta.traits" while 3:ncol(malus.all2) is "important.traits"
-total.scale <- cbind(total.all[,meta.traits], scale(total.all[,important.traits])) # putting descriptors w/ scaled data
-summary(total.scale)
-
-# Remove variables that are supreme outliers in any one variable
-# NOTE: Because we have centered and scaled the data, it'll be normally distributed except for outliers!
-# rows.remove <- which(malus.scale[,important.traits]>6)
-# summary(rows.remove)
-
-# Removing weirdos
-# Being fairly stringent with the outlier number for our sanity
-# Currently happening at the genus level --> down the road we'll try to adjust by species
-rows.keep <- apply(total.scale[,important.traits], 1, FUN=function(x){all(abs(x)<=4)})
-total.clean <- total.scale[rows.keep,]
-summary(total.clean)
-
-
-# PCA 2: kitchen sink approach -- throw it all in
-# Used centered data without outliers (don't need to center or scale)
-set.seed(1608)
-#Malus PCA 2
-total.pca2 <- prcomp(total.clean[,important.traits], center = FALSE, scale. = FALSE)
-malus.pca2<- total.pca2 %>% genus.x=="Malus"
-summary(total.pca2)
-write.csv(as.data.frame.matrix(total.pca2$rotation), "D:/Data_IMLS_Ecological_Value/PCAs/Total_pca2.csv", row.names = TRUE)
-total.pca.plot2 <- ggbiplot(total.pca2) #basic plot
-total.pca.plot2
-dev.copy(png, file.path(path.pcas, "total_pca2.png"))
-dev.off()
 
 
 # Identify euclidean outliers from the first 2 PCs; based on 4 SDs
