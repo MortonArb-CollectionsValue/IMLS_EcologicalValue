@@ -8,6 +8,7 @@
 .Rapp.history
 .Rproj.user
 shannon_set_paths.R
+CodeSnippets_SS.R
 data/
 data_raw/ecoregions_wwf
 data_raw/hwsd
