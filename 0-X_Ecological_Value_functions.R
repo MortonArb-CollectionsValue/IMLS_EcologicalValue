@@ -217,7 +217,7 @@ prcomp_calcs <- function(x, df.all=gen.clean, meta.traits=meta.traits, important
               stat_ellipse(data=one.scores[df.one$species_name_acc==s,], 
                          aes(x=one.scores[df.one$species_name_acc==s, pc.incl1], 
                              y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=s), 
-                              alpha=0.15, geom="polygon") +
+                              alpha=0.25, geom="polygon") +
             ## loadings text and arrows
               geom_segment(data=one.loads, 
                          aes(x=0, 
