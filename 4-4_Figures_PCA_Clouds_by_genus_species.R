@@ -28,15 +28,31 @@ source("0-X_Ecological_Value_functions.R")
 ####################################################################################################
 ####################################################################################################
 ## create PCA clouds for genera
-  lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean$absval=='in_gen_4',], 
+  lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
             meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
-            exp.load=0.25, exp.score=0.5, calc.level='genus')
+            exp.load=0.25, exp.score=0.5, calc.level='genus', pc.hulls=pc.hulls_PC1_PC2)
 
 ## create PCA clouds for species
-  lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean$absval=='in_gen_4',], 
+  lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
             meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
-            exp.load=0.25, exp.score=0.5, calc.level='species')
-  
+            pc.hulls=pc.hulls_PC1_PC2, exp.load=0.25, exp.score=0.5, 
+            calc.level='species', spp.poly='convex hull')
+
+####################################################################################################
+####################################################################################################
+# ##  create convex hulls
+# png("TEST_Ordination_Quercus.png", height=8, width=8, units="in", res=320)
+# ggplot(data=dat.all, aes(x=PC1, y=PC2)) +
+#   geom_point(aes(x=PC1, y=PC2), size=0.25, color="gray50")  +
+#   geom_polygon(data=pc.hulls[pc.hulls$species_name_acc %in% c("Quercus alba"),], aes(fill=species_name_acc), alpha=0.25) +
+#   geom_polygon(data=pc.hulls[pc.hulls$species_name_acc %in% c("Quercus boyntonii"),], aes(fill=species_name_acc), alpha=0.5) +
+#   geom_point(data=dat.all[dat.all$species_name_acc %in% c("Quercus alba"),], aes(color=species_name_acc)) +
+#   geom_point(data=dat.all[dat.all$species_name_acc=="Quercus boyntonii",], aes(color=species_name_acc), size=2) +
+#   geom_point(data=dat.all[dat.all$species_name_acc=="MortonArb",], aes(color=species_name_acc), size=8) +
+#   scale_color_manual(name="Species", values=c("MortonArb"="green4", "Quercus alba"="blue2", "Quercus boyntonii"="red2", "Quercus velutina"="cadetblue3")) +
+#   scale_fill_manual(name="Species", values=c("MortonArb"="green4", "Quercus alba"="blue2", "Quercus boyntonii"="red2", "Quercus velutina"="cadetblue3"))
+# dev.off()
+
 ####################################################################################################
 ####################################################################################################
 # colorBlindBlack8  <- c("#000000", "#E69F00", "#56B4E9", "#009E73", 

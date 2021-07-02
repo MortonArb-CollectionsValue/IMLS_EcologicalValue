@@ -62,11 +62,11 @@ dev.off()
 
 
 
-# Trying an ordination 
+# Trying an ordination
 # randomly subset from our data frame to see if that works
 dat.all <- dat.all[complete.cases(dat.all[, cols.soils]),]
 
-# pts.samp <- sample(1:nrow(dat.all), 1e6, replace = F) 
+# pts.samp <- sample(1:nrow(dat.all), 1e6, replace = F)
 pc.t1 <- prcomp(dat.all[, cols.soils])
 summary(pc.t1)
 pc.t1

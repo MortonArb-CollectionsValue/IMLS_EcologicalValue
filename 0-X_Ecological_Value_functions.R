@@ -122,7 +122,17 @@ prcomp_calcs <- function(x, df.all=gen.clean, meta.traits=meta.traits, important
               return(one.pca)
             rm(one.pca)
     }
-  
+
+####################################################################################################
+####################################################################################################
+## bind.objects.cols: function to bind rows extracted from an list of objects
+  ## define: 
+    ## t; genus/species/taxon level; taxon name to iterate through, usually provided as one element of a list of taxa
+    ## gen.clean
+    ## pca.ls; list of prcomp objects; each object should be the output from prcomp function
+bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', genus %in% c(paste0('MortonArb_', t), t)), pca.ls=gen.pcas){
+  bind_cols(df.all, data.frame(pca.ls[[t]]$x))
+}
 ####################################################################################################
 ####################################################################################################
 ## pcaCloudFigures: function to prep data and create PCA figures from a list of prcomp objects, 
@@ -137,13 +147,16 @@ prcomp_calcs <- function(x, df.all=gen.clean, meta.traits=meta.traits, important
     ##          ex. 0.5 would be 1+0.5, or 1.5 of maximum
     ## pc.incl1; default='PC1'; first of which 2 PCs to include for plots
     ## pc.incl2; default='PC2'; second of which 2 PCs to include for plots
+    ## spp.poly; default='convex hull'; whethjer to have an ellipse or convex hull on figure; "convex hull"/"ellipse"
   pcaCloudFigures <- function(t, pca.ls=gen.pcas, df.all=filter(gen.clean, absval=='in_gen_4'), 
-                              pc.incl1='PC1', pc.incl2='PC2', exp.load=0.25, exp.score=0.5, 
-                              calc.level='genus', ...){
+                              pc.incl1='PC1', pc.incl2='PC2', pc.hulls=pc.hulls_PC1_PC2, 
+                              exp.load=0.25, exp.score=0.5, 
+                              calc.level='genus', spp.poly='convex hull', ...){
     
           one.pca <- pca.ls[[t]]
-          df.one <- df.all %>% filter(genus %in% c(paste0('MortonArb_', t), t))
+          df.one  <- df.all %>% filter(genus %in% c(paste0('MortonArb_', t), t))
           one.scores      <- data.frame(one.pca$x)
+          gen.hulls       <- pc.hulls %>% filter(genus %in% t)
           one.loads       <- data.frame(one.pca$rotation)
           one.loads$labx  <- one.loads[, pc.incl1]*(max(one.scores[, pc.incl1])+exp.load)
           one.loads$laby  <- one.loads[, pc.incl2]*(max(one.scores[, pc.incl2])+exp.load)
@@ -207,17 +220,30 @@ prcomp_calcs <- function(x, df.all=gen.clean, meta.traits=meta.traits, important
           
         print(paste0("Creating PCA cloud figure for ", s, " for ", pc.incl1, " and ", pc.incl2,  "."))
           p.title <- s
+          one.hulls <- as.data.frame(gen.hulls) %>% filter(species_name_acc %in% s) %>% select(c(species_name_acc, all_of(pc.incl1), all_of(pc.incl2)))
         ## extra to add to plot for species
           p2 <- p + 
             ggtitle(p.title) +
              geom_point(data=one.scores[df.one$species_name_acc==s,], 
                          aes(x=one.scores[df.one$species_name_acc==s, pc.incl1], 
                              y=one.scores[df.one$species_name_acc==s, pc.incl2]), 
-                              size=0.4, alpha=0.8, color="#E69F00") +
-              stat_ellipse(data=one.scores[df.one$species_name_acc==s,], 
-                         aes(x=one.scores[df.one$species_name_acc==s, pc.incl1], 
-                             y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=s), 
-                              alpha=0.25, geom="polygon") +
+                              size=0.4, alpha=0.8, color="#E69F00")
+          
+    if(spp.poly=='ellipse'){
+          p3 <- p2 + 
+            stat_ellipse(data=one.scores[df.one$species_name_acc==s,],
+                       aes(x=one.scores[df.one$species_name_acc==s, pc.incl1],
+                           y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=species_name_acc),
+                           alpha=0.25, geom="polygon")
+          
+    } else if(spp.poly=='convex hull'){
+          p3 <- p2 + 
+            geom_polygon(data=one.hulls,
+                            aes(x=one.hulls[, pc.incl1], y=one.hulls[, pc.incl2], fill=species_name_acc),
+                            alpha=0.25)
+    }
+          
+          p4 <- p3 + 
             ## loadings text and arrows
               geom_segment(data=one.loads, 
                          aes(x=0, 
@@ -239,7 +265,7 @@ prcomp_calcs <- function(x, df.all=gen.clean, meta.traits=meta.traits, important
         png(file.path(path.out, paste0(gsub(' ', '_', p.title), "_", pc.incl1, "_", pc.incl2, ".png")), 
           height=8, width=8, units="in", res=180)
               print(
-                p2
+                p4
                 )
         dev.off()
           }
