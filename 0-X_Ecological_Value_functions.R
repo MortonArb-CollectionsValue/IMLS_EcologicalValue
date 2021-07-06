@@ -150,7 +150,7 @@ bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', ge
     ## spp.poly; default='convex hull'; whethjer to have an ellipse or convex hull on figure; "convex hull"/"ellipse"
   pcaCloudFigures <- function(t, pca.ls=gen.pcas, df.all=filter(gen.clean, absval=='in_gen_4'), 
                               pc.incl1='PC1', pc.incl2='PC2', pc.hulls=pc.hulls_PC1_PC2, 
-                              exp.load=0.25, exp.score=0.5, 
+                              exp.load=0.25, exp.score=-0.5, 
                               calc.level='genus', spp.poly='convex hull', ...){
     
           one.pca <- pca.ls[[t]]
@@ -178,39 +178,45 @@ bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', ge
             labs(x=lab1, y=lab2) +
             theme_bw() + 
             theme(plot.title = element_text(size=16, face="bold.italic")) +
-            annotate("text", x=Inf, y=Inf, label=paste0("Cumulative variance: ", cumvals), hjust=1.1, vjust=1.2)
+          ## add cumulative variance annotation
+            annotate("text", label=paste0("Cumulative variance: ", cumvals), 
+                                                  x=Inf, y=Inf, hjust = 1.1, vjust = 1.5) + 
+          ## add genus number annotation
+            annotate("text", label=paste0("genus n: ", format(nrow(filter(df.one, genus==t)), 
+                                                  big.mark=",")), 
+                                                   x=Inf, y=Inf, hjust=1.1, vjust=3.25) 
 
   ## run through specific info for genus or species
     if(calc.level=='genus'){
       print(paste0("Creating PCA cloud figure for ", t, " for ", pc.incl1, " and ", pc.incl2,  "."))
-        p.title <- t
       ## genus plot name
         p2 <- p +
-              ggtitle(p.title) +
+              ggtitle(t) +
             ## loadings text and arrows
               geom_segment(data=one.loads, 
                          aes(x=0, 
                              y=0, 
                           xend=one.loads[,pc.incl1]*(max(one.scores[, pc.incl1])+exp.load), 
                           yend=one.loads[,pc.incl2]*(max(one.scores[, pc.incl2])+exp.load)), 
-                          arrow=arrow(length=unit(1/2, "picas")), color="#56B4E9") +
+                          arrow=arrow(length=unit(1/2, "picas")), color=cb.pal[3,]$code) +
               guides(fill=FALSE) +
-              geom_text(data=one.loads, aes(x=labx, y=laby, label=var), color="#0072B2", size=3) +
-              scale_fill_manual(values="#E69F00") +
+              geom_text(data=one.loads, aes(x=labx, y=laby, label=var), color=cb.pal[6,]$code, size=3) +
+              scale_fill_manual(values=cb.pal[2,]$code) +
 
             ## add MortonArb point
-              geom_point(data=one.scores[df.one$UID=="MORTONARB",], 
+              geom_point(data= one.scores[df.one$UID=="MORTONARB",], 
                          aes(x=one.scores[df.one$UID=="MORTONARB", pc.incl1], 
-                             y=one.scores[df.one$UID=="MORTONARB", pc.incl2]), color="#009E73", size=5,
+                             y=one.scores[df.one$UID=="MORTONARB", pc.incl2]), color=cb.pal[4,]$code, size=5,
                             shape=18)
 
       ## write out genus figure from combined plot data
-        png(file.path(path.out, paste0(gsub(' ', '_', p.title), "_", pc.incl1, "_", pc.incl2, ".png")), 
+        png(file.path(path.out, paste0(gsub(' ', '_', t), "_", pc.incl1, "_", pc.incl2, ".png")), 
           height=8, width=8, units="in", res=180)
               print(
                 p2
                 )
         dev.off()
+          po.title <- paste0(gsub(' ', '_', t), "_", pc.incl1, "_", pc.incl2, ".png")
 
     } else if(calc.level=='species'){
       
@@ -219,28 +225,45 @@ bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', ge
       for(s in spp.ls){
           
         print(paste0("Creating PCA cloud figure for ", s, " for ", pc.incl1, " and ", pc.incl2,  "."))
-          p.title <- s
           one.hulls <- as.data.frame(gen.hulls) %>% filter(species_name_acc %in% s) %>% select(c(species_name_acc, all_of(pc.incl1), all_of(pc.incl2)))
         ## extra to add to plot for species
           p2 <- p + 
-            ggtitle(p.title) +
+            ggtitle(s) +
              geom_point(data=one.scores[df.one$species_name_acc==s,], 
                          aes(x=one.scores[df.one$species_name_acc==s, pc.incl1], 
                              y=one.scores[df.one$species_name_acc==s, pc.incl2]), 
-                              size=0.4, alpha=0.8, color="#E69F00")
-          
+                              size=0.4, alpha=0.8, color=cb.pal[2,]$code) + 
+            ## add species number annotation
+              annotate("text", label=paste0("species n: ", format(nrow(filter(df.one, species_name_acc==s)), 
+                                          big.mark=",")), 
+                                          x=Inf, y=Inf, hjust=1.1, vjust=5.0)
+
     if(spp.poly=='ellipse'){
           p3 <- p2 + 
             stat_ellipse(data=one.scores[df.one$species_name_acc==s,],
                        aes(x=one.scores[df.one$species_name_acc==s, pc.incl1],
-                           y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=species_name_acc),
+                           y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=one.scores$species_name_acc),
                            alpha=0.25, geom="polygon")
-          
+          po.title <- paste0(gsub(' ', '_', s), "_", pc.incl1, "_", pc.incl2, "_ellipse", ".png")
+
     } else if(spp.poly=='convex hull'){
           p3 <- p2 + 
             geom_polygon(data=one.hulls,
                             aes(x=one.hulls[, pc.incl1], y=one.hulls[, pc.incl2], fill=species_name_acc),
                             alpha=0.25)
+          po.title <- paste0(gsub(' ', '_', s), "_", pc.incl1, "_", pc.incl2, "_chull", ".png")
+    } else if(spp.poly=='both'){
+          p2.5 <- p2 + 
+            geom_polygon(data=one.hulls,
+                           aes(x=one.hulls[, pc.incl1], y=one.hulls[, pc.incl2], fill=species_name_acc, color=cb.pal[2,]$code),
+                           alpha=0.20)
+          p3 <- p2.5 + 
+            stat_ellipse(data=one.scores[df.one$species_name_acc==s,],
+                       aes(x=one.scores[df.one$species_name_acc==s, pc.incl1],
+                           y=one.scores[df.one$species_name_acc==s, pc.incl2], fill=one.scores$species_name_acc, color=cb.pal[7,]$code),
+                           alpha=0.20, geom="polygon")
+          po.title <- paste0(gsub(' ', '_', s), "_", pc.incl1, "_", pc.incl2, "_ellipse_chull", ".png")
+
     }
           
           p4 <- p3 + 
@@ -250,19 +273,20 @@ bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', ge
                              y=0, 
                           xend=one.loads[,pc.incl1]*(max(one.scores[, pc.incl1])+exp.load), 
                           yend=one.loads[,pc.incl2]*(max(one.scores[, pc.incl2])+exp.load)), 
-                          arrow=arrow(length=unit(1/2, "picas")), color="#56B4E9") +
+                          arrow=arrow(length=unit(1/2, "picas")), color=cb.pal[3,]$code) +
               guides(fill=FALSE) +
-              geom_text(data=one.loads, aes(x=labx, y=laby, label=var), color="#0072B2", size=3) +
-              scale_fill_manual(values="#E69F00") +
+              geom_text(data=one.loads, aes(x=labx, y=laby, label=var), color=cb.pal[6,]$code, size=3) +
+              scale_fill_manual(values=cb.pal[2,]$code) + 
+              theme(legend.position = "none") +
 
             ## add MortonArb point
               geom_point(data=one.scores[df.one$UID=="MORTONARB",], 
                          aes(x=one.scores[df.one$UID=="MORTONARB", pc.incl1], 
-                             y=one.scores[df.one$UID=="MORTONARB", pc.incl2]), color="#009E73", size=5,
+                             y=one.scores[df.one$UID=="MORTONARB", pc.incl2]), color=cb.pal[4,]$code, size=5,
                              shape=18)
-
+          
       ## write out figure from combined plot data
-        png(file.path(path.out, paste0(gsub(' ', '_', p.title), "_", pc.incl1, "_", pc.incl2, ".png")), 
+        png(file.path(path.out, po.title), 
           height=8, width=8, units="in", res=180)
               print(
                 p4
@@ -271,5 +295,14 @@ bind.objects.cols <- function(t, df.all=filter(gen.clean, absval=='in_gen_4', ge
           }
       }
   }
+####################################################################################################
+####################################################################################################
+## colorblind pallete
+cb.pal <- bind_cols(c("black", "orange", "light blue", "green-blue",
+                      "yellow", "blue", "red", "deep pink"), 
+                    c("#000000", "#E69F00", "#56B4E9", "#009E73",
+                      "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+                      )
+    names(cb.pal) <- c("color", "code")
 ####################################################################################################
 ####################################################################################################
