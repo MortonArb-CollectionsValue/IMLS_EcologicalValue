@@ -33,31 +33,36 @@ soilcols <- names(heads.soil)
 # Setting up some column stuff to make it work when things get weird
 col.char <- which(soilcols %in% c("UID", "species_name_acc", "nativeDatabaseID", "MU.SOURCE1"))
 coltype <- rep(NA, length(soilcols))
-  coltype[col.char] <- "character"
+coltype[col.char] <- "character"
 f.soils   <- list.files(path = path.soils, full.names = TRUE)
-  dat.soils <-  lapply(f.soils, read.csv, colClasses=coltype) %>% bind_rows()
+dat.soils <-  lapply(f.soils, read.csv, colClasses=coltype) %>% bind_rows()
 
-  dat.all <- dat.soils %>% select(-c(decimalLatitude.1, decimalLongitude.1)) %>% mutate(species_name_acc2 = species_name_acc) %>% 
-    relocate(UID) %>% relocate(AWC.CLASS, hwsd_code, .after = last_col())  %>% relocate(species_name_acc2, .after = species_name_acc)
-  dat.all <- tidyr::separate(dat.all, col = "species_name_acc2", into=c("genus", "species"), " ", extra="merge")
-  dat.all[dat.all$species_name_acc =='MortonArb',]$species <- 'MortonArb'
+dat.all <- dat.soils %>% select(-c(decimalLatitude.1, decimalLongitude.1)) %>% mutate(species_name_acc2 = species_name_acc) %>% 
+  relocate(UID) %>% relocate(AWC.CLASS, hwsd_code, .after = last_col())  %>% relocate(species_name_acc2, .after = species_name_acc)
+dat.all <- tidyr::separate(dat.all, col = "species_name_acc2", into=c("genus", "species"), " ", extra="merge")
+dat.all[dat.all$species_name_acc =='MortonArb',]$species <- 'MortonArb'
 
 ## bring in climate data, which are in different folders
-  ## make vecot of folder names to iterate
-  clims <- c('ppt', 'soil', 'srad', 'tmax', 'tmin', 'vpd')
+## make vecot of folder names to iterate
+clims <- c('ppt', 'soil', 'srad', 'tmax', 'tmin', 'vpd')
 
-  ## iterate through climate folders
-      for(clim in clims){
-            col.char <- which(climcols %in% c("UID", "species_name_acc"))
-            coltype <- rep(NA, length(climcols))
-              coltype[col.char] <- "character"
-        f.clim <- list.files(path = file.path(path.clims, clim), full.names=TRUE)
-          dat.clim <-  lapply(f.clim, read.csv, colClasses=coltype) %>% bind_rows() #
-          nms.yes <- names(dat.clim)[!names(dat.clim) %in% names(dat.all)]
-        dat.clim <- dat.clim %>% select(c("UID", all_of(nms.yes)))
-        dat.all <- full_join(dat.all, dat.clim, by="UID")
-        }
-  rm(dat.clim, dat.soils, clim)
+# We were getting some heading issues with the current loop because the data 
+#    being read read in doesn't have all of the climcols.  So lets reference off of an example
+df.test <- read.csv(f.clim[1])
+cols.use <- names(df.test)
+
+## iterate through climate folders
+for(clim in clims){
+  col.char <- which(cols.use %in% c("UID", "species_name_acc"))
+  coltype <- rep(NA, length(cols.use))
+  coltype[col.char] <- "character"
+  f.clim <- list.files(path = file.path(path.clims, clim), full.names=TRUE)
+  dat.clim <-  lapply(f.clim, read.csv, colClasses=coltype) %>% bind_rows() #
+  nms.yes <- names(dat.clim)[!names(dat.clim) %in% names(dat.all)]
+  dat.clim <- dat.clim %>% select(c("UID", all_of(nms.yes)))
+  dat.all <- full_join(dat.all, dat.clim, by="UID")
+}
+rm(dat.clim, dat.soils, clim)
 
 ## save RData object
 save(dat.all, clims,
