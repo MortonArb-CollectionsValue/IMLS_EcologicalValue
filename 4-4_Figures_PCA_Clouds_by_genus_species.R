@@ -31,7 +31,7 @@ source("0-X_Ecological_Value_functions.R")
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
             meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
             pc.hulls=pc.hulls_PC1_PC2, exp.load=3, exp.score=-0.5, 
-            calc.level='genus', spp.poly='convex hull')
+            calc.level='genus')
 ## create PCA clouds for species
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
             meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
