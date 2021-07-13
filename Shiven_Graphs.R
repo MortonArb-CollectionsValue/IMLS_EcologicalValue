@@ -1,6 +1,24 @@
 library(ggplot2); library(vegan)
 library(ggbiplot); library(tidyverse)
 
+####################################################################################################
+### set paths/folders
+  ## path to the shared Google Drive folder
+  path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value" ## path for Shannon
+  # path.dat <- "D:/Data_IMLS_Ecological_Value"   ## path to data for Shiven D drive
+  path.out <- file.path(path.dat, "Analysis/PrelimPCA/figures")
+  # path for the folder for figure output
+  path.figs <- file.path(path.dat, "figures")
+####################################################################################################
+####################################################################################################
+# load PCA data for figures
+load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
+####################################################################################################
+####################################################################################################
+## load functions
+source("0-X_Ecological_Value_functions.R")
+####################################################################################################
+
 
 #reading in PCA data
 #Changing columns to include trait & genera
