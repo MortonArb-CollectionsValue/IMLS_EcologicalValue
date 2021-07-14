@@ -24,12 +24,12 @@ library(data.table)
 #creating real for loop
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
 predictor <- c("ppt", "soil", "srad", "tmax", "tmin", "vpd")
-path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
-path.out <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2/"
+# path.dat <- "D:/Data_IMLS_Ecological_Value/Climate_Extract_Drive"
+# path.out <- "D:/Data_IMLS_Ecological_Value/Preloaded_Data2/"
 
 # File paths for Googel Dr
-# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Climate_Extract/"
-# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Preloaded_Data2/"
+path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Climate_Extract/"
+path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Preloaded_Data2/"
 
 for(PRED in predictor){
   if(!dir.exists(file.path(path.out, PRED))) dir.create(file.path(path.out, PRED), recursive = T)
@@ -42,11 +42,13 @@ for(PRED in predictor){
 # important_predictors2_tmax <- c("tmax.ann.sd","tmax.max.sd", "tmax.min.sd")
 # important_predictors2_tmin <- c("tmin.ann.sd","tmin.max.sd", "tmin.min.sd")
 # important_predictors2_vpd <- c("vpd.ann.sd","vpd.max.sd", "vpd.min.min")
-important_predictors_ppt <- c("UID", "ppt.ann.mean", "ppt.min.min")
-important_predictors_soil <- c("UID", "soil.ann.max", "soil.max.sd")
+# important.traits.CR <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "vpd.ann.max", "vpd.max.sd", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "AWC_VALUE", "T.CEC.SOIL", "T.CACO3")
+
+important_predictors_ppt <- c("UID", "ppt.ann.mean", "ppt.min.min", "ppt.ann.sd")
+important_predictors_soil <- c("UID", "soil.ann.max", "soil.max.sd", "soil.ann.sd")
 important_predictors_srad <- c("UID", "srad.ann.max", "srad.ann.sd")
-important_predictors_tmax <- c("UID", "tmax.ann.max", "tmax.min.sd")
-important_predictors_tmin <- c("UID", "tmin.ann.min", "tmin.ann.sd")
+important_predictors_tmax <- c("UID", "tmax.ann.max", "tmax.min.sd", "tmax.max.sd")
+important_predictors_tmin <- c("UID", "tmin.ann.min", "tmin.ann.sd", "tmin.min.sd")
 important_predictors_vpd <- c("UID", "vpd.ann.max", "vpd.max.sd")
 
 
@@ -100,7 +102,7 @@ for(i in 1:length(predictor)) {
   }
 }
 
-final_extraction2
+# final_extraction2
 
 #PCA PLOTS
 

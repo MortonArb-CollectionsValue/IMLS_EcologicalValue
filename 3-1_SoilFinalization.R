@@ -9,17 +9,18 @@ library(Hmisc)
 library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
-path.dat <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data"
-path.dat2 <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
-path.out <- "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/"
+# path.dat <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data"
+# path.dat2 <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
+# path.out <- "D:/Data_IMLS_Ecological_Value/Total_PostSoilReductions/"
 
 # Paths for Google Drive on a Mac
-# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
-# path.dat2 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
-# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Analysis/Total_PostSoilReductions/"
+path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
+path.dat2 <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Analysis/Total_PostSoilReductions/"
 
-important.traits <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", 
+important.traits <- c("UID", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE",
                       "ROOTS", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4",	"T.ESP")
+important.traits.CR <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "vpd.ann.max", "vpd.max.sd", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "AWC_VALUE", "T.CEC.SOIL", "T.CACO3")
 
 #Loading in Data
 Soil_Malus <- read.csv(file.path(path.dat, "Soil_Malus.csv"))
@@ -45,9 +46,9 @@ for (j in 1:length(Genera)) {
     intermediate_extraction <- lapply(initial_extraction, read.csv, colClasses=coltype) %>% bind_rows()
     intermediate_extraction <- rbind.fill(intermediate_extraction)
     intermediate_extraction <- tidyr::separate(intermediate_extraction, col = "species_name_acc", into=c("genus", "species"))
-    final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,important.traits])]),]
+    final_extraction <- intermediate_extraction[complete.cases(intermediate_extraction[,colnames(intermediate_extraction[,c(important.traits)])]),]
     final_extraction <- rbind.fill(final_extraction, MortonArb_Data_path)
-    final_extraction <- final_extraction[,c(3,4,5,11,12)]
+    final_extraction <- final_extraction[,c("UID", "genus", "species", "decimalLatitude", "decimalLongitude")]
     if (j==1) {
       important_malus <- rbind(important_malus, final_extraction)
       important_malus <- unique(important_malus)

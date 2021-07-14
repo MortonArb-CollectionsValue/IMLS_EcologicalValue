@@ -46,17 +46,17 @@ dat.all[dat.all$species_name_acc =='MortonArb',]$species <- 'MortonArb'
 ## make vecot of folder names to iterate
 clims <- c('ppt', 'soil', 'srad', 'tmax', 'tmin', 'vpd')
 
-# We were getting some heading issues with the current loop because the data 
-#    being read read in doesn't have all of the climcols.  So lets reference off of an example
-df.test <- read.csv(f.clim[1])
-cols.use <- names(df.test)
-
 ## iterate through climate folders
 for(clim in clims){
+  f.clim <- list.files(path = file.path(path.clims, clim), full.names=TRUE)
+  
+  # Setting up our column types
+  df.test <- read.csv(f.clim[1])
+  cols.use <- names(df.test)
   col.char <- which(cols.use %in% c("UID", "species_name_acc"))
   coltype <- rep(NA, length(cols.use))
   coltype[col.char] <- "character"
-  f.clim <- list.files(path = file.path(path.clims, clim), full.names=TRUE)
+
   dat.clim <-  lapply(f.clim, read.csv, colClasses=coltype) %>% bind_rows() #
   nms.yes <- names(dat.clim)[!names(dat.clim) %in% names(dat.all)]
   dat.clim <- dat.clim %>% select(c("UID", all_of(nms.yes)))
@@ -76,19 +76,20 @@ save(dat.all, clims,
 ####################################################################################################
 ####################################################################################################
 # Cut down to just the variables we care about
-important.traits <- c("ppt.ann.mean", "ppt.min.min",  "soil.ann.max", "soil.max.sd",  "srad.ann.max", 
-                      "srad.ann.sd",  "tmax.ann.min", "tmax.min.sd",  "tmin.ann.min", "tmin.ann.sd", 
-                      "vpd.ann.max",  "vpd.max.sd",   "T.GRAVEL",     "T.SILT",       "T.CLAY", 
-                      "T.OC",         "T.PH.H2O",     "T.TEB",        "T.ECE",        "AWC_VALUE", 
+important.traits <- c("ppt.ann.mean", "ppt.min.min",  "soil.ann.max", "soil.max.sd",  "srad.ann.max",
+                      "srad.ann.sd",  "tmax.ann.min", "tmax.min.sd",  "tmin.ann.min", "tmin.ann.sd",
+                      "vpd.ann.max",  "vpd.max.sd",   "T.GRAVEL",     "T.SILT",       "T.CLAY",
+                      "T.OC",         "T.PH.H2O",     "T.TEB",        "T.ECE",        "AWC_VALUE",
                       "T.CEC.CLAY",   "T.CEC.SOIL",   "T.CACO3",      "T.CASO4",	    "T.ESP")
-
+important.traits.CR <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "vpd.ann.max", "vpd.max.sd", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "AWC_VALUE", "T.CEC.SOIL", "T.CACO3")
+    
 meta.traits <- c("species_name_acc", "genus", "species", "decimalLatitude", "decimalLongitude")
 
 ## reduce dataframe to important variables for PCA
-dat.red <- dat.all %>% select("UID", all_of(meta.traits), all_of(important.traits))
+dat.red <- dat.all %>% select("UID", all_of(meta.traits), all_of(important.traits.CR))
 
 ## save RData object
-save(dat.all, dat.red, meta.traits, important.traits, clims, 
+save(dat.all, dat.red, meta.traits, important.traits, important.traits.CR, clims, 
               file=file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 # write out area data
   write.csv(dat.red, file.path(path.dat, "Extracted Data", "all_reduced_data_for_PCA.csv"), 

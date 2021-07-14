@@ -11,6 +11,10 @@ my.packages <- c('ggplot2', 'plyr', 'readr', 'readxl', 'dplyr', 'sf', 'tidyverse
 lapply(my.packages, require, character.only=TRUE)
   rm(my.packages)
 
+  
+important.traits <- c("ppt.ann.mean", "ppt.min.min",  "soil.ann.max", "soil.max.sd",  "srad.ann.max","srad.ann.sd",  "tmax.ann.min", "tmax.min.sd",  "tmin.ann.min", "tmin.ann.sd","vpd.ann.max",  "vpd.max.sd", "T.GRAVEL", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.TEB", "T.ECE", "AWC_VALUE", "T.CEC.CLAY", "T.CEC.SOIL", "T.CACO3", "T.CASO4", "T.ESP")
+important.traits.CR <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "vpd.ann.max", "vpd.max.sd", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "AWC_VALUE", "T.CEC.SOIL", "T.CACO3")
+
 ####################################################################################################
 ####################################################################################################
 ### set paths/folders
@@ -31,7 +35,7 @@ source("0-X_Ecological_Value_functions.R")
 ####################################################################################################
 ####################################################################################################
 # filter to complete cases of reduced data (dat.red) to create complete cases for all genera (all.gen)
-all.gen <- dat.red %>% filter(complete.cases(dat.red[,all_of(important.traits)]))
+all.gen <- dat.red %>% filter(complete.cases(dat.red[,all_of(important.traits.CR)]))
 row.arb <- which(all.gen$UID=="MORTONARB")
 
 ##For each genus, separately center and scale and then and recombine into one dataset
@@ -46,7 +50,7 @@ row.arb <- which(all.gen$UID=="MORTONARB")
   ## first, scale all by genus and then return as one large data.frame (gen.scale)
     ## also add MortonArb back into df as 1st row
 gen.scale <- lapply(gen.ls, center.scale.one, df.all=all.gen, 
-                      meta.traits=meta.traits, important.traits=important.traits, 
+                      meta.traits=meta.traits, important.traits=important.traits.CR, 
                       calc.level='genus', center.scale='both') %>% bind_rows
 
 
@@ -54,12 +58,12 @@ gen.scale <- lapply(gen.ls, center.scale.one, df.all=all.gen,
   ##          genus "in_gen" or for species "in_spp"
   ##    also add MortonArb back into df as 1st row
 gen.clean <- lapply(gen.ls, abs_rows2keep, df.all=gen.scale, abs.val=4, meta.traits=meta.traits,
-                          important.traits=important.traits, calc.level='genus') %>% bind_rows
+                          important.traits=important.traits.CR, calc.level='genus') %>% bind_rows
 ####################################################################################################
 ####################################################################################################
 row.arb <- which(gen.clean$UID=="MORTONARB")
 
-save(dat.all, dat.red, meta.traits, important.traits, clims, gen.ls, spp.ls, gen.scale, gen.clean, 
+save(dat.all, dat.red, meta.traits, important.traits, important.traits.CR, clims, gen.ls, spp.ls, gen.scale, gen.clean, 
      row.arb,
               file=file.path(path.dat, "Extracted Data", "PCA_output.RData"))
   rm(gen.scale, all.gen)
