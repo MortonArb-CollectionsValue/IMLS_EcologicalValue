@@ -29,22 +29,22 @@ source("0-X_Ecological_Value_functions.R")
 ####################################################################################################
 ## create PCA clouds for genera
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean$absval=='in_gen_4',], 
-            meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
+            meta.traits=meta.traits, important.traits=important.traits.CR, pc.incl1='PC1', pc.incl2='PC2', 
             pc.hulls=pc.hulls_PC1_PC2, exp.load=3, exp.score=-0.5, 
             calc.level='genus')
 ## create PCA clouds for species
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
-            meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
+            meta.traits=meta.traits, important.traits=important.traits.CR, pc.incl1='PC1', pc.incl2='PC2', 
             pc.hulls=pc.hulls_PC1_PC2, exp.load=3, exp.score=-0.5, 
             calc.level='species', spp.poly='both')
 ## create PCA clouds for species
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
-            meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
+            meta.traits=meta.traits, important.traits=important.traits.CR, pc.incl1='PC1', pc.incl2='PC2', 
             pc.hulls=pc.hulls_PC1_PC2, exp.load=3, exp.score=-0.5, 
             calc.level='species', spp.poly='convex hull')
 ## create PCA clouds for species
   lapply(gen.ls, pcaCloudFigures, df.all=gen.clean[gen.clean.pca$absval=='in_gen_4',], 
-            meta.traits=meta.traits, important.traits=important.traits, pc.incl1='PC1', pc.incl2='PC2', 
+            meta.traits=meta.traits, important.traits=important.traits.CR, pc.incl1='PC1', pc.incl2='PC2', 
             pc.hulls=pc.hulls_PC1_PC2, exp.load=3, exp.score=-0.5, 
             calc.level='species', spp.poly='ellipse')
 

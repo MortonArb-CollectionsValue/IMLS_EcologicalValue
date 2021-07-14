@@ -27,12 +27,15 @@ load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 ####################################################################################################
 ## load functions
 source("0-X_Ecological_Value_functions.R")
+  
+## CR updating important Traits
+important.traits.CR <- c("ppt.ann.mean", "ppt.min.min", "soil.ann.max", "soil.max.sd", "srad.ann.max", "srad.ann.sd", "tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "vpd.ann.max", "vpd.max.sd", "T.SILT", "T.CLAY", "T.OC", "T.PH.H2O", "T.ECE", "AWC_VALUE", "T.CEC.SOIL", "T.CACO3")
 ####################################################################################################
 ####################################################################################################
 ## make list of PCA objects by genus, 
     ##  with each PCA object in list named by taxon
   gen.pcas <- lapply(gen.ls, prcomp_calcs, df.all=gen.clean[gen.clean$absval=='in_gen_4',], meta.traits=meta.traits, 
-                    important.traits=important.traits, center.scale="none", calc.level='genus')
+                    important.traits=important.traits.CR, center.scale="none", calc.level='genus')
   names(gen.pcas) <- gen.ls
 ####################################################################################################
 ####################################################################################################
@@ -43,7 +46,7 @@ gen.clean.pca <- left_join(gen.clean, gen.clean.all, by=names(gen.clean))
 ####################################################################################################
 ####################################################################################################
 ## save all data
-save(dat.all, dat.red, meta.traits, important.traits, gen.ls, spp.ls, gen.scale, gen.clean, row.arb,
+save(dat.all, dat.red, meta.traits, important.traits, important.traits.CR, gen.ls, spp.ls, gen.scale, gen.clean, row.arb,
           gen.pcas, gen.clean.pca,
           file=file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
