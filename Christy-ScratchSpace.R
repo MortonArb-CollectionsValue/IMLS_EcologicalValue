@@ -14,59 +14,51 @@ path.figs <- file.path(path.dat, "figures")
 load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
 
-# Creating a map of two example species for the poster
-ggplot(data=gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus macrocarpa"),], aes(x=decimalLongitude, y=decimalLatitude)) +
-  coord_equal() +
-  geom_point() +
-  geom_point(data=gen.clean.pca[gen.clean.pca$UID=="MORTONARB",], color="orange2")
-
-# Exploring the data
-# summary(gen.clean.pca)
-
-# # # -----------------
-# # Extracting Quercus as a test case and doing some binning so we can do some density plot stuff
-# dat.quercus <- gen.clean.pca[grepl("Quercus", gen.clean.pca$genus) & !is.na(gen.clean.pca$PC1),]
-# # summary(dat.quercus)
-# dat.quercus$PC1.cut <- cut(dat.quercus$PC1, 50)
-# dat.quercus$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", dat.quercus$PC1.cut), ","),
-#                               function(x)sum(as.numeric(x))/2)
-# dat.quercus$PC2.cut <- cut(dat.quercus$PC2, 50)
-# dat.quercus$PC2.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", dat.quercus$PC2.cut), ","),
-#                               function(x)sum(as.numeric(x))/2)
-# dat.quercus$PC3.cut <- cut(dat.quercus$PC3, 50)
-# dat.quercus$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", dat.quercus$PC3.cut), ","),
-#                               function(x)sum(as.numeric(x))/2)
-# dim(dat.quercus)
-# 
-# quercus.agg.spp <- aggregate(UID~species_name_acc + genus + species + PC1.mid + PC2.mid,data=dat.quercus, FUN=length)
-# names(quercus.agg.spp)[ncol(quercus.agg.spp)] <- c("UID.n") 
-# summary(quercus.agg.spp)
-# 
-# # Plotting the observation density for a handful of species as test cases
-# ggplot(data=quercus.agg.spp[quercus.agg.spp$species %in% c("alba", "lyrata", "petraea", "arizonica"),]) +
-#   facet_wrap(~species) +
-#   geom_tile(aes(x=PC1.mid, y=PC2.mid, fill=UID.n)) +
-#   geom_point(x=quercus.agg.spp$PC1[quercus.agg.spp$genus=="MortonArb_Quercus"], y=quercus.agg.spp$PC2[quercus.agg.spp$genus=="MortonArb_Quercus"], color="green3", size=5)
-# 
-# quercus.agg.gen <- aggregate(UID.n~genus + PC1.mid + PC2.mid, data=quercus.agg.spp, FUN=length)
-# names(quercus.agg.gen)[ncol(quercus.agg.gen)] <- c("Spp.n") 
-# summary(quercus.agg.gen)
-# 
-# ggplot(data=quercus.agg.gen) +
-#   geom_tile(aes(x=PC1.mid, y=PC2.mid, fill=Spp.n)) +
-#   geom_point(x=dat.quercus$PC1[dat.quercus$genus=="MortonArb_Quercus"], y=dat.quercus$PC2[dat.quercus$genus=="MortonArb_Quercus"], color="green3", size=5)
 
 
 #### ----------------------
-#### Doing the aggregation on all genera at once
+#### Cleaning up the data
 #### ----------------------
 names(gen.clean.pca)
-# To FInd Morton, UID = MORTONARB; Species = MortonArb
+# To Find Morton, UID = MORTONARB; Species = MortonArb
 gen.clean.pca[grep("Morton", gen.clean.pca$genus),"genus"] <- unlist(lapply(strsplit(gen.clean.pca$genus[grep("Morton", gen.clean.pca$genus)], "_"), function(x) x[2]))
 # gen.clean.pca[]
 
 # Getting rid of NAs just for sanity
 gen.clean.pca <- gen.clean.pca[!is.na(gen.clean.pca$PC1),]
+
+### --------------
+# Creating a map of two example species for the poster
+### --------------
+map.world <- map_data("world")
+
+oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus macrocarpa", "Quercus pontica", "Quercus mongolica", "Quercus emoryi", "MortonArb") & gen.clean.pca$genus=="Quercus",]
+
+oaks.use <- c("Quercus macrocarpa", "Quercus mongolica", "Quercus emoryi", "Quercus pontica")
+
+oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
+# 
+png(file.path(path.figs, "Maps_ExampleOaks.png"), height=6, width=10, units="in", res=320)
+ggplot(data=oak.examples[oak.examples$UID!="MORTONARB",], aes(x=decimalLongitude, y=decimalLatitude)) +
+  facet_wrap(~species_name_acc) +
+  coord_equal() +
+  scale_x_continuous(name="Longitude", expand=c(0,0)) +
+  scale_y_continuous(name="Latitude", expand=c(0,0)) +
+  geom_path(data=map.world, aes(x=long, y=lat, group=group), size=0.2) +
+  geom_point(color="dodgerblue2", size=1.5) +
+  geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("decimalLatitude", "decimalLongitude")], color="orange2", size=2.5) +
+  theme(panel.background=element_rect(fill=NA),
+        panel.grid = element_blank(),
+        strip.background = element_blank(),
+        strip.text=element_text(size=rel(2), face="bold.italic"))
+dev.off()
+### --------------
+
+
+
+### --------------
+### Creating midpoints to bin occurrence in PCA space
+### --------------
 gen.clean.pca$PC1.cut <- cut(gen.clean.pca$PC1, 50)
 gen.clean.pca$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC1.cut), ","),
                               function(x)sum(as.numeric(x))/2)
@@ -77,8 +69,12 @@ gen.clean.pca$PC3.cut <- cut(gen.clean.pca$PC3, 50)
 gen.clean.pca$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC3.cut), ","),
                               function(x)sum(as.numeric(x))/2)
 dim(gen.clean.pca)
- 
+### --------------
 
+
+### --------------
+## Aggregating to get point/species density in PCA species
+### --------------
 clean.spp.agg <- aggregate(UID~species_name_acc + genus + species + PC1.mid + PC2.mid, data=gen.clean.pca, FUN=length)
 names(clean.spp.agg)[ncol(clean.spp.agg)] <- c("UID.n")
 summary(clean.spp.agg)
@@ -93,12 +89,15 @@ ggplot(data=clean.spp.agg[clean.spp.agg$species_name_acc  %in% c("Quercus macroc
 clean.gen.agg <- aggregate(UID.n~genus + PC1.mid + PC2.mid, data=clean.spp.agg[clean.spp.agg$UID!="MortonArb",], FUN=length)
 names(clean.gen.agg)[ncol(clean.gen.agg)] <- c("Spp.n")
 summary(clean.gen.agg)
+### --------------
+
+
 # 
 
-# ggplot(data=clean.gen.agg) +
-#   facet_wrap(~genus, scales="free_x") +
-#   geom_histogram(aes(x=Spp.n))
-  
+
+### --------------
+### First-shot PCA figure
+### --------------
 labs.list <- c(Quercus=paste0("Quercus (", length(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species!="MortonArb" & gen.clean.pca$genus=="Quercus"])), " spp)"),
                   Malus=paste0("Malus (", length(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species!="MortonArb" & gen.clean.pca$genus=="Malus"])), " spp)"),
                   Tilia=paste0("Tilia (", length(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species!="MortonArb" & gen.clean.pca$genus=="Tilia"])), " spp)"),
@@ -119,9 +118,12 @@ png(file.path(path.figs, "PCA_SpeciesDensity_Genus.png"),
     height=8, width=8, units="in", res=320)
 print(plot.pca.den)
 dev.off()
+### --------------
 
 
-## Figuring out how to add the loadings:
+### --------------
+### Figuring out how to add the loadings:
+### --------------
 summary(gen.pcas)
 summary(gen.pcas$Quercus$rotation)
 row.names(gen.pcas$Quercus$rotation)
@@ -163,12 +165,12 @@ gen.load$var.type <- ifelse(gen.load$env.var %in% c(vars.soil), "Soil", "Climate
 # gen.load$env.var[!gen.load$env.var %in% c("tmax.ann.amx", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")]
 gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
 
-gen.load$graph <- apply(gen.load[,c("PC1", "PC2")], 1, function(x) ifelse(max(abs(x))>0.3, "*", NA))
-summary(gen.load[!is.na(gen.load$graph),])
-# gen.load$graph <- ifelse(gen.load$dist>0.3, "*", NA)
-
 summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "graph")])
+### --------------
 
+### --------------
+### Final poster figure -- PCA species density
+### --------------
 png(file.path(path.figs, "PCA_SpeciesDensity_Genus-LoadingsTop3.png"), 
     height=8, width=12, units="in", res=320)
 ggplot(data=clean.gen.agg) +
@@ -190,9 +192,12 @@ ggplot(data=clean.gen.agg) +
         axis.title=element_text(size=rel(1.25), face="bold"),
         legend.key = element_blank())
 dev.off()
+### --------------
 
 
-# re-creating Shiven's figure with some consistent coloring
+### --------------
+### re-creating Shiven's figure with some consistent coloring
+### --------------
 gen.load.stack <- stack(gen.load[,c("PC1", "PC2")])
 gen.load.stack[,c("genus", "env.var", "rank")] <- gen.load[,c("genus", "env.var", "rank")]
 
@@ -214,7 +219,28 @@ ggplot(data=gen.load.stack) +
         axis.title.y=element_blank(),
         legend.key = element_blank())
 dev.off()
+### --------------
 
 
-# gen.clean.pca
+### --------------
+### Showing our example species in PCA space
+### --------------
+oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
+
+png(file.path(path.figs, "PCA_ExampleOaks_PC1-PC2.png"), 
+    height=7, width=10, units="in", res=320)
+ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
+  facet_wrap(~species_name_acc) +
+  geom_point(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) +
+  geom_point(size=0.5, color="dodgerblue2") +
+  geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + 
+  geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) +
+  theme(panel.background=element_rect(fill=NA),
+        panel.grid = element_blank(),
+        strip.background = element_blank(),
+        strip.text=element_text(size=rel(1.5), face="bold.italic"), 
+        axis.title=element_text(size=rel(1.25), face="bold"),
+        legend.key = element_blank())
+dev.off()
+### --------------
 
