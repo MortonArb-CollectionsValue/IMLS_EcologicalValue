@@ -17,7 +17,7 @@ load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 # Creating a map of two example species for the poster
 ggplot(data=gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus macrocarpa"),], aes(x=decimalLongitude, y=decimalLatitude)) +
   coord_equal() +
-  # geom_point() +
+  geom_point() +
   geom_point(data=gen.clean.pca[gen.clean.pca$UID=="MORTONARB",], color="orange2")
 
 # Exploring the data
@@ -170,7 +170,7 @@ summary(gen.load[!is.na(gen.load$graph),])
 summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "graph")])
 
 png(file.path(path.figs, "PCA_SpeciesDensity_Genus-LoadingsTop3.png"), 
-    height=8, width=9, units="in", res=320)
+    height=8, width=12, units="in", res=320)
 ggplot(data=clean.gen.agg) +
   facet_wrap(~genus, labeller = as_labeller(labs.list)) +
   geom_raster(aes(x=PC1.mid, y=PC2.mid, fill=Spp.n)) +
