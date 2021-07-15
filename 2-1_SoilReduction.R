@@ -9,12 +9,12 @@ library(Hmisc)
 library(data.table)
 
 Genera <- c("Malus", "Quercus", "Tilia", "Ulmus")
-path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
-path.out <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/"
+# path.dat <- "D:/Data_IMLS_Ecological_Value/Soil_Extract_Drive/Soil_Extract/"
+# path.out <- "D:/Data_IMLS_Ecological_Value/PreloadedSoil_Data/"
 
 # Google Drive File paths on a Mac
-# path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
-# path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
+path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/Soil_Extract/"
+path.out <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value/Extracted Data/PreloadedSoil_Data/"
 
 if(!dir.exists(path.out)) dir.create(path.out, recursive = T)
 

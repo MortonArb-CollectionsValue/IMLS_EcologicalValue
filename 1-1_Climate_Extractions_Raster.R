@@ -43,7 +43,7 @@ files.all <- dir(path.occ, ".csv")
 # Note: Web quercy wasn't working (grrrr!), so I've downloaded 1980-2019 locally
 # path.dat <- "/Volumes/Celtis/Meteorology/TERRACLIMATE/"
 # path.dat <- "/home/data/TERRACLIMATE"
-path.dat <- "~/Desktop/met_products/TERRACLIMATE"
+# path.dat <- "~/Desktop/met_products/TERRACLIMATE"
 
 
 cols.keep <- c("UID", "species_name_acc", "decimalLatitude", "decimalLongitude")
