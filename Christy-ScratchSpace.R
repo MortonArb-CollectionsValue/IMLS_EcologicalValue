@@ -1,5 +1,6 @@
 # Christy playing around with PCA output to see how we can synthesize
 library(ggplot2); library(ggrepel)
+library(sp)
 
 ## path to the shared Google Drive folder
 path.dat <- "/Volumes/GoogleDrive/Shared drives/IMLS MFA/Environmental Niche Value" ## path for Shannon
@@ -244,3 +245,63 @@ ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
 dev.off()
 ### --------------
 
+
+### --------------
+### Doing more summaries of the convex hull
+### --------------
+summary(oak.hulls)
+morton.oak <- gen.clean.pca[gen.clean.pca$genus=="Quercus" & gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")]
+
+hull.sum <- data.frame(species_name_acc=spp.ls,
+                       genus=NA,
+                       species=NA,
+                       hull.area=NA,
+                       hull.TMA=NA)
+for(i in 1:nrow(hull.sum)){
+  SPP=hull.sum$species_name_acc[i]
+  hull.sum[i,c("genus", "species")] <- strsplit(SPP, " ")[[1]]
+  
+  pt.arb <- gen.clean.pca[gen.clean.pca$UID=="MORTONARB" & gen.clean.pca$genus==hull.sum$genus[i],c("PC1", "PC2")]
+  
+  spp.hull <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc==SPP,]
+  
+  if(nrow(spp.hull)<4) next 
+  
+  hull.sum$hull.area[i] <- Polygon(spp.hull[,c("PC1", "PC2")], hole=F)@area
+  hull.sum$hull.TMA[i] <- ifelse(point.in.polygon(point.x=pt.arb$PC1, 
+                                                  point.y=pt.arb$PC2,
+                                                  pol.x=spp.hull$PC1,
+                                                  pol.y=spp.hull$PC2),
+                                 T, F)
+}
+summary(hull.sum)
+hull.sum$hull.TMA.lab[is.na(hull.sum$hull.TMA)] <- "insufficient data"
+hull.sum$hull.TMA.lab[hull.sum$hull.TMA] <- "inside PCA hull"
+hull.sum$hull.TMA.lab[!hull.sum$hull.TMA] <- "outside PCA hull"
+
+hull.sum$hull.TMA.lab <- factor(hull.sum$hull.TMA.lab, levels=rev(c("inside PCA hull", "outside PCA hull", "insufficient data")))
+
+# Doing some quick percentages breakdowns
+nrow(hull.sum[hull.sum$genus=="Malus" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Malus",])
+nrow(hull.sum[hull.sum$genus=="Quercus" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Quercus",])
+nrow(hull.sum[hull.sum$genus=="Tilia" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Tilia",])
+nrow(hull.sum[hull.sum$genus=="Ulmus" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Ulmus",])
+
+png(file.path(path.figs, "MortonArb_HullSummaries.png"), 
+    height=6, width=10, units="in", res=320)
+ggplot(data=hull.sum) +
+  geom_bar(aes(x=genus, fill=hull.TMA.lab), stat="count") +
+  scale_y_continuous(name="# Species", expand=c(0,0)) +
+  scale_fill_manual(name="The Morton Arboretum", values=c("inside PCA hull"="#009e73", "outside PCA hull"="#d55e00", "insufficient data"="gray50")) +
+  theme(panel.background=element_blank(),
+        axis.line=element_line(size=0.5),
+        legend.title=element_text(face="bold", size=rel(1.5)),
+        legend.text=element_text(size=rel(1.5)),
+        legend.key = element_blank(),
+        legend.position="top",
+        axis.title.x=element_blank(),
+        axis.title.y=element_text(size=rel(2), face="bold"),
+        axis.text.x=element_text(size=rel(2.5), color="black", face="bold.italic"),
+        axis.text.y=element_text(size=rel(1.5), color="black"))
+dev.off()
+### --------------
