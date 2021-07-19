@@ -39,7 +39,7 @@ oaks.use <- c("Quercus macrocarpa", "Quercus mongolica", "Quercus emoryi", "Quer
 
 oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
 # 
-png(file.path(path.figs, "Maps_ExampleOaks.png"), height=6, width=10, units="in", res=320)
+png(file.path(path.figs, "Fig4_Maps_ExampleOaks.png"), height=6, width=10, units="in", res=320)
 ggplot(data=oak.examples[oak.examples$UID!="MORTONARB",], aes(x=decimalLongitude, y=decimalLatitude)) +
   facet_wrap(~species_name_acc) +
   coord_equal() +
@@ -166,30 +166,52 @@ gen.load$var.type <- ifelse(gen.load$env.var %in% c(vars.soil), "Soil", "Climate
 # gen.load$env.var[!gen.load$env.var %in% c("tmax.ann.amx", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")]
 gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
 
-summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "graph")])
+summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "rank")])
 ### --------------
 
 ### --------------
 ### Final poster figure -- PCA species density
 ### --------------
-png(file.path(path.figs, "PCA_SpeciesDensity_Genus-LoadingsTop3.png"), 
-    height=8, width=12, units="in", res=320)
+png(file.path(path.figs, "Fig2_PCA_SpeciesDensity_Genus-LoadingsTop3.png"), 
+    height=8, width=8.1, units="in", res=320)
 ggplot(data=clean.gen.agg) +
   facet_wrap(~genus, labeller = as_labeller(labs.list)) +
   geom_raster(aes(x=PC1.mid, y=PC2.mid, fill=Spp.n)) +
-  geom_point(data=gen.clean.pca[gen.clean.pca$species=="MortonArb",], aes(x=PC1, y=PC2, color="Morton Arb"), size=3) +
+  geom_point(data=gen.clean.pca[gen.clean.pca$species=="MortonArb",], aes(x=PC1, y=PC2, color="Morton\nArb"), size=3) +
   geom_segment(data=gen.load[gen.load$rank<=3,], aes(x=0, y=0, xend=xend, yend=yend), arrow=arrow(length=unit(1/2, "picas")), color="gray75") +
   # geom_text_repel(data=gen.load[gen.load$rank<=3,], aes(x=labx, y=laby, label=env.var), color="white", size=3, fontface="bold") +
   geom_text(data=gen.load[gen.load$rank<=3,], aes(x=labx, y=laby, label=env.var), color="white", size=3, fontface="bold") +
   geom_text(data=pc.expvar, aes(x=-8.75, y=-5.25, label=paste0("Explained Var:\nPC1: ", stringr::str_pad(round(PC1, 2), 4, side="right", pad="0" ), "\nPC2: ", stringr::str_pad(round(PC2, 2), 4, side="right", pad="0" ))), hjust=0, color="white") +
   labs(x="PC1", y="PC2") +
-  scale_fill_viridis_b(name="Spp", breaks=c(1,2,5,10,20,30,50)) +
+  scale_fill_viridis_b(name="# Spp", breaks=c(1,2,5,10,20,30,50)) +
   scale_color_manual(name="", values="orange2") +
   theme(panel.background = element_rect(fill="gray30"),
         panel.grid = element_blank(),
         axis.line = element_line(color="black"),
         strip.background = element_blank(),
-        strip.text = element_text(size=rel(1.5), face="bold"),
+        strip.text = element_text(size=rel(1.5), face="bold.italic"),
+        axis.title=element_text(size=rel(1.25), face="bold"),
+        legend.key = element_blank())
+dev.off()
+
+png(file.path(path.figs, "Fig2alt_PCA_SpeciesDensity_Genus-LoadingsTop3.png"), 
+    height=8, width=8.1, units="in", res=320)
+ggplot(data=clean.gen.agg) +
+  facet_wrap(~genus, labeller = as_labeller(labs.list)) +
+  geom_raster(aes(x=PC1.mid, y=PC2.mid, fill=Spp.n)) +
+  geom_point(data=gen.clean.pca[gen.clean.pca$species=="MortonArb",], aes(x=PC1, y=PC2, color="Morton\nArb"), size=3) +
+  geom_segment(data=gen.load[gen.load$rank<=3,], aes(x=0, y=0, xend=xend, yend=yend), arrow=arrow(length=unit(1/2, "picas")), color="gray75") +
+  # geom_text_repel(data=gen.load[gen.load$rank<=3,], aes(x=labx, y=laby, label=env.var), color="white", size=3, fontface="bold") +
+  geom_text(data=gen.load[gen.load$rank<=3,], aes(x=labx, y=laby, label=env.var), color="white", size=3, fontface="bold") +
+  geom_text(data=pc.expvar, aes(x=-8.75, y=-5.25, label=paste0("Explained Var:\nPC1: ", stringr::str_pad(round(PC1, 2), 4, side="right", pad="0" ), "\nPC2: ", stringr::str_pad(round(PC2, 2), 4, side="right", pad="0" ))), hjust=0, color="black") +
+  labs(x="PC1", y="PC2") +
+  scale_fill_viridis_b(name="# Spp", breaks=c(1,2,5,10,20,30,50)) +
+  scale_color_manual(name="", values="orange2") +
+  theme(panel.background = element_blank(),
+        panel.grid = element_blank(),
+        axis.line = element_line(color="black", size=0.5),
+        strip.background = element_blank(),
+        strip.text = element_text(size=rel(1.5), face="bold.italic"),
         axis.title=element_text(size=rel(1.25), face="bold"),
         legend.key = element_blank())
 dev.off()
@@ -202,20 +224,21 @@ dev.off()
 gen.load.stack <- stack(gen.load[,c("PC1", "PC2")])
 gen.load.stack[,c("genus", "env.var", "rank")] <- gen.load[,c("genus", "env.var", "rank")]
 
-png(file.path(path.figs, "PCA_Loadings_Genus_PC1-PC2.png"), 
-    height=6, width=10, units="in", res=320)
+png(file.path(path.figs, "Fig1_PCA_Loadings_Genus_PC1-PC2.png"), 
+    height=6, width=9, units="in", res=320)
 ggplot(data=gen.load.stack) +
   facet_grid(ind ~ genus) +
   geom_bar(aes(x=abs(values), y=env.var, fill=ifelse(values>0, "Pos", "Neg")), stat="identity") +
   geom_text(data=gen.load.stack[gen.load.stack$rank<=3,], aes(x=abs(values), y=env.var, label="*"), size=8, fontface="bold", nudge_y = -0.5) +
-  scale_fill_manual(name="Direction",values=c("Pos"="#d8b365", "Neg"="#5ab4ac")) +
+  scale_fill_manual(name="Loading\nDirection",values=c("Pos"="#d8b365", "Neg"="#5ab4ac")) +
   scale_x_continuous(name="PC Loading", expand=c(0,0)) +
   scale_y_discrete(limits=rev) +
   theme(panel.background = element_rect(fill=NA, color="black"),
         panel.grid = element_blank(),
         # axis.line = element_line(color="black"),
         strip.background = element_blank(),
-        strip.text = element_text(size=rel(1.5), face="bold"),
+        strip.text.x = element_text(size=rel(1.5), face="bold.italic"),
+        strip.text.y = element_text(size=rel(1.5), face="bold"),
         axis.title.x=element_text(size=rel(1.25), face="bold"),
         axis.title.y=element_blank(),
         legend.key = element_blank())
@@ -227,9 +250,10 @@ dev.off()
 ### Showing our example species in PCA space
 ### --------------
 oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
+oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
 
-png(file.path(path.figs, "PCA_ExampleOaks_PC1-PC2.png"), 
-    height=7, width=10, units="in", res=320)
+png(file.path(path.figs, "Fig3_PCA_ExampleOaks_PC1-PC2.png"), 
+    height=8, width=8.1, units="in", res=320)
 ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
   facet_wrap(~species_name_acc) +
   geom_point(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) +
@@ -287,8 +311,8 @@ nrow(hull.sum[hull.sum$genus=="Quercus" & hull.sum$hull.TMA & !is.na(hull.sum$hu
 nrow(hull.sum[hull.sum$genus=="Tilia" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Tilia",])
 nrow(hull.sum[hull.sum$genus=="Ulmus" & hull.sum$hull.TMA & !is.na(hull.sum$hull.TMA), ])/nrow(hull.sum[hull.sum$genus=="Ulmus",])
 
-png(file.path(path.figs, "MortonArb_HullSummaries.png"), 
-    height=6, width=10, units="in", res=320)
+png(file.path(path.figs, "Fig5_MortonArb_HullSummaries.png"), 
+    height=6, width=14, units="in", res=320)
 ggplot(data=hull.sum) +
   geom_bar(aes(x=genus, fill=hull.TMA.lab), stat="count") +
   scale_y_continuous(name="# Species", expand=c(0,0)) +
