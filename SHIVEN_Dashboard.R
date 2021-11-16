@@ -40,17 +40,24 @@ oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(
 
 
 ### Creating midpoints to bin occurrence in PCA space
-gen.clean.pca$PC1.cut <- cut(gen.clean.pca$PC1, 50)
-gen.clean.pca$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC1.cut), ","),
-                                function(x)sum(as.numeric(x))/2)
-gen.clean.pca$PC2.cut <- cut(gen.clean.pca$PC2, 50)
-gen.clean.pca$PC2.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC2.cut), ","),
-                                function(x)sum(as.numeric(x))/2)
-gen.clean.pca$PC3.cut <- cut(gen.clean.pca$PC3, 50)
-gen.clean.pca$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC3.cut), ","),
-                                function(x)sum(as.numeric(x))/2)
+gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 3)
+# gen.clean.pca$PC1.cut <- cut(gen.clean.pca$PC1, 50)
+# gen.clean.pca$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC1.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
+gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 3)
+# gen.clean.pca$PC2.cut <- cut(gen.clean.pca$PC2, 50)
+# gen.clean.pca$PC2.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC2.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
+gen.clean.pca$PC3.round <- round(gen.clean.pca$PC3, 3)
+# gen.clean.pca$PC3.cut <- cut(gen.clean.pca$PC3, 50)
+# gen.clean.pca$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC3.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
 dim(gen.clean.pca)
 
+head(gen.clean.pca)
+
+gen.simple.pca <- aggregate(UID ~ genus + species + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
+dim(gen.simple.pca)
 
 ### Showing our example species in PCA space
 oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
