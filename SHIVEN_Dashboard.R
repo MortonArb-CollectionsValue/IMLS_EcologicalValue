@@ -58,14 +58,14 @@ dim(gen.clean.pca)
 
 head(gen.clean.pca)
 
-gen.simple.pca <- aggregate(UID ~ genus + species + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
+gen.simple.pca <- aggregate(UID ~ genus + species + species_name_acc + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
 dim(gen.simple.pca)
 
 # Creating a map of two example species for the poster
 ### --------------
 map.world <- map_data("world")
 
-oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus pontica","MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to only Quercus pontica
+oak.examples <- gen.simple.pca[gen.simple.pca$species_name_acc %in% c("Quercus pontica","MortonArb") & gen.simple.pca$genus=="Quercus",] #changed to only Quercus pontica
 
 oaks.use <- c("Quercus pontica") #changed it so only has Quercus Pontica
 
@@ -81,7 +81,7 @@ oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.u
 #     height=8, width=8.1, units="in", res=320)
 # a <- ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
 #       facet_wrap(~species_name_acc) +
-#       stat_unique(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+#       stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & !gen.simple.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
 #       #geom_point(size=0.5, color="dodgerblue2") + #blue points
 #       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
 #       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
@@ -94,12 +94,14 @@ oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.u
 
 ## implement shiny on how to change the species
    ## Only doing Quercus for now
-   ## using gen.clean.pca: might have some species that have no points after cleaning to "gen.simple.pca
+   ## using gen.simple.pca: might have some species that have no points after simpleing to "gen.simple.pca
 unique.genus <- c("Malus", "Quercus", "Tilia", "Ulmus")
-# unique.species.quercus <- unique(gen.clean.pca$species[gen.clean.pca$genus=="Quercus"])
+# unique.species.quercus <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Quercus"])
 # unique.species.malus <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Malus"])
 # unique.species.tilia <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Tilia"])
 # unique.species.ulmus <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Ulmus"])
+
+gen.simple.pca.quercus <- gen.simple.pca[genus==] #Just Quercus
 
 
 ui <- fluidPage(
@@ -112,12 +114,15 @@ ui <- fluidPage(
     "))),
    
    #selectInput("genus", "Choose a genus:", list(genus=as.list(paste(sort(unique.genus))))), 
-   selectInput("Species", "Choose a Species:", choices = unique(gen.clean.pca$species[gen.clean.pca$genus == "Quercus"]), selected="pontica", multiple=FALSE),
-               #list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))
-      #will likely be an error here
+   selectInput("Species", "Choose a Species:", choices = unique(gen.simple.pca$species[gen.simple.pca$genus == "Quercus"]), selected="pontica", multiple=FALSE),
+   #list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))
+   #will likely be an error here
    #verbatimTextOutput("hover_info"),			    
    #mainPanel(plotlyOutput("plot1", width = 850, height = 750),)
-   mainPanel(tableOutput("selected_species_hull")))
+   # mainPanel(tableOutput("selected_species_hull")))
+   mainPanel(plotOutput("plot1")))
+
+
 
 #Need to change the hulls based on the species I choose: put the longer version of making the hulls above
    #NOT LOADING
@@ -132,11 +137,13 @@ server <- function(input, output) {
    # })
    
    output$selected_species_hull <- renderTable({
-      oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species==input$species]),"MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
+      oak.examples <- gen.simple.pca[gen.simple.pca$species_name_acc %in% c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species]),"MortonArb") & gen.simple.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
       
-      oaks.use <- c(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species==input$species])) #changes the species based on the input
+      oaks.use <- c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species])) #changes the species based on the input
       
       oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
+      
+      #output$plot1 <- renderPlot({plot(oak.examples$PC1.round, oak.examples$PC2.round)})
       
       oak.examples
       
@@ -147,10 +154,13 @@ server <- function(input, output) {
       # print(oak.hulls)
    })
    
+   output$plot1 <- renderPlot({ggplot(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round)) + geom_point()})
+   
+   
    # output$plot1 <- renderPlot({
    #    ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
    #       facet_wrap(~species_name_acc) +
-   #       # stat_unique(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+   #       # stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & !gen.simple.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
    #       #geom_point(size=0.5, color="dodgerblue2") + #blue points
    #       #geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
    #       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
@@ -169,7 +179,7 @@ shinyApp(ui, server)
 
 #Basic Graph Example
 
-gen.clean.pca
+gen.simple.pca
 
 ui <- fluidPage(
    titlePanel("Data"),
