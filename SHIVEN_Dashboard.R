@@ -41,20 +41,6 @@ gen.clean.pca[grep("Morton", gen.clean.pca$genus),"genus"] <- unlist(lapply(strs
 # Getting rid of NAs just for sanity
 gen.clean.pca <- gen.clean.pca[!is.na(gen.clean.pca$PC1),]
 
-
-
-# Creating a map of two example species for the poster
-### --------------
-map.world <- map_data("world")
-
-oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus pontica","MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to only Quercus pontica
-
-oaks.use <- c("Quercus pontica") #changed it so only has Quercus Pontica
-
-oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
-
-
-
 ### Creating midpoints to bin occurrence in PCA space
 gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 3)
 # gen.clean.pca$PC1.cut <- cut(gen.clean.pca$PC1, 50)
@@ -74,6 +60,17 @@ head(gen.clean.pca)
 
 gen.simple.pca <- aggregate(UID ~ genus + species + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
 dim(gen.simple.pca)
+
+# Creating a map of two example species for the poster
+### --------------
+map.world <- map_data("world")
+
+oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c("Quercus pontica","MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to only Quercus pontica
+
+oaks.use <- c("Quercus pontica") #changed it so only has Quercus Pontica
+
+oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
+
 
 ### Showing our example species in PCA space
 oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
@@ -115,49 +112,55 @@ ui <- fluidPage(
     "))),
    
    #selectInput("genus", "Choose a genus:", list(genus=as.list(paste(sort(unique.genus))))), 
-   #selectInput("Species", "Choose a Species:", list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))), 
+   selectInput("Species", "Choose a Species:", choices = unique(gen.clean.pca$species[gen.clean.pca$genus == "Quercus"]), selected="pontica", multiple=FALSE),
+               #list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))
       #will likely be an error here
-   verbatimTextOutput("hover_info"),			    
-   mainPanel(plotlyOutput("plot1", width = 850, height = 750),
-   ))
+   #verbatimTextOutput("hover_info"),			    
+   #mainPanel(plotlyOutput("plot1", width = 850, height = 750),)
+   mainPanel(tableOutput("selected_species_hull")))
 
 #Need to change the hulls based on the species I choose: put the longer version of making the hulls above
    #NOT LOADING
 server <- function(input, output) {
    
-   # oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c(input$Species,"MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
-   # 
-   # oaks.use <- c(input$Species) #changes the species based on the 
-   # 
-   # oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
-   # 
-   # ### Creating midpoints to bin occurrence in PCA space
-   # gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 3)
-   # gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 3)
-   # gen.clean.pca$PC3.round <- round(gen.clean.pca$PC3, 3)
-   # 
-   # gen.simple.pca <- aggregate(UID ~ genus + species + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
-   # dim(gen.simple.pca)
-   # 
-   # ### Showing our example species in PCA space
-   # oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
-   # oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
-      
+   # data <- reactive({
+   #    mtcars %>%
+   #       filter(
+   #          gear %in% input$gear,
+   #          #Ageband %in% input$age
+   #       )
+   # })
    
-   output$plot1 <- renderPlot({
-      ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
-         facet_wrap(~species_name_acc) +
-         # stat_unique(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
-         #geom_point(size=0.5, color="dodgerblue2") + #blue points
-         #geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
-         geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
-         theme(panel.background=element_rect(fill=NA),
-               panel.grid = element_blank(),
-               strip.background = element_blank(),
-               strip.text=element_text(size=rel(1.5), face="bold.italic"), 
-               axis.title=element_text(size=rel(1.25), face="bold"),
-               legend.key = element_blank())
+   output$selected_species_hull <- renderTable({
+      oak.examples <- gen.clean.pca[gen.clean.pca$species_name_acc %in% c(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species==input$species]),"MortonArb") & gen.clean.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
+      
+      oaks.use <- c(unique(gen.clean.pca$species_name_acc[gen.clean.pca$species==input$species])) #changes the species based on the input
+      
+      oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
+      
+      oak.examples
+      
+      # ### Showing our example species in PCA space
+      # oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
+      # oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
+      # 
+      # print(oak.hulls)
    })
+   
+   # output$plot1 <- renderPlot({
+   #    ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
+   #       facet_wrap(~species_name_acc) +
+   #       # stat_unique(data=gen.clean.pca[gen.clean.pca$genus=="Quercus" & !gen.clean.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+   #       #geom_point(size=0.5, color="dodgerblue2") + #blue points
+   #       #geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+   #       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+   #       theme(panel.background=element_rect(fill=NA),
+   #             panel.grid = element_blank(),
+   #             strip.background = element_blank(),
+   #             strip.text=element_text(size=rel(1.5), face="bold.italic"), 
+   #             axis.title=element_text(size=rel(1.25), face="bold"),
+   #             legend.key = element_blank())
+   # })
 }
 
 shinyApp(ui, server)
@@ -201,10 +204,6 @@ server <- function(input, output, session) {
                strip.text=element_text(size=rel(1.5), face="bold.italic"), 
                axis.title=element_text(size=rel(1.25), face="bold"),
                legend.key = element_blank())
-      
-      # data() %>% 
-      #    ggplot(aes(fill=City, y=count, x=Ageband)) + 
-      #    geom_bar(position="dodge", stat="identity")
    })
 }
 
