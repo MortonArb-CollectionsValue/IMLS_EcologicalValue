@@ -76,7 +76,7 @@ oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(
 oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
 oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
 
-
+#Old Plot before Shiny
 # png(file.path(path.figs, "Fig3_PCA_ExampleOaks_PC1-PC2.png"), 
 #     height=8, width=8.1, units="in", res=320)
 # a <- ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
@@ -101,123 +101,123 @@ unique.genus <- c("Malus", "Quercus", "Tilia", "Ulmus")
 # unique.species.tilia <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Tilia"])
 # unique.species.ulmus <- unique(gen.simple.pca$species[gen.simple.pca$genus=="Ulmus"])
 
-gen.simple.pca.quercus <- gen.simple.pca[genus==] #Just Quercus
+# #Test Plot
+# ggplot(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round)) + geom_point()
+# 
+# ui <- fluidPage(
+#    # Some custom CSS for a smaller font for preformatted text
+#    tags$head(
+#       tags$style(HTML("
+#       pre, table.table {
+#         font-size: smaller;
+#       }
+#     "))),
+#    
+#    #selectInput("genus", "Choose a genus:", list(genus=as.list(paste(sort(unique.genus))))), 
+#    selectInput("Species", "Choose a Species:", choices = unique(gen.simple.pca$species[gen.simple.pca$genus == "Quercus"]), selected="pontica", multiple=FALSE),
+#    #list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))
+#    #will likely be an error here
+#    #verbatimTextOutput("hover_info"),			    
+#    #mainPanel(plotlyOutput("plot1", width = 850, height = 750),)
+#    # mainPanel(tableOutput("selected_species_hull")))
+#    mainPanel(plotOutput("plot1")))
+# 
+# 
+# #Need to change the hulls based on the species I choose: put the longer version of making the hulls above
+#    #NOT LOADING
+# server <- function(input, output) {
+#    
+#    # data <- reactive({
+#    #    mtcars %>%
+#    #       filter(
+#    #          gear %in% input$gear,
+#    #          #Ageband %in% input$age
+#    #       )
+#    # })
+#    
+#    # output$selected_species_hull <- renderTable({
+#    #    oak.examples <- gen.simple.pca[gen.simple.pca$species_name_acc %in% c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species]),"MortonArb") & gen.simple.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
+#    #    
+#    #    oaks.use <- c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species])) #changes the species based on the input
+#    #    #oak.use <- c(input$species)
+#    #    
+#    #    oak.examples$species <- factor(oak.examples$species, levels=c(oaks.use, "MortonArb"))
+#    #    
+#    #    #output$plot1 <- renderPlot({plot(oak.examples$PC1.round, oak.examples$PC2.round)})
+#    #    
+#    #    oak.examples
+#    #    
+#    #    # ### Showing our example species in PCA space
+#    #    # oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
+#    #    # oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
+#    #    # 
+#    #    # print(oak.hulls)
+#    # })
+#    
+#    output$plot1 <- renderPlot({ggplot(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round)) + geom_point()})
+#    
+#    
+#    # output$plot1 <- renderPlot({
+#    #    ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
+#    #       facet_wrap(~species_name_acc) +
+#    #       # stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & !gen.simple.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+#    #       #geom_point(size=0.5, color="dodgerblue2") + #blue points
+#    #       #geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#    #       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+#    #       theme(panel.background=element_rect(fill=NA),
+#    #             panel.grid = element_blank(),
+#    #             strip.background = element_blank(),
+#    #             strip.text=element_text(size=rel(1.5), face="bold.italic"), 
+#    #             axis.title=element_text(size=rel(1.25), face="bold"),
+#    #             legend.key = element_blank())
+#    # })
+# }
+# 
+# shinyApp(ui, server)
 
 
-ui <- fluidPage(
-   # Some custom CSS for a smaller font for preformatted text
-   tags$head(
-      tags$style(HTML("
-      pre, table.table {
-        font-size: smaller;
-      }
-    "))),
-   
-   #selectInput("genus", "Choose a genus:", list(genus=as.list(paste(sort(unique.genus))))), 
-   selectInput("Species", "Choose a Species:", choices = unique(gen.simple.pca$species[gen.simple.pca$genus == "Quercus"]), selected="pontica", multiple=FALSE),
-   #list(Phenos=as.list(paste(unique(gen.clean.pca$species[gen.clean.pca$genus==input$genus]))))
-   #will likely be an error here
-   #verbatimTextOutput("hover_info"),			    
-   #mainPanel(plotlyOutput("plot1", width = 850, height = 750),)
-   # mainPanel(tableOutput("selected_species_hull")))
-   mainPanel(plotOutput("plot1")))
 
-
-
-#Need to change the hulls based on the species I choose: put the longer version of making the hulls above
-   #NOT LOADING
-server <- function(input, output) {
-   
-   # data <- reactive({
-   #    mtcars %>%
-   #       filter(
-   #          gear %in% input$gear,
-   #          #Ageband %in% input$age
-   #       )
-   # })
-   
-   output$selected_species_hull <- renderTable({
-      oak.examples <- gen.simple.pca[gen.simple.pca$species_name_acc %in% c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species]),"MortonArb") & gen.simple.pca$genus=="Quercus",] #changed to where you can select any species of Quercus
-      
-      oaks.use <- c(unique(gen.simple.pca$species_name_acc[gen.simple.pca$species==input$species])) #changes the species based on the input
-      
-      oak.examples$species_name_acc <- factor(oak.examples$species_name_acc, levels=c(oaks.use, "MortonArb"))
-      
-      #output$plot1 <- renderPlot({plot(oak.examples$PC1.round, oak.examples$PC2.round)})
-      
-      oak.examples
-      
-      # ### Showing our example species in PCA space
-      # oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% oak.examples$species_name_acc,]
-      # oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(oaks.use, "MortonArb"))
-      # 
-      # print(oak.hulls)
-   })
-   
-   output$plot1 <- renderPlot({ggplot(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round)) + geom_point()})
-   
-   
-   # output$plot1 <- renderPlot({
-   #    ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
-   #       facet_wrap(~species_name_acc) +
-   #       # stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & !gen.simple.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
-   #       #geom_point(size=0.5, color="dodgerblue2") + #blue points
-   #       #geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
-   #       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
-   #       theme(panel.background=element_rect(fill=NA),
-   #             panel.grid = element_blank(),
-   #             strip.background = element_blank(),
-   #             strip.text=element_text(size=rel(1.5), face="bold.italic"), 
-   #             axis.title=element_text(size=rel(1.25), face="bold"),
-   #             legend.key = element_blank())
-   # })
-}
-
-shinyApp(ui, server)
-
-
-
-#Basic Graph Example
-
-gen.simple.pca
-
-ui <- fluidPage(
-   titlePanel("Data"),
-   #selectInput("gear", "Select gear", choices = mtcars$gear, selected=4, multiple=TRUE),
-   # Slider inputs work with numeric data, not categorical data
-   #selectInput("age", "Select Age", choices = exampledata$Ageband, selected="35 to 39", multiple=TRUE),
-   plotOutput("plot")
-)
-
-server <- function(input, output, session) {
-   # data <- reactive({
-   #    mtcars %>%
-   #       filter(
-   #          gear %in% input$gear,
-   #          #Ageband %in% input$age
-   #       )
-   # })
-   
-   output$plot <- renderPlot({
-      #req(input$gear)
-      
-      #data() %>%
-      ggplot(
-         #oak.examples[oak.examples[oak.examples$UID!="MORTONARB",], #having problems when data() part added, similar to other ggplot
-                aes(x=PC1, y=PC2)
-                ) + 
-         #facet_wrap(~species_name_acc) +
-         geom_point(data=oak.examples[oak.examples$UID=="MORTONARB"], color="orange2", size=2.5) +
-         theme(panel.background=element_rect(fill=NA),
-               panel.grid = element_blank(),
-               strip.background = element_blank(),
-               strip.text=element_text(size=rel(1.5), face="bold.italic"), 
-               axis.title=element_text(size=rel(1.25), face="bold"),
-               legend.key = element_blank())
-   })
-}
-
-shinyApp(ui = ui, server = server)
+# #Basic Graph Example
+# 
+# gen.simple.pca
+# 
+# ui <- fluidPage(
+#    titlePanel("Data"),
+#    #selectInput("gear", "Select gear", choices = mtcars$gear, selected=4, multiple=TRUE),
+#    # Slider inputs work with numeric data, not categorical data
+#    #selectInput("age", "Select Age", choices = exampledata$Ageband, selected="35 to 39", multiple=TRUE),
+#    plotOutput("plot")
+# )
+# 
+# server <- function(input, output, session) {
+#    # data <- reactive({
+#    #    mtcars %>%
+#    #       filter(
+#    #          gear %in% input$gear,
+#    #          #Ageband %in% input$age
+#    #       )
+#    # })
+#    
+#    output$plot <- renderPlot({
+#       #req(input$gear)
+#       
+#       #data() %>%
+#       ggplot(
+#          #oak.examples[oak.examples[oak.examples$UID!="MORTONARB",], #having problems when data() part added, similar to other ggplot
+#                 aes(x=PC1, y=PC2)
+#                 ) + 
+#          #facet_wrap(~species_name_acc) +
+#          geom_point(data=oak.examples[oak.examples$UID=="MORTONARB"], color="orange2", size=2.5) +
+#          theme(panel.background=element_rect(fill=NA),
+#                panel.grid = element_blank(),
+#                strip.background = element_blank(),
+#                strip.text=element_text(size=rel(1.5), face="bold.italic"), 
+#                axis.title=element_text(size=rel(1.25), face="bold"),
+#                legend.key = element_blank())
+#    })
+# }
+# 
+# shinyApp(ui = ui, server = server)
 
 
 
@@ -232,3 +232,26 @@ shinyApp(ui = ui, server = server)
  
 dev.off()
 
+
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+      titlePanel("PC Values Across Species"),
+      sidebarPanel(
+         #selectInput("species", "Select a genus:", choices=c(unique(gen.simple.pca$genus))),
+         #selectInput("genus", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+         selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+      mainPanel(plotOutput("scatterPlot"))
+      )
+   )
+
+server <- shinyServer(function(input, output) {
+   output$scatterPlot <- renderPlot({
+      ggplot(gen.simple.pca
+             #[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
+             [gen.simple.pca$species_name_acc==input$species_name_acc,]
+             ) +
+         geom_point(aes(x=PC1.round, y=PC2.round))
+   })
+})
+
+shinyApp(ui, server)
