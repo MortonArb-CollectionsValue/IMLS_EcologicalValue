@@ -237,20 +237,39 @@ dev.off()
 ui <- shinyUI(fluidPage(
       titlePanel("PC Values Across Species"),
       sidebarPanel(
-         #selectInput("species", "Select a genus:", choices=c(unique(gen.simple.pca$genus))),
-         #selectInput("genus", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
-         selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+         selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+         #selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+         #selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+      uiOutput("select_Species"),
       mainPanel(plotOutput("scatterPlot"))
       )
    )
 
 server <- shinyServer(function(input, output) {
+   output$select_Species <- renderUI({
+      
+      spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+      #selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+      pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+      
+   })
+   
+
+   ### Showing our example species in PCA space
+   #oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+   oak.hulls <- reactive({
+      df <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% gen.simple.pca$species[gen.simple.pca$species==input$species],]
+      df$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+   })
+   
+   
    output$scatterPlot <- renderPlot({
-      ggplot(gen.simple.pca
-             #[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
-             [gen.simple.pca$species_name_acc==input$species_name_acc,]
-             ) +
-         geom_point(aes(x=PC1.round, y=PC2.round))
+      ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+         stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+         geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+         geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+         geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+            #IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
    })
 })
 
