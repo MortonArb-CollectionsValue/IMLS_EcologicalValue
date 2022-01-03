@@ -113,7 +113,7 @@ server <- shinyServer(function(input, output) {
    
    output$scatterPlot <- renderPlot({
       tree.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% 
-                                        gen.simple.pca$species[gen.simple.pca$species %in% c(input$species, "MortonArb") & gen.simple.pca$genus==input$genus],]
+                          gen.simple.pca$species[gen.simple.pca$species %in% c(input$species, "MortonArb") & gen.simple.pca$genus==input$genus],]
       
       ggplot() +
          stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background

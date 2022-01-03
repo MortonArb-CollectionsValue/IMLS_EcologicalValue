@@ -1,0 +1,512 @@
+# gen.clean.pca$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC1.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
+gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 3)
+# gen.clean.pca$PC2.cut <- cut(gen.clean.pca$PC2, 50)
+# gen.clean.pca$PC2.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC2.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
+gen.clean.pca$PC3.round <- round(gen.clean.pca$PC3, 3)
+# gen.clean.pca$PC3.cut <- cut(gen.clean.pca$PC3, 50)
+# gen.clean.pca$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC3.cut), ","),
+#                                 function(x)sum(as.numeric(x))/2)
+dim(gen.clean.pca)
+head(gen.clean.pca)
+gen.simple.pca <- aggregate(UID ~ genus + species + species_name_acc + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
+dim(gen.simple.pca)
+# Creating a map of two example species for the poster
+### --------------
+map.world <- map_data("world")
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+#selectInput("species", "Select a genus:", choices=c(unique(gen.simple.pca$genus))),
+#selectInput("genus", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca
+#[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
+[gen.simple.pca$species_name_acc==input$species_name_acc,]
+) +
+geom_point(aes(x=PC1.round, y=PC2.round))
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca
+#[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
+[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
+) +
+geom_point(aes(x=PC1.round, y=PC2.round))
+})
+})
+shinyApp(ui, server)
+head(gen.simple.pca)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca
+#[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species,]
+[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$Species,]
+) +
+geom_point(aes(x=PC1.round, y=PC2.round))
+})
+})
+shinyApp(ui, server)
+unique(gen.simple.pca$species[gen.simple.pca$genus=="Quercus"])
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$Species,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",c(PC1.round, PC2.round)], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+})
+})
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$Species,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",c(PC1.round, PC2.round)], size=0.1, color="gray80", alpha=0.2) + #gray points in background
+})
+})
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",c(PC1.round, PC2.round)], size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", c(gen.simple.pca$PC1.round, gen.simple.pca$PC2.round)], size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", c("PC1.round", "PC2.round")], size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", c("PC1.round", "PC2.round")], size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round) size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) #gray points in background
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.5, color="dodgerblue2")  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.5, color="dodgerblue2")  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.5, color="dodgerblue2")  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('Species','Choose a Species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.5, color="dodgerblue2")  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+})
+})
+shinyApp(ui, server)
+#Filters both genus & Species at the same time instead of individually
+ui <- shinyUI(fluidPage(
+titlePanel("PC Values Across Species"),
+sidebarPanel(
+selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+#selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
+#selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+uiOutput("select_Species"),
+mainPanel(plotOutput("scatterPlot"))
+)
+)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.5, color="dodgerblue2")  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) #morton arb orange point
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MORTONARB",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point
+})
+})
+shinyApp(ui, server)
+gen.simple.pca[gen.simple.pca$species=="MORTONARB",]
+gen.simple.pca[gen.simple.pca$species=="MortonArb",]
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+pc.hulls_PC1_PC2
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+oak.hulls
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+oak.hulls <- reactive({
+oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+pc.hulls_PC1_PC2
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+#oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% input$species,]
+oak.hulls$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+#oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls <- reactive({
+df <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% input$species,]
+df$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+server <- shinyServer(function(input, output) {
+output$select_Species <- renderUI({
+spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+#selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
+pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), selected= sort(spp.avail), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
+})
+### Showing our example species in PCA space
+#oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species_name_acc %in% gen.simple.pca$species_name_acc,]
+oak.hulls <- reactive({
+df <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% gen.simple.pca$species[gen.simple.pca$species==input$species],]
+df$species_name_acc <- factor(oak.hulls$species_name_acc, levels=c(input$species, "MortonArb"))
+})
+output$scatterPlot <- renderPlot({
+ggplot(gen.simple.pca[gen.simple.pca$genus==input$genus,]) +
+stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
+geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
+geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+geom_point(data=gen.simple.pca[gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) #morton arb orange point: different one for each genus
+#IS DIFFERENT GENUS MORTON ARB VALUES WHAT WE WANT?
+})
+})
+shinyApp(ui, server)
+gen.simple.pca[gen.simple.pca$species=="MortonArb"]
+gen.simple.pca[gen.simple.pca$species=="MortonArb",]
