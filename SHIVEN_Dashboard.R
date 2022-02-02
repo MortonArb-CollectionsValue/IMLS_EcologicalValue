@@ -1,24 +1,27 @@
 # Christy playing around with PCA output to see how we can synthesize
-library(ggplot2); library(ggrepel)
-library(sp); library(plotly)
-
-#Put a ton of packages just to make sure everything works in case
-# library(dplyr)
-library(rgdal)
-library(ggmap)
-library(raster)
-library(rgeos)
-library(xts)
-library(tigris)
+library(ggplot2)
 library(shiny)
 library(shinydashboard)
-# library(htmltools)
-# library(stringr)
-# library(car)
-library(googlesheets4)
-library(maps)
 library(shinyWidgets)
-# library(lubridate)
+
+# library(ggplot2); #library(ggrepel)
+# library(sp); #library(plotly)
+# # library(dplyr)
+# library(rgdal)
+# #library(ggmap)
+# library(raster)
+# library(rgeos)
+# library(xts)
+# library(tigris)
+# library(shiny)
+# library(shinydashboard)
+# # library(htmltools)
+# # library(stringr)
+# # library(car)
+# library(googlesheets4)
+# #library(maps)
+# library(shinyWidgets)
+# # library(lubridate)
 
 
 ## path to the shared Google Drive folder
@@ -36,7 +39,6 @@ load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 names(gen.clean.pca)
 # To Find Morton, UID = MORTONARB; Species = MortonArb
 gen.clean.pca[grep("Morton", gen.clean.pca$genus),"genus"] <- unlist(lapply(strsplit(gen.clean.pca$genus[grep("Morton", gen.clean.pca$genus)], "_"), function(x) x[2]))
-# gen.clean.pca[]
 
 # Getting rid of NAs just for sanity
 gen.clean.pca <- gen.clean.pca[!is.na(gen.clean.pca$PC1),]
@@ -47,15 +49,8 @@ gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 3)
 # gen.clean.pca$PC1.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC1.cut), ","),
 #                                 function(x)sum(as.numeric(x))/2)
 gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 3)
-# gen.clean.pca$PC2.cut <- cut(gen.clean.pca$PC2, 50)
-# gen.clean.pca$PC2.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC2.cut), ","),
-#                                 function(x)sum(as.numeric(x))/2)
 gen.clean.pca$PC3.round <- round(gen.clean.pca$PC3, 3)
-# gen.clean.pca$PC3.cut <- cut(gen.clean.pca$PC3, 50)
-# gen.clean.pca$PC3.mid <- sapply(strsplit(gsub("^\\W|\\W$", "", gen.clean.pca$PC3.cut), ","),
-#                                 function(x)sum(as.numeric(x))/2)
 dim(gen.clean.pca)
-
 head(gen.clean.pca)
 
 gen.simple.pca <- aggregate(UID ~ genus + species + species_name_acc + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
@@ -65,37 +60,13 @@ dim(gen.simple.pca)
 ### --------------
 map.world <- map_data("world")
 
-#oak.examples <- gen.simple.pca[gen.simple.pca$species %in% c("angustifolia", "asiatica","MortonArb") & gen.simple.pca$genus=="Malus",] #changed to only Quercus pontica
-
-#oaks.use <- c("angustifolia", "asiatica") #changed it so only has Malus angustifolia, Malus asiatica
-
-#oak.examples$species <- factor(oak.examples$species, levels=c(c("angustifolia", "asiatica"), "MortonArb"))
-
-
-### Showing our example species in PCA space
-#oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% oak.examples$species,]
-oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% 
-                                 gen.simple.pca$species[gen.simple.pca$species %in% c("angustifolia", "asiatica","MortonArb") & gen.simple.pca$genus=="Malus"],]
-
-#oak.hulls$species <- factor(oak.hulls$species, levels=c(c("angustifolia", "asiatica"), "MortonArb"))
-
-#Test Graph
-ggplot() +
-   stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Malus" & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
-   geom_point(data= gen.simple.pca[gen.simple.pca$genus=="Malus" & gen.simple.pca$species==c("angustifolia", "asiatica") & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
-   geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2, group=species), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
-   geom_point(data=gen.simple.pca[gen.simple.pca$genus=="Malus" & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5)
-
-unique.genus <- c("Malus", "Quercus", "Tilia", "Ulmus")
 
 
 #Filters both genus & Species at the same time instead of individually
 ui <- shinyUI(fluidPage(
    titlePanel("PC Values Across Species"),
    sidebarPanel(
-      selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
-   #selectInput("species", "Select a species:", choices=c(unique(gen.simple.pca$species[gen.simple.pca$genus==input$genus])))),
-   #selectInput("species_name_acc", "Select a species_name_acc:", choices=c(sort(unique(gen.simple.pca$species_name_acc))))),
+   selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
    uiOutput("select_Species"),
    mainPanel(plotOutput("scatterPlot"))
 )
@@ -103,13 +74,10 @@ ui <- shinyUI(fluidPage(
 
 server <- shinyServer(function(input, output) {
    output$select_Species <- renderUI({
-      
       spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
-      #selectizeInput('Species', 'Select Species', choices = c("select" = "", choice_Species()), multiple=TRUE) # <- put the reactive element here
       pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
       
    })
-   
    
    output$scatterPlot <- renderPlot({
       tree.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% 
@@ -119,32 +87,32 @@ server <- shinyServer(function(input, output) {
          stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
          geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
          geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
-         geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5)
+            #Idea: make polygons interactive
+         geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) + #morton arb orange point
+         labs(x="PC 1 Values", y="PC 2 Values") +
+         theme(panel.background=element_rect(fill=NA),
+               panel.grid = element_blank(),
+               strip.background = element_blank(),
+               strip.text=element_text(size=rel(1.5), face="bold.italic"),
+               axis.title=element_text(size=rel(1.25), face="bold"),
+               legend.key = element_blank())
    })
 })
 
 shinyApp(ui, server)
 
 
+#Pre-shiny dfs
 
+#oak.examples <- gen.simple.pca[gen.simple.pca$species %in% c("angustifolia", "asiatica","MortonArb") & gen.simple.pca$genus=="Malus",] #changed to only Quercus pontica
+#oaks.use <- c("angustifolia", "asiatica") #changed it so only has Malus angustifolia, Malus asiatica
+#oak.examples$species <- factor(oak.examples$species, levels=c(c("angustifolia", "asiatica"), "MortonArb"))
 
-
-#Old Plot before Shiny
-# png(file.path(path.figs, "Fig3_PCA_ExampleOaks_PC1-PC2.png"), 
-#     height=8, width=8.1, units="in", res=320)
-# a <- ggplot(oak.examples[oak.examples$UID!="MORTONARB",], aes(x=PC1, y=PC2)) +
-#       facet_wrap(~species_name_acc) +
-#       stat_unique(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & !gen.simple.pca$UID=="MORTONARB",c("PC1", "PC2")], size=0.1, color="gray80", alpha=0.2) + #gray points in background
-#       #geom_point(size=0.5, color="dodgerblue2") + #blue points
-#       geom_polygon(data=oak.hulls, aes(x=PC1, y=PC2), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
-#       geom_point(data=oak.examples[oak.examples$UID=="MORTONARB",c("PC1", "PC2")], color="orange2", size=2.5) + #morton arb orange point
-#       theme(panel.background=element_rect(fill=NA),
-#             panel.grid = element_blank(),
-#             strip.background = element_blank(),
-#             strip.text=element_text(size=rel(1.5), face="bold.italic"), 
-#             axis.title=element_text(size=rel(1.25), face="bold"),
-#             legend.key = element_blank())
-
+### Showing our example species in PCA space
+#oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% oak.examples$species,]
+# oak.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% 
+#                                  gen.simple.pca$species[gen.simple.pca$species %in% c("angustifolia", "asiatica","MortonArb") & gen.simple.pca$genus=="Malus"],]
+#oak.hulls$species <- factor(oak.hulls$species, levels=c(c("angustifolia", "asiatica"), "MortonArb"))
 
 
 # aa <- ggplotly(a, tooltip = "none") #takes twice as long
