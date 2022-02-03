@@ -16,7 +16,7 @@ names(gen.clean.pca)
 gen.clean.pca[grep("Morton", gen.clean.pca$genus),"genus"] <- unlist(lapply(strsplit(gen.clean.pca$genus[grep("Morton", gen.clean.pca$genus)], "_"), function(x) x[2]))
 
 # Getting rid of NAs just for sanity
-gen.clean.pca <- gen.clean.pca[!is.na(gen.clean.pca$PC1),]
+gen.clean.pca <- gen.clean.pca[!is.na(gen.clean.pca$PC1) & gen.clean.pca$absval=='in_gen_4',]
 
 # For the sake of cleaning data calculate whether a point is an outlier or not based on distance from the centroid.
 for(GEN in unique(gen.clean.pca$genus)){
