@@ -127,19 +127,13 @@ hull.coords <- dat.test2[c(pc.hulls, pc.hulls[1]),]
 hull.sp <- xy2SP(hull.coords[,c("PC1", "PC2")])
 
 ggplot(data=dat.test) +
-  # geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.1, alpha=0.25, color="gray50") +
+  geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.1, alpha=0.25, color="gray50") +
   geom_polygon(data=ellipse90.df, aes(x=PC1, y=PC2), fill="dodgerblue2", color="dodgerblue2", alpha=0.25) +
-  # geom_point(aes(x=PC1, y=PC2, color=ell90outlier), size=1.5, alpha=0.5) +
+  geom_point(aes(x=PC1, y=PC2, color=ell90outlier), size=1.5, alpha=0.5) +
   geom_polygon(data=hull.coords, aes(x=PC1, y=PC2), fill="red2", color="red2", alpha=0.25) +
   scale_fill_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
   scale_color_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
   theme_bw()
-
-plot(dat.test$PC1, dat.test$PC2)
-lines(hull.coords[order(hull.coords$PC2, order(hull.coords$PC1)),c("PC1", "PC2")], col="blue")
-lines(hull.coords[order(hull.coords$PC2, order(hull.coords$PC1)),c("PC1", "PC2")], col="blue")
-
-summary(pc.hulls)
 
 # # Trying looking at the pairwise distance matrix --> this isn't going to work when we have tens of thousands of points#
 # dist.test <- dist(dat.test[,c("PC1", "PC2")])
