@@ -93,20 +93,53 @@ ellipse95 <- car::ellipse(center=pc.cent, shape=pc.cov, radius=rad.95, segments=
 ellipse90 <- car::ellipse(center=pc.cent, shape=pc.cov, radius=rad.90, segments=100, draw=F)
 ellipse75 <- car::ellipse(center=pc.cent, shape=pc.cov, radius=rad.75, segments=100, draw=F)
 
-ellipse95 <- as.data.frame(ellipse95); colnames(ellipse95) <- c("PC1", "PC2")
-ellipse90 <- as.data.frame(ellipse90); colnames(ellipse90) <- c("PC1", "PC2")
-ellipse75 <- as.data.frame(ellipse75); colnames(ellipse75) <- c("PC1", "PC2")
+ellipse95.df <- as.data.frame(ellipse95); colnames(ellipse95.df) <- c("PC1", "PC2")
+ellipse90.df <- as.data.frame(ellipse90); colnames(ellipse90.df) <- c("PC1", "PC2")
+ellipse75.df <- as.data.frame(ellipse75); colnames(ellipse75.df) <- c("PC1", "PC2")
 
 
 plot.base + 
-  geom_polygon(data=ellipse90, aes(x=PC1, y=PC2, fill="90% ellipse", color="90% ellipse"), alpha=0.25) +
-  geom_polygon(data=ellipse75, aes(x=PC1, y=PC2, fill="75% ellipse", color="75% ellipse"), alpha=0.25) +
+  geom_polygon(data=ellipse90,df, aes(x=PC1, y=PC2, fill="90% ellipse", color="90% ellipse"), alpha=0.25) +
+  geom_polygon(data=ellipse75.df, aes(x=PC1, y=PC2, fill="75% ellipse", color="75% ellipse"), alpha=0.25) +
   # geom_density_2d(aes(x=PC1, y=PC2, color="95% ellipse"), color="orange2") +
   # geom_polygon_2d(aes(x=PC1, y=PC2, fill="75% ellipse", color="75% ellipse"), alpha=0.25) +
   scale_fill_manual(values=c("95% ellipse" = "dodgerblue1", "75% ellipse" = "orange2")) +
   scale_color_manual(values=c("95% ellipse" = "dodgerblue1", "75% ellipse" = "orange2"))
 
+# Trying poitns in polygon
+library(sp)
+xy2SP <- function(xy, ID=NULL) {
+  if(is.null(ID)) ID <- sample(1e12, size=1)
+  SpatialPolygons(list(Polygons(list(Polygon(xy)), ID=ID)))
+}
 
+ell90sp <- xy2SP(ellipse90)
+testsp <- SpatialPointsDataFrame(dat.test[,c("PC1", "PC2")], dat.test)
+test.poly <- over(testsp, ell90sp)
+summary(test.poly)
+
+dat.test$ell90outlier <- ifelse(is.na(test.poly), T, F)
+
+dat.test2 <- dat.test[!dat.test$ell90outlier,]
+pc.hulls <- chull(dat.test2[,c("PC1", "PC2")])
+# hull.coords <- c(pc.hulls, pc.hulls[1])
+hull.coords <- dat.test2[c(pc.hulls, pc.hulls[1]),]
+hull.sp <- xy2SP(hull.coords[,c("PC1", "PC2")])
+
+ggplot(data=dat.test) +
+  # geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.1, alpha=0.25, color="gray50") +
+  geom_polygon(data=ellipse90.df, aes(x=PC1, y=PC2), fill="dodgerblue2", color="dodgerblue2", alpha=0.25) +
+  # geom_point(aes(x=PC1, y=PC2, color=ell90outlier), size=1.5, alpha=0.5) +
+  geom_polygon(data=hull.coords, aes(x=PC1, y=PC2), fill="red2", color="red2", alpha=0.25) +
+  scale_fill_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
+  scale_color_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
+  theme_bw()
+
+plot(dat.test$PC1, dat.test$PC2)
+lines(hull.coords[order(hull.coords$PC2, order(hull.coords$PC1)),c("PC1", "PC2")], col="blue")
+lines(hull.coords[order(hull.coords$PC2, order(hull.coords$PC1)),c("PC1", "PC2")], col="blue")
+
+summary(pc.hulls)
 
 # # Trying looking at the pairwise distance matrix --> this isn't going to work when we have tens of thousands of points#
 # dist.test <- dist(dat.test[,c("PC1", "PC2")])
