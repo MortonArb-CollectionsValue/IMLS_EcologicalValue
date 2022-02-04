@@ -61,6 +61,50 @@ dim(gen.simple.pca)
 map.world <- map_data("world")
 
 
+##Trying to add Eigenvectors to Graph
+#Sample Eigenvectors
+gen.pcas$Quercus$rotation
+
+#Scaling them
+gen.load <- data.frame()
+pc.expvar <- data.frame()
+for(i in 1:length(gen.pcas)){
+   df.tmp <- data.frame(genus=names(gen.pcas)[i], 
+                        env.var=row.names(gen.pcas[[i]]$rotation), 
+                        gen.pcas[[i]]$rotation[,1:2])
+   df.tmp$labx <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])+0.5)
+   df.tmp$laby <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2])+0.5)
+   # df.tmp$labx <- ifelse(df.tmp$labx<0, df.tmp$labx-0.15, df.tmp$labx+0.15)
+   # df.tmp$laby <- ifelse(df.tmp$laby<0, df.tmp$laby-0.15, df.tmp$laby+0.15)
+   df.tmp$xend <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])-0.5)
+   df.tmp$yend <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2])-0.5)
+   
+   # Getting the top predictors
+   pc.sum <- summary(gen.pcas[[i]])$importance
+   
+   sum.tmp <- data.frame(genus=names(gen.pcas)[i], PC1=pc.sum[2,1], PC2=pc.sum[2,2], Pcum1.2=pc.sum[3,2])
+   df.tmp$dist <- sqrt((df.tmp$PC1*pc.sum[2,1]/pc.sum[3,2])^2 + (df.tmp$PC2*pc.sum[2,2]/pc.sum[3,2])^2)# How long the combiend arrow is
+   df.tmp$rank <- order(df.tmp$dist)
+   
+   # Formatting the summary
+   
+   # Put it together
+   gen.load <- rbind(gen.load, df.tmp)
+   pc.expvar <- rbind(pc.expvar, sum.tmp)
+}
+summary(gen.load)
+pc.expvar
+
+# Adding some grouping classification to env vars
+vars.soil <- c("T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")
+gen.load$var.type <- ifelse(gen.load$env.var %in% c(vars.soil), "Soil", "Climate")
+# gen.load
+
+# gen.load$env.var[!gen.load$env.var %in% c("tmax.ann.amx", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")]
+gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
+
+summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "rank")])
+
 
 #Filters both genus & Species at the same time instead of individually
 ui <- shinyUI(fluidPage(
@@ -88,6 +132,8 @@ server <- shinyServer(function(input, output) {
          geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
          geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
             #Idea: make polygons interactive
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=xend, yend=yend), arrow=arrow(length=unit(1/2, "picas")), color="red") + #Soil eigenvectors
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=xend, yend=yend), arrow=arrow(length=unit(1/2, "picas")), color="green") + #Climate eigenvectors
          geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) + #morton arb orange point
          labs(x="PC 1 Values", y="PC 2 Values") +
          theme(panel.background=element_rect(fill=NA),
