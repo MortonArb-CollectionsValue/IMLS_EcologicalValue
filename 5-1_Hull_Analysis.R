@@ -25,8 +25,8 @@ path.figs <- file.path(path.dat, "figures")
 load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
 # Create a simplified PCA for graphing
-gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 2)
-gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 2)
+gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 1)
+gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 1)
 dim(gen.clean.pca)
 head(gen.clean.pca)
 
@@ -140,57 +140,62 @@ ggplot(data=dat.test) +
 # ------------------
 
 # ------------------
-# B. Mean Pairwise distance method
+# B.Pairwise distance method
 # ------------------
 # # Trying looking at the pairwise distance matrix 
 # --> this isn't going to work with the raw when we have tens of thousands of points
 #     --> try bootstrapping and using a which() statement until 
+# --> doing the *mean* pairwise difference gives results too similar to Euclidean 
+#     --> trying *minimum* or 5%˚ distance --> min might be too inclusive, but would eliminate single points
 dist.array <- data.frame(UID=dat.test$UID)
 uid.samp <- vector(length=length(dat.test$UID))
 # Randomly select 1000 poitns at a time
 all.samp=FALSE
+thresh.samp = 10
 i=0
 set.seed(1239)
 tic()
 while(!all.samp){
   i=i+1
-  row.samp <- sort(sample(1:nrow(dat.test), 1000, replace = F))
+  row.samp <- sort(sample(1:nrow(dat.test), 500, replace = F))
   dist.test <- dist(dat.test[row.samp,c("PC1", "PC2")], diag = F)
   dist.mat <- as.matrix(dist.test)
   dist.mat[dist.mat==0] <- NA
 
-  dist.array[row.samp,i+1] <- apply(dist.mat, 1, mean, na.rm=T)
+  dist.array[row.samp,i+1] <- apply(dist.mat, 1, min, na.rm=T)
   uid.samp[row.samp] <- uid.samp[row.samp]+1
-  all.samp <- all(uid.samp>3)
+  all.samp <- all(uid.samp>=thresh.samp)
 }
+print(i)
 toc()
 
-mpd <- apply(dist.array[,2:ncol(dist.array)], 1, mean, na.rm=T)
+# Getting the mean of mean MPDs; 
+# --> maybe can can play with mean versus min vs quantile
+mpd <- apply(log(dist.array[,2:ncol(dist.array)]), 1, mean, na.rm=T)
 summary(mpd)
 hist(mpd)
 
 mean(mpd); sd(mpd)
 
+# Looking at the 4 & 6 sigma thresholds for distance
 out.mpd4 <- which(mpd>mean(mpd)+4*sd(mpd))
 length(out.mpd4)
-
 out.mpd6 <- which(mpd>mean(mpd)+6*sd(mpd))
 length(out.mpd6)
 
+# Note With Min pairwise, incresing the sigma level to not exlcude too much
 dat.test$mpd.outlier <- ifelse(mpd>mean(mpd)+6*sd(mpd), T, F)
 # 
 dat.test2b <- dat.test[!dat.test$mpd.outlier,]
 pc.hulls2 <- chull(dat.test2b[,c("PC1", "PC2")])
 # hull.coords <- c(pc.hulls, pc.hulls[1])
-hull.coords2 <- dat.test2b[c(pc.hulls, pc.hulls[1]),]
-hull.sp2 <- xy2SP(hull.coords[,c("PC1", "PC2")])
+hull.coords2 <- dat.test2b[c(pc.hulls2, pc.hulls2[1]),]
+hull.sp2 <- xy2SP(hull.coords2[,c("PC1", "PC2")])
 
 ggplot(data=dat.test) +
-  geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.1, alpha=0.25, color="gray50") +
-  geom_polygon(data=ellipse90.df, aes(x=PC1, y=PC2), fill="red2", color="NA", alpha=0.25) +
+  geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.2, alpha=0.25, color="gray50") +
   geom_point(aes(x=PC1, y=PC2, color=mpd.outlier), size=1.5, alpha=0.5) +
-  geom_polygon(data=hull.coords, aes(x=PC1, y=PC2), fill="red2", color="red2", alpha=0.25) +
-  geom_polygon(data=hull.coords2, aes(x=PC1, y=PC2), fill="dodgerblue2", color="dodgerblue2", alpha=0.25) +
+  geom_polygon(data=hull.coords2, aes(x=PC1, y=PC2), fill="red2", color="red2", alpha=0.25) +
   scale_fill_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
   scale_color_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
   theme_bw()
