@@ -25,8 +25,8 @@ path.figs <- file.path(path.dat, "figures")
 load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
 # Create a simplified PCA for graphing
-gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 1)
-gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 1)
+gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 2)
+gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 2)
 dim(gen.clean.pca)
 head(gen.clean.pca)
 
@@ -162,7 +162,7 @@ while(!all.samp){
   dist.mat <- as.matrix(dist.test)
   dist.mat[dist.mat==0] <- NA
 
-  dist.array[row.samp,i+1] <- apply(dist.mat, 1, min, na.rm=T)
+  dist.array[row.samp,i+1] <- log(apply(dist.mat, 1, min, na.rm=T))
   uid.samp[row.samp] <- uid.samp[row.samp]+1
   all.samp <- all(uid.samp>=thresh.samp)
 }
@@ -171,7 +171,7 @@ toc()
 
 # Getting the mean of mean MPDs; 
 # --> maybe can can play with mean versus min vs quantile
-mpd <- apply(log(dist.array[,2:ncol(dist.array)]), 1, mean, na.rm=T)
+mpd <- apply(dist.array[,2:ncol(dist.array)], 1, mean, na.rm=T)
 summary(mpd)
 hist(mpd)
 
