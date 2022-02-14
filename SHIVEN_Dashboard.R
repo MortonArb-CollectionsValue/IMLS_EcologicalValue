@@ -1,5 +1,6 @@
 # Christy playing around with PCA output to see how we can synthesize
 library(ggplot2)
+library(dplyr)
 library(shiny)
 library(shinydashboard)
 library(shinyWidgets)
@@ -63,8 +64,6 @@ for(i in 1:length(gen.pcas)){
                         gen.pcas[[i]]$rotation[,1:2])
    df.tmp$labx <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])+0.5)
    df.tmp$laby <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2])+0.5)
-   # df.tmp$labx <- ifelse(df.tmp$labx<0, df.tmp$labx-0.15, df.tmp$labx+0.15)
-   # df.tmp$laby <- ifelse(df.tmp$laby<0, df.tmp$laby-0.15, df.tmp$laby+0.15)
    df.tmp$xend <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])-0.5)
    df.tmp$yend <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2]))
    
@@ -121,8 +120,10 @@ server <- shinyServer(function(input, output) {
          geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
          geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
             #Idea: make polygons interactive
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend, linetype=env.var), arrow=arrow(length=unit(1/2, "picas")), color="red") + #Soil eigenvectors
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=2*xend, yend=2*yend, linetype=env.var), arrow=arrow(length=unit(1/2, "picas")), color="green") + #Climate eigenvectors
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="red") + #Soil eigenvectors
+         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=labx*2, y=laby*2, label=env.var), color="red", size=3, fontface="bold") +
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="light blue") + #Climate eigenvectors
+         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=labx*2, y=laby*2, label=env.var), color="light blue", size=3, fontface="bold") +
          geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) + #morton arb orange point
          labs(x="PC 1 Values", y="PC 2 Values") +
          theme(panel.background=element_rect(fill=NA),
