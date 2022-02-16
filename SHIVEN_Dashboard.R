@@ -100,7 +100,8 @@ ui <- shinyUI(fluidPage(
    sidebarPanel(
    selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
    uiOutput("select_Species"),
-   mainPanel(plotOutput("scatterPlot"))
+   mainPanel(plotOutput("scatterPlot")),
+   verbatimTextOutput("info")
 )
 )
 
@@ -116,15 +117,15 @@ server <- shinyServer(function(input, output) {
                                         gen.simple.pca$species[gen.simple.pca$species %in% c(input$species, "MortonArb") & gen.simple.pca$genus==input$genus],]
       
       ggplot() +
-         stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="gray80", alpha=0.2) + #gray points in background
-         geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="dodgerblue2") +  #blue points
-         geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="dodgerblue2", fill="dodgerblue2", alpha=0.25) + #blue figure
+         stat_unique(data=gen.simple.pca[gen.simple.pca$genus==input$genus & !gen.simple.pca$UID=="MORTONARB",], aes(x=PC1.round, y=PC2.round), size=0.1, color="#888888", alpha=0.2) + #gray points in background
+         geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="#88CCEE") +  #blue points
+         geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="#88CCEE", fill="#88CCEE", alpha=0.25) + #blue figure
             #Idea: make polygons interactive
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="red") + #Soil eigenvectors
-         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=labx*2, y=laby*2, label=env.var), color="red", size=3, fontface="bold") +
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="light blue") + #Climate eigenvectors
-         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=labx*2, y=laby*2, label=env.var), color="light blue", size=3, fontface="bold") +
-         geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=2.5) + #morton arb orange point
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#882255") + #Soil eigenvectors
+         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=labx*2, y=laby*2, label=env.var), color="#882255", size=3, fontface="bold") +
+         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#117733") + #Climate eigenvectors
+         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=labx*2, y=laby*2, label=env.var), color="#117733", size=3, fontface="bold") +
+         geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="#CC6677", size=2.5) + #morton arb orange point
          labs(x="PC 1 Values", y="PC 2 Values") +
          theme(panel.background=element_rect(fill=NA),
                panel.grid = element_blank(),
@@ -133,6 +134,21 @@ server <- shinyServer(function(input, output) {
                axis.title=element_text(size=rel(1.25), face="bold"),
                legend.title = element_blank())
    })
+   
+   envir.range.titles <- paste(colnames(gen.clean.pca)[7:18], "Range", sep = " ") #creating names for row names of textbox regarding environmental variables
+      #should this be inside renderPrint statement?
+   
+   
+   output$info <- renderPrint({
+      #dat.subs <- dat.pheno$Date.Observed>=min(input$DateRange) & dat.pheno$Date.Observed<=max(input$DateRange) & dat.pheno$collection==input$Collection & dat.pheno$pheno.label==input$Phenophase & !is.na(dat.pheno$status)
+      txthere <- nearPoints(gen.clean.pca[gen.clean.pca$species==input$species, colnames(gen.clean.pca)[5:18]], 
+                            input$plot_click, threshold =10, maxpoints=5)
+      txthere <- t(txthere)
+      row.names(txthere) <- c("Number of Points", "Latitude Range", "Longitude Range", envir.range.titles)
+      txthere
+      # names(txthere) <- "observation"
+   })
+   
 })
 
 shinyApp(ui, server)
