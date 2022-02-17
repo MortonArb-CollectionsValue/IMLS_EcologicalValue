@@ -141,10 +141,17 @@ server <- shinyServer(function(input, output) {
    
    output$info <- renderPrint({
       #dat.subs <- dat.pheno$Date.Observed>=min(input$DateRange) & dat.pheno$Date.Observed<=max(input$DateRange) & dat.pheno$collection==input$Collection & dat.pheno$pheno.label==input$Phenophase & !is.na(dat.pheno$status)
-      txthere <- nearPoints(gen.clean.pca[gen.clean.pca$species==input$species, colnames(gen.clean.pca)[5:18]], 
-                            input$plot_click, threshold =10, maxpoints=5)
-      txthere <- t(txthere)
-      row.names(txthere) <- c("Number of Points", "Latitude Range", "Longitude Range", envir.range.titles)
+      input.gen.clean.pca <- gen.clean.pca[gen.clean.pca$genus==input$genus & gen.clean.pca$species==input$species,]
+      input.points <- nrow(input.gen.clean.pca)
+      input.decimaLatitude <- range(input.gen.clean.pca$decimalLatitude)
+      input.decimaLongitude <- range(input.gen.clean.pca$decimalLongitude)
+      
+      txthere <- "test"
+         #nearPoints(gen.clean.pca[gen.clean.pca$genus==input$genus & gen.clean.pca$species==input$species, colnames(gen.clean.pca)[5:18]], 
+                            #input$plot_click, 
+                            #threshold =10, maxpoints=5)
+      #txthere <- t(txthere) #flips rows and columns
+      #row.names(txthere) <- c("Number of Points", "Latitude Range", "Longitude Range", envir.range.titles)
       txthere
       # names(txthere) <- "observation"
    })
