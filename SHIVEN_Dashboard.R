@@ -141,12 +141,25 @@ server <- shinyServer(function(input, output) {
    
    output$info <- renderPrint({
       #dat.subs <- dat.pheno$Date.Observed>=min(input$DateRange) & dat.pheno$Date.Observed<=max(input$DateRange) & dat.pheno$collection==input$Collection & dat.pheno$pheno.label==input$Phenophase & !is.na(dat.pheno$status)
-      input.gen.clean.pca <- gen.clean.pca[gen.clean.pca$genus==input$genus & gen.clean.pca$species==input$species,]
-      input.points <- nrow(input.gen.clean.pca)
-      input.decimaLatitude <- range(input.gen.clean.pca$decimalLatitude)
-      input.decimaLongitude <- range(input.gen.clean.pca$decimalLongitude)
+      input.gen.clean.pca <- gen.clean.pca[gen.clean.pca$genus==input$genus & 
+                                              gen.clean.pca$species==input$species & 
+                                              !gen.clean.pca$UID=="MORTONARB",]
+      total.points <- nrow(input.gen.clean.pca)
+      decimalLatitude.range <- range(input.gen.clean.pca$decimalLatitude)
+      decimalLongitude.range <- range(input.gen.clean.pca$decimalLongitude)
       
-      txthere <- "test"
+      txthere <- data.frame(total.points,
+                            decimalLatitude.range,
+                            decimalLongitude.range
+                           )
+      
+      envir.vars <- c("ppt.ann.mean","ppt.min.min","soil.ann.max","soil.max.sd","srad.ann.max",
+                      "srad.ann.sd","tmax.ann.max","tmax.max.sd","tmin.ann.min","tmin.min.sd",
+                      "vpd.ann.max","vpd.max.sd","T.SILT","T.CLAY","T.OC","T.PH.H2O","T.ECE","T.CACO3")
+      for (i in 1:length(envir.vars)) {
+         txthere$new_col <- range(input.gen.clean.pca[,envir.vars[i]])
+         names(txthere)[3+i] <- paste0(envir.vars[i], ".range")
+      }
          #nearPoints(gen.clean.pca[gen.clean.pca$genus==input$genus & gen.clean.pca$species==input$species, colnames(gen.clean.pca)[5:18]], 
                             #input$plot_click, 
                             #threshold =10, maxpoints=5)
