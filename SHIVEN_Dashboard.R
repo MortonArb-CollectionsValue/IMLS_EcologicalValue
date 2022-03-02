@@ -93,12 +93,17 @@ gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.
 
 summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "rank")])
 
+#to choose envir.vars
+envir.vars <- c("decimalLatitude","decimalLongitude","ppt.ann.mean","ppt.min.min","soil.ann.max","soil.max.sd","srad.ann.max",
+                "srad.ann.sd","tmax.ann.max","tmax.max.sd","tmin.ann.min","tmin.min.sd",
+                "vpd.ann.max","vpd.max.sd","T.SILT","T.CLAY","T.OC","T.PH.H2O","T.ECE","T.CACO3")
 
 #Filters both genus & Species at the same time instead of individually
 ui <- shinyUI(fluidPage(
    titlePanel("PC Values Across Species"),
    sidebarPanel(
    selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus)))),
+   selectInput("envir.vars", "Select envir.vars:", choices=envir.vars, multiple = T),
    uiOutput("select_Species"),
    mainPanel(plotOutput("scatterPlot")),
    verbatimTextOutput("info")
@@ -142,30 +147,44 @@ server <- shinyServer(function(input, output) {
    output$info <- renderPrint({
       #dat.subs <- dat.pheno$Date.Observed>=min(input$DateRange) & dat.pheno$Date.Observed<=max(input$DateRange) & dat.pheno$collection==input$Collection & dat.pheno$pheno.label==input$Phenophase & !is.na(dat.pheno$status)
       input.gen.clean.pca <- gen.clean.pca[gen.clean.pca$genus==input$genus & 
-                                              gen.clean.pca$species==input$species & 
+                                              gen.clean.pca$species %in% input$species & 
                                               !gen.clean.pca$UID=="MORTONARB",]
-      total.points <- nrow(input.gen.clean.pca)
-      decimalLatitude.range <- range(input.gen.clean.pca$decimalLatitude)
-      decimalLongitude.range <- range(input.gen.clean.pca$decimalLongitude)
+      # total.pts <- nrow(input.gen.clean.pca)
+      # decimalLat.range <- range(input.gen.clean.pca$decimalLatitude)
+      # decimalLong.range <- range(input.gen.clean.pca$decimalLongitude)
+      # 
+      # txthere <- data.frame(total.pts,
+      #                       decimalLat.range,
+      #                       decimalLong.range
+      #                      )
       
-      txthere <- data.frame(total.points,
-                            decimalLatitude.range,
-                            decimalLongitude.range
-                           )
+      # stats.spp <- aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=min)
+      # stats.spp <- data.frame(stat="min", aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=min))
+      # stats.spp <- rbind(stats.spp, data.frame(stat="max", aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=max)))
+      # stat.spp <- stats.spp[order(stats.spp$species),]
       
-      envir.vars <- c("ppt.ann.mean","ppt.min.min","soil.ann.max","soil.max.sd","srad.ann.max",
-                      "srad.ann.sd","tmax.ann.max","tmax.max.sd","tmin.ann.min","tmin.min.sd",
-                      "vpd.ann.max","vpd.max.sd","T.SILT","T.CLAY","T.OC","T.PH.H2O","T.ECE","T.CACO3")
-      for (i in 1:length(envir.vars)) {
-         txthere$new_col <- range(input.gen.clean.pca[,envir.vars[i]])
-         names(txthere)[3+i] <- paste0(envir.vars[i], ".range")
-      }
+      #stats.spp <- data.frame(stat="n points", aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=length))
+      #stats.spp <- data.frame()
+      stats.spp <- data.frame(stat="min", aggregate(round(input.gen.clean.pca[,input$envir.vars], digits = 3), by=input.gen.clean.pca[,c("genus", "species")], FUN=min))
+      stats.spp <- rbind(stats.spp, data.frame(stat="max", aggregate(round(input.gen.clean.pca[,input$envir.vars], digits = 3), by=input.gen.clean.pca[,c("genus", "species")], FUN=max)))
+      names(stats.spp)[names(stats.spp) == "x"] <- input$envir.vars #changing name of column from x to envi.var
+      #stats.spp$n.points <- aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=length)
+      #stats.spp <- cbind(n.points = nrow(input.gen.clean.pca), stats.spp)
+      stats.spp <- cbind(aggregate(input$species, by = list(input$species), FUN = length), stats.spp)
+      stats.spp$Group.1 <- NULL #getting rid of repeat naming of species that comes with aggregate function
+      names(stats.spp)[names(stats.spp) == "x"] <- "n.points" #changing name of column from x to n.points
+      stats.spp <- stats.spp[order(stats.spp$species),]
+      
+      # for (i in 1:length(envir.vars)) {
+      #    txthere$new_col <- range(input.gen.clean.pca[,envir.vars[i]])
+      #    names(txthere)[3+i] <- paste0(envir.vars[i], ".range")
+      # }
          #nearPoints(gen.clean.pca[gen.clean.pca$genus==input$genus & gen.clean.pca$species==input$species, colnames(gen.clean.pca)[5:18]], 
                             #input$plot_click, 
                             #threshold =10, maxpoints=5)
       #txthere <- t(txthere) #flips rows and columns
       #row.names(txthere) <- c("Number of Points", "Latitude Range", "Longitude Range", envir.range.titles)
-      txthere
+      stats.spp
       # names(txthere) <- "observation"
    })
    
@@ -173,6 +192,13 @@ server <- shinyServer(function(input, output) {
 
 shinyApp(ui, server)
 
+
+unique(gen.clean.pca$species[gen.clean.pca$genus == "Malus"])
+ab <- gen.clean.pca[gen.clean.pca$species == c("rockii", "baccata", "angustifolia"), c("genus","species",envir.vars)]
+aggregate(ab$species, by = list(ab$species), FUN = length)
+#noticed it cut the number in half with the aggregate function: only when I did both, cuts by # of terms
+nrow(gen.clean.pca[gen.clean.pca$species == "baccata",])
+nrow(gen.clean.pca[gen.clean.pca$species == "rockii",])
 
 #Pre-shiny dfs
 
