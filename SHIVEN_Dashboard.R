@@ -126,10 +126,10 @@ server <- shinyServer(function(input, output) {
          geom_point(data= gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species==input$species & !gen.simple.pca$UID=="MORTONARB", ], aes(x=PC1.round, y=PC2.round), size=1, color="#88CCEE") +  #blue points
          geom_polygon(data=tree.hulls, aes(x=PC1, y=PC2, group=species), color="#88CCEE", fill="#88CCEE", alpha=0.25) + #blue figure
             #Idea: make polygons interactive
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#882255") + #Soil eigenvectors
-         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=labx*2, y=laby*2, label=env.var), color="#882255", size=3, fontface="bold") +
-         geom_segment(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#117733") + #Climate eigenvectors
-         geom_text(data=gen.load[gen.load$rank<=3 & gen.load$var.type=="Climate",], aes(x=labx*2, y=laby*2, label=env.var), color="#117733", size=3, fontface="bold") +
+         #geom_segment(data=gen.load[gen.load$genus==input$genus & gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#882255") + #Soil eigenvectors
+         #geom_text(data=gen.load[gen.load$genus==input$genus & gen.load$rank<=3 & gen.load$var.type=="Soil",], aes(x=labx*2, y=laby*2, label=env.var), color="#882255", size=3, fontface="bold") +
+         geom_segment(data=gen.load[gen.load$genus==input$genus & gen.load$rank<=3,], aes(x=0, y=0, xend=2*xend, yend=2*yend), arrow=arrow(length=unit(1/2, "picas")), color="#117733") + #eigenvectors
+         geom_text(data=gen.load[gen.load$genus==input$genus & gen.load$rank<=3,], aes(x=labx*2, y=laby*2, label=env.var), color="#117733", size=3, fontface="bold") +
          geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="#CC6677", size=2.5) + #morton arb orange point
          labs(x="PC 1 Values", y="PC 2 Values") +
          theme(panel.background=element_rect(fill=NA),
@@ -170,7 +170,7 @@ server <- shinyServer(function(input, output) {
       names(stats.spp)[names(stats.spp) == "x"] <- input$envir.vars #changing name of column from x to envi.var
       #stats.spp$n.points <- aggregate(input.gen.clean.pca[,envir.vars], by=input.gen.clean.pca[,c("genus", "species")], FUN=length)
       #stats.spp <- cbind(n.points = nrow(input.gen.clean.pca), stats.spp)
-      stats.spp <- cbind(aggregate(input$species, by = list(input$species), FUN = length), stats.spp)
+      stats.spp <- cbind(aggregate(input.gen.clean.pca$species, by = list(input.gen.clean.pca$species), FUN = length), stats.spp)
       stats.spp$Group.1 <- NULL #getting rid of repeat naming of species that comes with aggregate function
       names(stats.spp)[names(stats.spp) == "x"] <- "n.points" #changing name of column from x to n.points
       stats.spp <- stats.spp[order(stats.spp$species),]
@@ -191,14 +191,6 @@ server <- shinyServer(function(input, output) {
 })
 
 shinyApp(ui, server)
-
-
-unique(gen.clean.pca$species[gen.clean.pca$genus == "Malus"])
-ab <- gen.clean.pca[gen.clean.pca$species == c("rockii", "baccata", "angustifolia"), c("genus","species",envir.vars)]
-aggregate(ab$species, by = list(ab$species), FUN = length)
-#noticed it cut the number in half with the aggregate function: only when I did both, cuts by # of terms
-nrow(gen.clean.pca[gen.clean.pca$species == "baccata",])
-nrow(gen.clean.pca[gen.clean.pca$species == "rockii",])
 
 #Pre-shiny dfs
 
