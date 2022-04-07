@@ -67,4 +67,52 @@ write.csv(gen.simple.pca, "data/PCA_Points.csv", row.names=F)
 summary(pc.hulls_PC1_PC2)
 write.csv(pc.hulls_PC1_PC2, "data/PCA_Hulls.csv", row.names=F)
 
+# Adding in the option to graph predictors
+##Trying to add Eigenvectors to Graph
+#Sample Eigenvectors
+gen.pcas$Quercus$rotation
+
+#Scaling them
+gen.load <- data.frame()
+pc.expvar <- data.frame()
+for(i in 1:length(gen.pcas)){
+  df.tmp <- data.frame(genus=names(gen.pcas)[i], 
+                       env.var=row.names(gen.pcas[[i]]$rotation), 
+                       gen.pcas[[i]]$rotation[,1:2])
+  df.tmp$labx <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])+0.5)
+  df.tmp$laby <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2])+0.5)
+  df.tmp$xend <- df.tmp$PC1*(max(gen.pcas[[i]]$x[,1])-0.5)
+  df.tmp$yend <- df.tmp$PC2*(max(gen.pcas[[i]]$x[,2]))
+  
+  # Getting the top predictors
+  pc.sum <- summary(gen.pcas[[i]])$importance
+  
+  sum.tmp <- data.frame(genus=names(gen.pcas)[i], PC1=pc.sum[2,1], PC2=pc.sum[2,2], Pcum1.2=pc.sum[3,2])
+  df.tmp$dist <- sqrt((df.tmp$PC1*pc.sum[2,1]/pc.sum[3,2])^2 + (df.tmp$PC2*pc.sum[2,2]/pc.sum[3,2])^2)# How long the combined arrow is
+  df.tmp$rank <- order(df.tmp$dist)
+  
+  # Formatting the summary
+  
+  # Put it together
+  gen.load <- rbind(gen.load, df.tmp)
+  pc.expvar <- rbind(pc.expvar, sum.tmp)
+}
+summary(gen.load)
+pc.expvar
+
+# Adding some grouping classification to env vars
+vars.soil <- c("T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")
+gen.load$var.type <- ifelse(gen.load$env.var %in% c(vars.soil), "Soil", "Climate")
+# gen.load
+
+# gen.load$env.var[!gen.load$env.var %in% c("tmax.ann.amx", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3")]
+gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
+
+summary(gen.load[,c("env.var", "genus", "PC1", "PC2", "rank")])
+
+write.csv(gen.load, "data/PCA_loadings.csv", row.names=F)
+
+
+
 rsconnect::deployApp(forceUpdate = T, launch.browser = T)
+
