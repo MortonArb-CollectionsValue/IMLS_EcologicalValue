@@ -306,3 +306,54 @@ cb.pal <- bind_cols(c("black", "orange", "light blue", "green-blue",
     names(cb.pal) <- c("color", "code")
 ####################################################################################################
 ####################################################################################################
+    
+####################################################################################################
+####################################################################################################
+## trimOutliers: function to identify outliers based on mean log pairwise distance; 
+##    NOTE: is VERY slow for large datasets, so have a bootstrap system in place to help manage computation
+## define: 
+## dat.spp; data frame with PCA coordinates used to caluclate the pairwise distance
+## sd.out; default = 6; standard deviation threshold to determine outliers
+## pc.incl1; default='PC1'; first of which 2 PCs to include for plots
+## pc.incl2; default='PC2'; second of which 2 PCs to include for plots
+## boot.npts; number of samples to pull for the bootstrappign routine
+## boot.nsamp; number of times each point must be sampled before completing the routine     
+trimOutliers <- function(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, bootsamp=T, boot.npts=500, boot.nsamp=10, seed=NULL, ...){
+  dist.array <- data.frame(UID=dat.spp$UID)
+  uid.samp <- vector(length=length(dat.spp$UID))
+  
+  if(length(uid.samp)<=boot.npts){
+    warning("boot.npts greater than number of input points; changing to n/2")
+    boot.npts = length(uid.samp)/2
+  }
+  # Randomly select boot.npts points at a time
+  all.samp=FALSE
+  thresh.samp = boot.nsamp
+  i=0
+  if(!is.null(seed)) set.seed(seed)
+  # tic()
+  while(!all.samp){
+    i=i+1
+    row.samp <- sort(sample(1:nrow(dat.spp), boot.npts, replace = F))
+    dist.spp <- dist(dat.spp[row.samp,c(pc.incl1, pc.incl2)], diag = F)
+    dist.mat <- as.matrix(dist.spp)
+    dist.mat[dist.mat==0] <- NA
+    
+    dist.array[row.samp,i+1] <- log(apply(dist.mat, 1, min, na.rm=T))
+    uid.samp[row.samp] <- uid.samp[row.samp]+1
+    all.samp <- all(uid.samp>=thresh.samp)
+  }
+  
+  # Getting the mean of mean MPDs; based on testing
+  mpd <- apply(dist.array[,2:ncol(dist.array)], 1, mean, na.rm=T)
+  
+  # summary(mpd)
+  # hist(mpd)
+  
+  # mean(mpd); sd(mpd)
+  
+  # Note With Min pairwise, incresing the sigma level to not exlcude too much
+  mpd.outlier <- ifelse(mpd>mean(mpd)+sd.out*sd(mpd), T, F)
+  return(mpd.outlier)
+}
+  
