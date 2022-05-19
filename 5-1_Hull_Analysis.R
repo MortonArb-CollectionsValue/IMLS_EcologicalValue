@@ -7,6 +7,8 @@
 rm(list=ls())
 ### Load packages
 my.packages <- c('ggplot2', 'plyr', 'readr', 'dplyr', 'sf', 'tidyverse', 'ks', 'vegan', 'ggbiplot', "tictoc")
+library(sp)
+library(rgeos)
 # install.packages (my.packages) #Turn on to install current versions
 lapply(my.packages, require, character.only=TRUE)
 rm(my.packages)
@@ -84,8 +86,8 @@ for(SPP in unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus=="Tilia"]))
   
 }
 
-save(gen.clean.pca, pca.hulls,
-     file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
+# save(gen.clean.pca, pca.hulls,
+     # file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
 
 
 ###### Calculating the overlap statistics; this is an ugly way to do it, but :shrug:
