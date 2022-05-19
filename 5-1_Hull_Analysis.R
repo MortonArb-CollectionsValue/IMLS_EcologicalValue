@@ -64,13 +64,13 @@ source("0-X_Ecological_Value_functions.R")
 # pc.hulls2 <- left_join(pc.hulls, nms, by="species_name_acc") %>% relocate(species_name_acc, genus, species)
 gen.clean.pca$mpd.outlier <- NA
 pca.hulls <- list()
-for(SPP in unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus=="Tilia"])){
+for(SPP in unique(gen.clean.pca$species_name_acc)){
   if(SPP == "MortonArb") next
   print(SPP)
   
   rows.spp <- which(gen.clean.pca$species_name_acc==SPP & gen.clean.pca$absval=="in_gen_4")
   
-  if(length(rows.spp)<=3) next # skip over really small species
+  if(length(rows.spp)<=5) next # skip over really small species
   
   # Finding the niche outliers for each species
   dat.spp <- gen.clean.pca[rows.spp,]
@@ -79,6 +79,7 @@ for(SPP in unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus=="Tilia"]))
   
   # Calculating the hull for each species
   dat.spp <- dat.spp[!dat.spp$mpd.outlier,]
+  if(nrow(dat.spp)<5) next
   pc.hulls <- chull(dat.spp[,c("PC1", "PC2")])
   # hull.coords <- c(pc.hulls, pc.hulls[1])
   hull.coords <- dat.spp[c(pc.hulls, pc.hulls[1]),c("PC1", "PC2")]
