@@ -357,3 +357,11 @@ trimOutliers <- function(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot
   return(mpd.outlier)
 }
   
+    
+    
+#########
+# from https://stackoverflow.com/questions/26431744/create-of-polyhedron-from-vertex-coordinates-and-offset-polyhedron
+xy2SP <- function(xy, ID=NULL) {
+    if(is.null(ID)) ID <- sample(1e12, size=1)
+    SpatialPolygons(list(Polygons(list(Polygon(xy)), ID=ID)))
+}
