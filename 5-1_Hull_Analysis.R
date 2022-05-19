@@ -25,14 +25,14 @@ path.figs <- file.path(path.dat, "figures")
 load(file.path(path.dat, "Extracted Data", "PCA_output.RData"))
 
 # Create a simplified PCA for graphing
-gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 2)
-gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 2)
-dim(gen.clean.pca)
-head(gen.clean.pca)
+# gen.clean.pca$PC1.round <- round(gen.clean.pca$PC1, 2)
+# gen.clean.pca$PC2.round <- round(gen.clean.pca$PC2, 2)
+# dim(gen.clean.pca)
+# head(gen.clean.pca)
 
-gen.simple.pca <- aggregate(UID ~ genus + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
-gen.simple.pca <- rbind(gen.simple.pca, gen.clean.pca[gen.clean.pca$species=="MortonArb",names(gen.simple.pca)])
-dim(gen.simple.pca)
+# gen.simple.pca <- aggregate(UID ~ genus + PC1.round + PC2.round, data=gen.clean.pca, FUN=length)
+# gen.simple.pca <- rbind(gen.simple.pca, gen.clean.pca[gen.clean.pca$species=="MortonArb",names(gen.simple.pca)])
+# dim(gen.simple.pca)
 
 ####################################################################################################
 ####################################################################################################
@@ -60,34 +60,68 @@ source("0-X_Ecological_Value_functions.R")
 # pc.hulls <- gen.clean.pca %>% filter(genus %in% gen.ls, absval=='in_gen_4') %>% select(c("species_name_acc", all_of(pc.incl1), all_of(pc.incl2))) %>% group_by(species_name_acc) %>% slice(chull(PC1, PC2))
 # nms <- gen.clean.pca %>% select(species_name_acc, genus, species) %>% distinct()
 # pc.hulls2 <- left_join(pc.hulls, nms, by="species_name_acc") %>% relocate(species_name_acc, genus, species)
+gen.clean.pca$mpd.outlier <- NA
+pca.hulls <- list()
+for(SPP in unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus=="Tilia"])){
+  if(SPP == "MortonArb") next
+  print(SPP)
+  
+  rows.spp <- which(gen.clean.pca$species_name_acc==SPP & gen.clean.pca$absval=="in_gen_4")
+  
+  if(length(rows.spp)<=3) next # skip over really small species
+  
+  # Finding the niche outliers for each species
+  dat.spp <- gen.clean.pca[rows.spp,]
+  dat.spp$mpd.outlier  <- trimOutliers(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=500, boot.nsamp=10)
+  gen.clean.pca$mpd.outlier[rows.spp] <- dat.spp$mpd.outlier
+  
+  # Calculating the hull for each species
+  dat.spp <- dat.spp[!dat.spp$mpd.outlier,]
+  pc.hulls <- chull(dat.spp[,c("PC1", "PC2")])
+  # hull.coords <- c(pc.hulls, pc.hulls[1])
+  hull.coords <- dat.spp[c(pc.hulls, pc.hulls[1]),c("PC1", "PC2")]
+  pca.hulls[[SPP]] <- xy2SP(hull.coords[,c("PC1", "PC2")])
+  
+}
 
-summary(gen.clean.pca)
-# Using Quercus alba as a test case
-dat.test <- gen.clean.pca[gen.clean.pca$genus=="Quercus" & gen.clean.pca$species=="alba" & gen.clean.pca$absval=="in_gen_4", c("UID", "genus", "species", "decimalLatitude", "decimalLongitude", "PC1", "PC2")]
+save(gen.clean.pca, pca.hulls,
+     file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
 
-plot.base <- ggplot(data=dat.test) +
-  geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.1, alpha=0.25, color="gray50") +
-  geom_point(aes(x=PC1, y=PC2), size=1.5, color="dodgerblue2", alpha=0.5) +
-  theme_bw()
 
-# ------------------
-# Pairwise distance method -- now a function!
-# ------------------
-# Note With Min pairwise, incresing the sigma level to not exlcude too much
-dat.test$mpd.outlier <- trimOutliers(dat.spp=dat.test, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=500, boot.nsamp=10)
- 
-dat.test2b <- dat.test[!dat.test$mpd.outlier,]
-pc.hulls2 <- chull(dat.test2b[,c("PC1", "PC2")])
-# hull.coords <- c(pc.hulls, pc.hulls[1])
-hull.coords2 <- dat.test2b[c(pc.hulls2, pc.hulls2[1]),]
-hull.sp2 <- xy2SP(hull.coords2[,c("PC1", "PC2")])
+###### Calculating the overlap statistics; this is an ugly way to do it, but :shrug:
+gen.stats <- list()
+gen.overlap <- list()
 
-ggplot(data=dat.test) +
-  geom_point(data=gen.simple.pca, aes(x=PC1.round, y=PC2.round), size=0.2, alpha=0.25, color="gray50") +
-  geom_point(aes(x=PC1, y=PC2, color=mpd.outlier), size=1.5, alpha=0.5) +
-  geom_polygon(data=hull.coords2, aes(x=PC1, y=PC2), fill="red2", color="red2", alpha=0.25) +
-  scale_fill_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
-  scale_color_manual(values=c("FALSE" = "dodgerblue2", "TRUE" = "orange2")) +
-  theme_bw()
+for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
+  spp.gen <- unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus==GEN])
+  dat.gen <- data.frame(species=spp.gen, area=NA, over.min=NA, over.mean=NA, over.max=NA)
+  mat.overlap <- array(dim=c(length(spp.gen), length(spp.gen)), dimnames=list(spp.gen, spp.gen))
+  
+  for(i in 1:length(spp.gen)){
+    if(!spp.gen[i] %in% names(pca.hulls)) next
+    dat.gen$area[i] <- rgeos::gArea(pca.hulls[[spp.gen[i]]])
+    
+    for(j in 1:length(spp.gen)){
+      if(!spp.gen[j] %in% names(pca.hulls) | i==j) next
+      spp.int <- rgeos::gIntersection(pca.hulls[[spp.gen[i]]], pca.hulls[[spp.gen[j]]])
+      if(is.null(spp.int)){
+        mat.overlap[i,j] <- 0
+      } else {
+        mat.overlap[i,j] <- rgeos::gArea(spp.int) 
+      }
+    } # End j loop
+    dat.gen$over.max[i] <- max(mat.overlap[i,], na.rm=T)
+    dat.gen$over.mean[i] <- mean(mat.overlap[i,], na.rm=T)
+    dat.gen$over.min[i] <- min(mat.overlap[i,], na.rm=T)
+  }# End i loop
+  
+  dat.gen$p.over.mean <- dat.gen$over.mean/dat.gen$area
+  dat.gen$p.over.max <- dat.gen$over.max/dat.gen$area
+  
+  gen.stats[[GEN]] <- dat.gen
+  gen.overlap[[GEN]] <- mat.overlap
+} # End Genus loop
 
-####################################################################################################
+
+save(gen.clean.pca, pca.hulls, gen.stats, gen.overlap,
+     file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
