@@ -98,7 +98,7 @@ for(SPP in unique(gen.clean.pca$species_name_acc)){
     
   
   # Calculating the hull for each species
-  dat.spp <- dat.spp[!dat.spp$mpd.outlier,]
+  dat.spp <- dat.spp[!dat.spp$mpd.outlier & !is.na(dat.spp$mpd.outlier),]
   if(nrow(dat.spp)<5) next
   pc.hulls <- chull(dat.spp[,c("PC1", "PC2")])
   # hull.coords <- c(pc.hulls, pc.hulls[1])
@@ -117,12 +117,24 @@ gen.overlap <- list()
 
 for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
   spp.gen <- unique(gen.clean.pca$species_name_acc[gen.clean.pca$genus==GEN])
-  dat.gen <- data.frame(species=spp.gen, area=NA, over.min=NA, over.mean=NA, over.max=NA)
+  dat.gen <- data.frame(species=spp.gen, hull.TMA=NA, area=NA, over.min=NA, over.mean=NA, over.max=NA)
   mat.overlap <- array(dim=c(length(spp.gen), length(spp.gen)), dimnames=list(spp.gen, spp.gen))
+  pt.arb <- SpatialPoints(gen.clean.pca[gen.clean.pca$genus==paste("MortonArb", GEN, sep="_"),c("PC1", "PC2")])
   
   for(i in 1:length(spp.gen)){
     if(!spp.gen[i] %in% names(pca.hulls)) next
-    dat.gen$area[i] <- rgeos::gArea(pca.hulls[[spp.gen[i]]])
+
+    # This is a really round about way of doign something that shoudl be simple, but so it goes
+    spp.pts <- pca.hulls[[spp.gen[[i]]]]@polygons[[1]]@Polygons[[1]]@coords
+    dat.gen$hull.TMA[i] <- ifelse(point.in.polygon(point.x=pt.arb$PC1, point.y=pt.arb$PC1,
+                                                    pol.x=spp.pts[,"PC1"],
+                                                    pol.y=spp.pts[,"PC2"]),
+                                   T, F)
+    
+    
+    dat.gen$area[i] <- rgeos::gArea(pca.hulls[[spp.gen[i]]]) # Extract the hull area
+    
+    
     
     for(j in 1:length(spp.gen)){
       if(!spp.gen[j] %in% names(pca.hulls) | i==j) next
@@ -148,3 +160,5 @@ for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
 
 save(gen.clean.pca, pca.hulls, gen.stats, gen.overlap,
      file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
+
+save(gen.stats, file=file.path(path.dat, "Extracted Data", "HullAnaly_GeneraSppStats.RData"))
