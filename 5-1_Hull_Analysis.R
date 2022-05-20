@@ -84,7 +84,7 @@ for(SPP in unique(gen.clean.pca$species_name_acc)){
     n.grps <- round(length(rows.spp)/(100*boot.npts), 0)+1 # This means we'll always be rounding up essentially
     n.samp <- round(length(rows.spp)/n.grps, 0) # this will make sure our groups are relatively balanced
     todo <- 1:length(rows.spp) # Rows that still need to be processed
-    for(i in 1:ngrps){
+    for(i in 1:n.grps){
       donow <- sample(todo, min(n.samp, length(todo)), replace=F) # Sample from the points that need distances
       dat.spp$mpd.outlier[donow] <- trimOutliers(dat.spp[donow,], pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=boot.npts, boot.nsamp=10)
       todo <- todo[!todo %in% donow] # Remove the points we just did
