@@ -5,10 +5,12 @@ library(stringr)
 library(shinyWidgets)
 
 gen.simple.pca <- read.csv("data/PCA_Points.csv")
-pc.hulls_PC1_PC2 <- read.csv("data/PCA_Hulls.csv")
+hulls.df <- read.csv("data/PCA_Hulls.csv")
+# load("data/PCA_Hulls_Coords.RData")
 gen.load <- read.csv("data/PCA_loadings.csv")
 gen.load$env.var <- as.factor(gen.load$env.var)
 gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
+gen.stats <- load("data/PCA_OverlapStats.RData")
 
 
 function(input, output) {
@@ -19,9 +21,9 @@ function(input, output) {
   })
   
   output$scatterPlot <- renderPlot({
-    tree.hulls <- pc.hulls_PC1_PC2[pc.hulls_PC1_PC2$species %in% 
-                                     gen.simple.pca$species[gen.simple.pca$species %in% c(input$species, "MortonArb") & gen.simple.pca$genus==input$genus],]
+    tree.hulls <- hulls.df[hulls.df$species %in% input$species & hulls.df$genus==input$genus,]
     
+    # tree.hulls <- pca.hulls[[input$species]]
     # loads.graph <- ggplot() + 
     
     plot.base <- ggplot() +
@@ -46,5 +48,10 @@ function(input, output) {
     
     plot.base
     
+  })
+  
+  output$info <- renderPrint({
+    stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species==paste(input$genus, input$species, sep=" "),]
+    stats.spp
   })
 }

@@ -63,6 +63,7 @@ source("0-X_Ecological_Value_functions.R")
 # nms <- gen.clean.pca %>% select(species_name_acc, genus, species) %>% distinct()
 # pc.hulls2 <- left_join(pc.hulls, nms, by="species_name_acc") %>% relocate(species_name_acc, genus, species)
 gen.clean.pca$mpd.outlier <- NA
+hull.coords <- list()
 pca.hulls <- list()
 boot.npts=500
 for(SPP in unique(gen.clean.pca$species_name_acc)){
@@ -102,8 +103,8 @@ for(SPP in unique(gen.clean.pca$species_name_acc)){
   if(nrow(dat.spp)<5) next
   pc.hulls <- chull(dat.spp[,c("PC1", "PC2")])
   # hull.coords <- c(pc.hulls, pc.hulls[1])
-  hull.coords <- dat.spp[c(pc.hulls, pc.hulls[1]),c("PC1", "PC2")]
-  pca.hulls[[SPP]] <- xy2SP(hull.coords[,c("PC1", "PC2")])
+  hull.coords[[SPP]] <- dat.spp[c(pc.hulls, pc.hulls[1]),c("PC1", "PC2")]
+  pca.hulls[[SPP]] <- xy2SP(hull.coords[[SPP]][,c("PC1", "PC2")])
   
 }
 
@@ -158,7 +159,7 @@ for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
 } # End Genus loop
 
 
-save(gen.clean.pca, pca.hulls, gen.stats, gen.overlap,
+save(gen.clean.pca, hull.coords, pca.hulls, gen.stats, gen.overlap,
      file=file.path(path.dat, "Extracted Data", "HullAnaly.RData"))
 
 save(gen.stats, file=file.path(path.dat, "Extracted Data", "HullAnaly_GeneraSppStats.RData"))
