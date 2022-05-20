@@ -346,7 +346,7 @@ trimOutliers <- function(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot
   
   # Getting the mean of mean MPDs; based on testing
   mpd <- apply(dist.array[,2:ncol(dist.array)], 1, mean, na.rm=T)
-  
+  rm(dist.array)
   # summary(mpd)
   # hist(mpd)
   

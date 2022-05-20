@@ -64,9 +64,11 @@ source("0-X_Ecological_Value_functions.R")
 # pc.hulls2 <- left_join(pc.hulls, nms, by="species_name_acc") %>% relocate(species_name_acc, genus, species)
 gen.clean.pca$mpd.outlier <- NA
 pca.hulls <- list()
+boot.npts=500
 for(SPP in unique(gen.clean.pca$species_name_acc)){
   if(SPP == "MortonArb") next
   print(SPP)
+  # SPP="Quercus robur"
   
   rows.spp <- which(gen.clean.pca$species_name_acc==SPP & gen.clean.pca$absval=="in_gen_4")
   
@@ -74,8 +76,26 @@ for(SPP in unique(gen.clean.pca$species_name_acc)){
   
   # Finding the niche outliers for each species
   dat.spp <- gen.clean.pca[rows.spp,]
-  dat.spp$mpd.outlier  <- trimOutliers(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=500, boot.nsamp=10)
+  
+  # Going to need to do something different for very large datasets
+  if(length(rows.spp)>=100*boot.npts){
+    # For very large datasets, we'll need to run the algorithm on a subset of points
+    # This won't be ideal, but hopefully the randomization will make it work out
+    n.grps <- round(length(rows.spp)/(100*boot.npts), 0)+1 # This means we'll always be rounding up essentially
+    n.samp <- round(length(rows.spp)/n.grps, 0) # this will make sure our groups are relatively balanced
+    todo <- 1:length(rows.spp) # Rows that still need to be processed
+    for(i in 1:ngrps){
+      donow <- sample(todo, min(n.samp, length(todo)), replace=F) # Sample from the points that need distances
+      dat.spp$mpd.outlier[donow] <- trimOutliers(dat.spp[donow,], pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=boot.npts, boot.nsamp=10)
+      todo <- todo[!todo %in% donow] # Remove the points we just did
+    }
+  } else {
+    # It's small enough we can just 
+    dat.spp$mpd.outlier  <- trimOutliers(dat.spp, pc.incl1="PC1", pc.incl2="PC2", sd.out=6, boot.npts=boot.npts, boot.nsamp=10)
+  }
+  
   gen.clean.pca$mpd.outlier[rows.spp] <- dat.spp$mpd.outlier
+    
   
   # Calculating the hull for each species
   dat.spp <- dat.spp[!dat.spp$mpd.outlier,]
