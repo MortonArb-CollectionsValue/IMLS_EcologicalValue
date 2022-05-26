@@ -10,12 +10,12 @@ hulls.df <- read.csv("data/PCA_Hulls.csv")
 gen.load <- read.csv("data/PCA_loadings.csv")
 gen.load$env.var <- as.factor(gen.load$env.var)
 gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.sd", "tmin.ann.min", "tmin.min.sd", "ppt.ann.mean", "ppt.min.min", "vpd.ann.max", "vpd.max.sd", "srad.ann.max", "srad.ann.sd", "soil.ann.max", "soil.max.sd", "T.SILT", "T.CLAY", "AWC_VALUE", "T.OC", "T.PH.H2O", "T.ECE", "T.CEC.SOIL", "T.CACO3"))
-gen.stats <- load("data/PCA_OverlapStats.RData")
+load("data/PCA_OverlapStats.RData")
 
 
 function(input, output) {
   output$select_Species <- renderUI({
-    spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus]))
+    spp.avail <- unique(paste(gen.simple.pca$species[gen.simple.pca$genus==input$genus & gen.simple.pca$species!="MortonArb"]))
     pickerInput('species','Choose a species: ', choices = c(sort(spp.avail)), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)
     
   })
@@ -51,7 +51,8 @@ function(input, output) {
   })
   
   output$info <- renderPrint({
-    stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species==paste(input$genus, input$species, sep=" "),]
+    stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species %in% paste(input$genus, input$species, sep=" "),c("species", "hull.TMA", "area", "p.over.mean", "p.over.max")]
+    stats.spp[,c("area", "p.over.mean", "p.over.max")] <- round(stats.spp[,c("area", "p.over.mean", "p.over.max")], 2)
     stats.spp
   })
 }
