@@ -45,8 +45,8 @@ save(gen.stats, file="data/PCA_OverlapStats.RData")
 
 # Clean up our hulls object
 hulls.df <- data.frame()
-for(i in 1:length(pca.hulls)){
-  spp.now <- names(pca.hulls)[i]
+for(i in 1:length(hull.coords)){
+  spp.now <- names(hull.coords)[i]
   hulls.df <- rbind(hulls.df, data.frame(species_name=spp.now, 
                                          genus=str_split(spp.now, " ")[[1]][1], 
                                          species=str_split(spp.now, " ")[[1]][2],

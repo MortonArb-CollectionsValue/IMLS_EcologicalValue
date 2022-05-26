@@ -33,7 +33,7 @@ function(input, output) {
       #Idea: make polygons interactive
       geom_point(data=gen.simple.pca[gen.simple.pca$genus==input$genus & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange2", size=5) + #morton arb orange point
       # Adding the loadings
-      labs(x="PC 1 Values", y="PC 2 Values") +
+      labs(title="Niche Space (Genus PCA)", x="PC 1 Values", y="PC 2 Values") +
       theme(panel.background=element_rect(fill=NA),
             panel.grid = element_blank(),
             strip.background = element_blank(),
@@ -50,9 +50,38 @@ function(input, output) {
     
   })
   
+  output$overlapPlot <- renderPlot({
+    stats.gen <- gen.stats[[input$genus]]
+    
+    plot.over <- ggplot(data=stats.gen) +
+      geom_histogram(aes(x=p.over.mean)) +
+      geom_vline(data=stats.gen[stats.gen$species %in% paste(input$genus, input$species),], aes(xintercept=p.over.mean, color=hull.TMA), size=2) +
+      scale_y_continuous(expand=c(0,0)) +
+      # geom_text(x=min(stats.gen$p.over.mean, na.rm=T), y=0.5, label="More Unique", color="dodgerblue1", hjust=0) +
+      scale_x_continuous(limits=c(0,1), breaks=seq(0, 1, by=0.25), labels=c("0\n(unique)", 0.25, 0.5, 0.75, ("1\n(not unique)"))) +
+      scale_color_manual(name="TMA in Hull?", values=c("TRUE" = "dodgerblue3", "FALSE"="firebrick2")) +
+      labs(title="Species Uniqueness (Genus-level)", x="Mean Overlap", y="# Species") +
+      theme(panel.background=element_rect(fill=NA),
+            panel.grid = element_blank(),
+            axis.line = element_line(color="black", size=0.5),
+            axis.text = element_text(color="black", size=rel(2)),
+            strip.background = element_blank(),
+            strip.text=element_text(size=rel(3), face="bold.italic"),
+            axis.title=element_text(size=rel(3), face="bold"),
+            plot.title=element_text(size=rel(3), face="bold"),
+            legend.key = element_blank(),
+            plot.margin = unit(c(1,3,1,1), "lines"))
+    
+    
+    plot.over
+    
+  })
+    
+  
   output$info <- renderPrint({
     stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species %in% paste(input$genus, input$species, sep=" "),c("species", "hull.TMA", "area", "p.over.mean", "p.over.max")]
     stats.spp[,c("area", "p.over.mean", "p.over.max")] <- round(stats.spp[,c("area", "p.over.mean", "p.over.max")], 2)
+    names(stats.spp) <- c("Species", "TMA in Hull?", "Hull Area", "Mean Overlap (Prop.)", "Max Overlap (prop.)")
     stats.spp
   })
 }
