@@ -18,6 +18,7 @@ fluidPage(
     selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus))),
   uiOutput("select_Species"),
   pickerInput("envars", "Select a environmental variables to graph:", choices=c(paste(unique(gen.load$env.var))), options = list(`actions-box` = TRUE, 'live-search' = TRUE), multiple = T)),
-  mainPanel(plotOutput("scatterPlot", "overlap"), fluid=T),
-  verbatimTextOutput("info")
+  mainPanel(
+    plotOutput("scatterPlot"), 
+    verbatimTextOutput("info"))
 )
