@@ -125,8 +125,9 @@ for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
   for(i in 1:length(spp.gen)){
     if(!spp.gen[i] %in% names(pca.hulls)) next
 
-    # This is a really round about way of doign something that shoudl be simple, but so it goes
-    spp.pts <- pca.hulls[[spp.gen[[i]]]]@polygons[[1]]@Polygons[[1]]@coords
+    # This is a really round about way of doing something that should be simple, but so it goes
+    # spp.pts <- pca.hulls[[spp.gen[[i]]]]@polygons[[1]]@Polygons[[1]]@coords
+    spp.pts <- hull.coords[[i]]
     dat.gen$hull.TMA[i] <- ifelse(point.in.polygon(point.x=pt.arb$PC1, point.y=pt.arb$PC1,
                                                     pol.x=spp.pts[,"PC1"],
                                                     pol.y=spp.pts[,"PC2"]),
