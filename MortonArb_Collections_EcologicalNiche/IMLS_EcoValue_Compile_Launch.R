@@ -33,11 +33,12 @@ dim(gen.simple.pca)
 summary(gen.simple.pca)
 
 # Just a quick test plot to make sure the outlier identificaiton makes sense
-gen.stats$Quercus[gen.stats$Quercus$species=="Quercus arizonica",]
+# gen.stats$Quercus[gen.stats$Quercus$species=="Quercus arizonica",]
 
 ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="arizonica",]) +
   geom_point(aes(x=PC1.round, y=PC2.round, color=mpd.outlier)) +
-  geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2) 
+  geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2) +
+  geom_point(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange3", size=5)
 
 # Save our clean, compiled datasets
 write.csv(gen.simple.pca, "data/PCA_Points.csv", row.names=F)
@@ -50,18 +51,20 @@ hulls.df <- data.frame()
 for(i in 1:length(hull.coords)){
   spp.now <- names(hull.coords)[i]
   hulls.df <- rbind(hulls.df, data.frame(species_name=spp.now, 
-                                         genus=str_split(spp.now, " ")[[1]][1], 
-                                         species=str_split(spp.now, " ")[[1]][2],
+                                         genus=stringr::str_split(spp.now, " ")[[1]][1], 
+                                         species=stringr::str_split(spp.now, " ")[[1]][2],
                                          hull.coords[[i]]))
 }
 head(hulls.df)
 # summary(pc.hulls_PC1_PC2)
 write.csv(hulls.df, "data/PCA_Hulls.csv", row.names=F)
 
-# ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="arizonica",]) +
-#   geom_point(aes(x=PC1.round, y=PC2.round, color=mpd.outlier)) +
-#   geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2)# +
-#   # geom_polygon(data=hulls.df[hulls.df$genus=="Quercus" & hulls.df$species=="alba",])
+ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="arizonica",]) +
+  geom_point(aes(x=PC1.round, y=PC2.round, color=mpd.outlier)) +
+  geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2) +
+  geom_polygon(data=hulls.df[hulls.df$genus=="Quercus" & hulls.df$species=="arizonica",], aes(x=PC1, y=PC2), alpha=0.5, color="black") +
+  geom_point(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="MortonArb",], aes(x=PC1.round, y=PC2.round), color="orange3", size=5)
+
 
 # Adding in the option to graph predictors
 ##Trying to add Eigenvectors to Graph
