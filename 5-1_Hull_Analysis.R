@@ -128,7 +128,7 @@ for(GEN in c("Malus", "Quercus", "Tilia", "Ulmus")){
     # This is a really round about way of doing something that should be simple, but so it goes
     # spp.pts <- pca.hulls[[spp.gen[[i]]]]@polygons[[1]]@Polygons[[1]]@coords
     spp.pts <- hull.coords[[i]]
-    dat.gen$hull.TMA[i] <- ifelse(point.in.polygon(point.x=pt.arb$PC1, point.y=pt.arb$PC1,
+    dat.gen$hull.TMA[i] <- ifelse(point.in.polygon(point.x=pt.arb$PC1, point.y=pt.arb$PC2,
                                                     pol.x=spp.pts[,"PC1"],
                                                     pol.y=spp.pts[,"PC2"]),
                                    T, F)
