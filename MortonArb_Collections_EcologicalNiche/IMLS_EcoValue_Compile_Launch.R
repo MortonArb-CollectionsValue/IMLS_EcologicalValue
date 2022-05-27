@@ -33,7 +33,9 @@ dim(gen.simple.pca)
 summary(gen.simple.pca)
 
 # Just a quick test plot to make sure the outlier identificaiton makes sense
-ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="alba",]) +
+gen.stats$Quercus[gen.stats$Quercus$species=="Quercus arizonica",]
+
+ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="arizonica",]) +
   geom_point(aes(x=PC1.round, y=PC2.round, color=mpd.outlier)) +
   geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2) 
 
@@ -55,6 +57,11 @@ for(i in 1:length(hull.coords)){
 head(hulls.df)
 # summary(pc.hulls_PC1_PC2)
 write.csv(hulls.df, "data/PCA_Hulls.csv", row.names=F)
+
+# ggplot(data=gen.simple.pca[gen.simple.pca$genus=="Quercus" & gen.simple.pca$species=="arizonica",]) +
+#   geom_point(aes(x=PC1.round, y=PC2.round, color=mpd.outlier)) +
+#   geom_point(aes(x=mean(PC1.round), y=median(PC2.round)), color="black", size=2)# +
+#   # geom_polygon(data=hulls.df[hulls.df$genus=="Quercus" & hulls.df$species=="alba",])
 
 # Adding in the option to graph predictors
 ##Trying to add Eigenvectors to Graph
