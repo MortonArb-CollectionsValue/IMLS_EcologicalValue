@@ -13,7 +13,7 @@ gen.load$env.var <- factor(gen.load$env.var, levels=c("tmax.ann.max", "tmax.max.
 load("data/PCA_OverlapStats.RData")
 
 fluidPage(
-  titlePanel("Species distribution in genus environmental PCA space"),
+  titlePanel("IMLS Collections Value: Environmental/Niche Space"),
   sidebarPanel(
     selectInput("genus", "Select a genus:", choices=c(unique(gen.simple.pca$genus))),
   uiOutput("select_Species"),
@@ -21,5 +21,6 @@ fluidPage(
   mainPanel(
     plotOutput("scatterPlot"), 
     verbatimTextOutput("info"),
-    plotOutput("overlapPlot"))
+    plotOutput("overlapPlot"),
+    plotOutput("distancePlot"))
 )

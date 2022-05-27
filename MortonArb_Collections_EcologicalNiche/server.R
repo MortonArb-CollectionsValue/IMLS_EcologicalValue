@@ -39,6 +39,7 @@ function(input, output) {
             strip.background = element_blank(),
             strip.text=element_text(size=rel(3), face="bold.italic"),
             axis.title=element_text(size=rel(3), face="bold"),
+            plot.title=element_text(size=rel(3), face="bold"),
             legend.key = element_blank())
     
     if(length(input$envars)>0){
@@ -55,12 +56,12 @@ function(input, output) {
     
     plot.over <- ggplot(data=stats.gen) +
       geom_histogram(aes(x=p.over.mean)) +
-      geom_vline(data=stats.gen[stats.gen$species %in% paste(input$genus, input$species),], aes(xintercept=p.over.mean, color=hull.TMA), size=2) +
+      geom_vline(data=stats.gen[stats.gen$species %in% paste(input$genus, input$species),], aes(xintercept=p.over.mean, color=hull.TMA), size=2.5) +
       scale_y_continuous(expand=c(0,0)) +
       # geom_text(x=min(stats.gen$p.over.mean, na.rm=T), y=0.5, label="More Unique", color="dodgerblue1", hjust=0) +
       scale_x_continuous(limits=c(0,1), breaks=seq(0, 1, by=0.25), labels=c("0\n(unique)", 0.25, 0.5, 0.75, ("1\n(not unique)"))) +
-      scale_color_manual(name="TMA in Hull?", values=c("TRUE" = "dodgerblue3", "FALSE"="firebrick2")) +
-      labs(title="Species Uniqueness (Genus-level)", x="Mean Overlap", y="# Species") +
+      scale_color_manual(name="TMA in Hull?", values=c("TRUE" = "dodgerblue3", "FALSE"="firebrick1")) +
+      labs(title="Species Uniqueness", x="Mean Overlap", y="# Species") +
       theme(panel.background=element_rect(fill=NA),
             panel.grid = element_blank(),
             axis.line = element_line(color="black", size=0.5),
@@ -76,12 +77,38 @@ function(input, output) {
     plot.over
     
   })
+
+  output$distancePlot <- renderPlot({
+    stats.gen <- gen.stats[[input$genus]]
     
+    plot.dist <- ggplot(data=stats.gen) +
+      geom_histogram(aes(x=dist.TMA)) +
+      geom_vline(data=stats.gen[stats.gen$species %in% paste(input$genus, input$species),], aes(xintercept=dist.TMA, color=hull.TMA), size=2) +
+      scale_y_continuous(expand=c(0,0)) +
+      # geom_text(x=min(stats.gen$p.over.mean, na.rm=T), y=0.5, label="More Unique", color="dodgerblue1", hjust=0) +
+      # scale_x_continuous(limits=c(0,1), breaks=seq(0, 1, by=0.25), labels=c("0\n(unique)", 0.25, 0.5, 0.75, ("1\n(not unique)"))) +
+      scale_color_manual(name="TMA in Hull?", values=c("TRUE" = "dodgerblue3", "FALSE"="firebrick2")) +
+      labs(title="Distance to The Morton Arboretum", x="Centroid Distance", y="# Species") +
+      theme(panel.background=element_rect(fill=NA),
+            panel.grid = element_blank(),
+            axis.line = element_line(color="black", size=0.5),
+            axis.text = element_text(color="black", size=rel(2)),
+            strip.background = element_blank(),
+            strip.text=element_text(size=rel(3), face="bold.italic"),
+            axis.title=element_text(size=rel(3), face="bold"),
+            plot.title=element_text(size=rel(3), face="bold"),
+            legend.key = element_blank(),
+            plot.margin = unit(c(1,3,1,1), "lines"))
+    
+    
+    plot.dist
+    
+  })    
   
   output$info <- renderPrint({
-    stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species %in% paste(input$genus, input$species, sep=" "),c("species", "hull.TMA", "area", "p.over.mean", "p.over.max")]
+    stats.spp <- gen.stats[[input$genus]][gen.stats[[input$genus]]$species %in% paste(input$genus, input$species, sep=" "),c("species", "hull.TMA", "dist.TMA", "area", "p.over.mean", "p.over.max")]
     stats.spp[,c("area", "p.over.mean", "p.over.max")] <- round(stats.spp[,c("area", "p.over.mean", "p.over.max")], 2)
-    names(stats.spp) <- c("Species", "TMA in Hull?", "Hull Area", "Mean Overlap (Prop.)", "Max Overlap (prop.)")
+    names(stats.spp) <- c("Species", "TMA in Hull?", "Centroid Distance", "Hull Area", "Mean Overlap (Prop.)", "Max Overlap (prop.)")
     stats.spp
   })
 }
